@@ -1,0 +1,205 @@
+{
+  "stocks": {
+    "watchlist": [
+      "TCS",
+      "RELIANCE",
+      "INFY",
+      "HDFCBANK",
+      "ICICIBANK",
+      "SBIN",
+      "BHARTIARTL",
+      "ASIANPAINT",
+      "MARUTI",
+      "NESTLEIND",
+      "HINDUNILVR",
+      "KOTAKBANK",
+      "LT",
+      "AXISBANK",
+      "WIPRO"
+    ],
+    "high_priority": [
+      "NIFTY50",
+      "BANKNIFTY"
+    ]
+  },
+  
+  "data_sources": {
+    "moneycontrol": {
+      "base_url": "https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history",
+      "rate_limit": {
+        "requests_per_second": 5,
+        "max_concurrent": 10
+      },
+      "default_resolution": "5",
+      "suffix": ""
+    },
+    "yfinance": {
+      "suffix": ".NS",
+      "timeout": 30,
+      "retry_attempts": 3
+    }
+  },
+  
+  "technical_indicators": {
+    "trend_indicators": {
+      "moving_averages": {
+        "periods": [5, 10, 20, 50, 200],
+        "types": ["SMA", "EMA"]
+      },
+      "macd": {
+        "fast_period": 12,
+        "slow_period": 26,
+        "signal_period": 9
+      },
+      "bollinger_bands": {
+        "period": 20,
+        "std_dev": 2
+      },
+      "adx": {
+        "period": 14
+      }
+    },
+    
+    "momentum_indicators": {
+      "rsi": {
+        "period": 14,
+        "overbought": 70,
+        "oversold": 30
+      },
+      "stochastic": {
+        "k_period": 14,
+        "d_period": 3,
+        "overbought": 80,
+        "oversold": 20
+      },
+      "williams_r": {
+        "period": 14
+      },
+      "cci": {
+        "period": 20
+      }
+    },
+    
+    "volume_indicators": {
+      "obv": true,
+      "vwap": true,
+      "mfi": {
+        "period": 14
+      },
+      "ad_line": true
+    },
+    
+    "pattern_recognition": {
+      "candlestick_patterns": [
+        "DOJI",
+        "HAMMER",
+        "HANGING_MAN",
+        "ENGULFING",
+        "MORNING_STAR",
+        "EVENING_STAR",
+        "SHOOTING_STAR",
+        "SPINNING_TOP"
+      ],
+      "chart_patterns": {
+        "support_resistance": true,
+        "trend_lines": true,
+        "breakouts": true
+      }
+    }
+  },
+  
+  "time_settings": {
+    "market_hours": {
+      "start": "09:15",
+      "end": "15:30",
+      "timezone": "Asia/Kolkata"
+    },
+    "data_ranges": {
+      "intraday": {
+        "resolution": "5",
+        "days_back": 5
+      },
+      "short_term": {
+        "resolution": "1D",
+        "days_back": 60
+      },
+      "long_term": {
+        "resolution": "1D",
+        "days_back": 365
+      }
+    }
+  },
+  
+  "output_settings": {
+    "json_format": {
+      "compress": true,
+      "precision": 4,
+      "exclude_null": true
+    },
+    "file_output": {
+      "directory": "./output/",
+      "filename_format": "stock_analysis_{timestamp}.json",
+      "backup_copies": 5
+    }
+  },
+  
+  "performance_settings": {
+    "async_settings": {
+      "max_concurrent_requests": 15,
+      "request_timeout": 30,
+      "retry_delay": 1
+    },
+    "cache_settings": {
+      "enable": true,
+      "ttl_minutes": 5,
+      "max_entries": 1000
+    },
+    "threading": {
+      "max_workers": 8,
+      "chunk_size": 5
+    }
+  },
+  
+  "macro_data_config": {
+    "required_fields": [
+      "52_week_high",
+      "52_week_low",
+      "current_position_in_range",
+      "avg_volume_10d",
+      "relative_volume",
+      "beta",
+      "pe_ratio",
+      "market_cap_category"
+    ],
+    "volatility_metrics": {
+      "atr_period": 14,
+      "volatility_period": 30
+    }
+  },
+  
+  "alert_thresholds": {
+    "rsi_extreme": {
+      "oversold": 25,
+      "overbought": 75
+    },
+    "volume_spike": 2.0,
+    "price_change": {
+      "significant": 3.0,
+      "extreme": 5.0
+    },
+    "breakout_confirmation": {
+      "volume_multiplier": 1.5,
+      "price_move_percent": 2.0
+    }
+  },
+  
+  "debug_settings": {
+    "logging": {
+      "level": "INFO",
+      "file": "stock_analysis.log",
+      "max_size_mb": 50
+    },
+    "save_raw_data": false,
+    "performance_tracking": true
+  }
+}

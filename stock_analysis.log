@@ -1,0 +1,74 @@
+2025-06-04 22:58:41,581 - ERROR - Config file config.json not found
+2025-06-04 22:58:41,581 - ERROR - Main execution error: [Errno 2] No such file or directory: 'config.json'
+2025-06-04 22:59:27,395 - INFO - Starting analysis pipeline for 17 stocks
+2025-06-04 22:59:27,395 - INFO - Starting analysis for 17 stocks
+2025-06-04 22:59:27,397 - INFO - Analyzing NIFTY50
+2025-06-04 22:59:27,397 - INFO - Analyzing BANKNIFTY
+2025-06-04 22:59:27,397 - INFO - Analyzing TCS
+2025-06-04 22:59:27,397 - INFO - Analyzing RELIANCE
+2025-06-04 22:59:27,399 - INFO - Analyzing INFY
+2025-06-04 22:59:27,399 - INFO - Analyzing HDFCBANK
+2025-06-04 22:59:27,403 - INFO - Analyzing ICICIBANK
+2025-06-04 22:59:27,403 - INFO - Analyzing SBIN
+2025-06-04 22:59:27,404 - INFO - Analyzing BHARTIARTL
+2025-06-04 22:59:27,404 - INFO - Analyzing ASIANPAINT
+2025-06-04 22:59:27,404 - INFO - Analyzing MARUTI
+2025-06-04 22:59:27,404 - INFO - Analyzing NESTLEIND
+2025-06-04 22:59:27,405 - INFO - Analyzing HINDUNILVR
+2025-06-04 22:59:27,405 - INFO - Analyzing KOTAKBANK
+2025-06-04 22:59:27,405 - INFO - Analyzing LT
+2025-06-04 22:59:27,405 - INFO - Analyzing AXISBANK
+2025-06-04 22:59:27,406 - INFO - Analyzing WIPRO
+2025-06-04 22:59:29,429 - ERROR - Exception in _fetch_yfinance_data for ICICIBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:29,436 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:29,448 - INFO - Analysis completed for ICICIBANK: NEUTRAL (0.0%)
+2025-06-04 22:59:29,455 - ERROR - Exception in _fetch_moneycontrol_data for NIFTY50: 't'
+2025-06-04 22:59:29,456 - WARNING - No OHLCV data for NIFTY50
+2025-06-04 22:59:29,456 - ERROR - Exception in _fetch_moneycontrol_data for BANKNIFTY: 't'
+2025-06-04 22:59:29,456 - WARNING - No OHLCV data for BANKNIFTY
+2025-06-04 22:59:30,744 - ERROR - Exception in _fetch_yfinance_data for HDFCBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:30,749 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:30,751 - INFO - Analysis completed for HDFCBANK: NEUTRAL (0.0%)
+2025-06-04 22:59:31,929 - ERROR - Exception in _fetch_yfinance_data for KOTAKBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:31,929 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:31,929 - INFO - Analysis completed for KOTAKBANK: NEUTRAL (0.0%)
+2025-06-04 22:59:33,021 - ERROR - Exception in _fetch_yfinance_data for NESTLEIND: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:33,021 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:33,021 - INFO - Analysis completed for NESTLEIND: NEUTRAL (0.0%)
+2025-06-04 22:59:34,506 - ERROR - Exception in _fetch_yfinance_data for BHARTIARTL: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:34,506 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:34,509 - INFO - Analysis completed for BHARTIARTL: NEUTRAL (0.0%)
+2025-06-04 22:59:35,971 - ERROR - Exception in _fetch_yfinance_data for INFY: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:35,987 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:35,987 - INFO - Analysis completed for INFY: NEUTRAL (0.0%)
+2025-06-04 22:59:37,786 - ERROR - Exception in _fetch_yfinance_data for LT: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:37,786 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:37,790 - INFO - Analysis completed for LT: NEUTRAL (0.0%)
+2025-06-04 22:59:39,647 - ERROR - Exception in _fetch_yfinance_data for MARUTI: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:39,647 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:39,650 - INFO - Analysis completed for MARUTI: NEUTRAL (0.0%)
+2025-06-04 22:59:40,840 - ERROR - Exception in _fetch_yfinance_data for HINDUNILVR: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:40,868 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:40,868 - INFO - Analysis completed for HINDUNILVR: NEUTRAL (0.0%)
+2025-06-04 22:59:42,410 - ERROR - Exception in _fetch_yfinance_data for SBIN: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:42,413 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:42,414 - INFO - Analysis completed for SBIN: NEUTRAL (0.0%)
+2025-06-04 22:59:43,937 - ERROR - Exception in _fetch_yfinance_data for RELIANCE: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:43,937 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:43,940 - INFO - Analysis completed for RELIANCE: NEUTRAL (0.0%)
+2025-06-04 22:59:45,988 - ERROR - Exception in _fetch_yfinance_data for TCS: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:45,989 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:45,989 - INFO - Analysis completed for TCS: NEUTRAL (0.0%)
+2025-06-04 22:59:47,350 - ERROR - Exception in _fetch_yfinance_data for ASIANPAINT: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:47,351 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:47,353 - INFO - Analysis completed for ASIANPAINT: NEUTRAL (0.0%)
+2025-06-04 22:59:48,438 - ERROR - Exception in _fetch_yfinance_data for AXISBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:48,438 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:48,443 - INFO - Analysis completed for AXISBANK: NEUTRAL (0.0%)
+2025-06-04 22:59:50,233 - ERROR - Exception in _fetch_yfinance_data for WIPRO: Too Many Requests. Rate limited. Try after a while.
+2025-06-04 22:59:50,233 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-04 22:59:50,236 - INFO - Analysis completed for WIPRO: NEUTRAL (0.0%)
+2025-06-04 22:59:50,236 - INFO - Analysis completed for 15/17 stocks
+2025-06-04 22:59:50,270 - INFO - Analysis exported to output\stock_analysis_20250604_225950.json
+2025-06-04 22:59:50,271 - INFO - Analysis pipeline completed in 22.88 seconds
+2025-06-04 22:59:50,271 - INFO - Results saved to: output\stock_analysis_20250604_225950.json

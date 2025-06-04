@@ -1,0 +1,246 @@
+{
+  "analysis_timestamp": "2025-06-04T22:59:50.265443",
+  "total_stocks": 15,
+  "stocks": {
+    "TCS": {
+      "symbol": "TCS",
+      "timestamp": "2025-06-04T22:59:45.989588",
+      "current_price": 3380.9,
+      "price_change": -0.1,
+      "price_change_pct": -0.0,
+      "volume": 16458,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 2.81744258354138,
+        "volatility": 2.2102906972234293
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "RELIANCE": {
+      "symbol": "RELIANCE",
+      "timestamp": "2025-06-04T22:59:43.940231",
+      "current_price": 1423.5,
+      "price_change": 2.5,
+      "price_change_pct": 0.18,
+      "volume": -3985274,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.9269950058357879,
+        "volatility": 2.357631303218712
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "INFY": {
+      "symbol": "INFY",
+      "timestamp": "2025-06-04T22:59:35.987354",
+      "current_price": 1551.2,
+      "price_change": 1.2,
+      "price_change_pct": 0.08,
+      "volume": -1465721,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.3567955275782615,
+        "volatility": 2.8961098002222303
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "HDFCBANK": {
+      "symbol": "HDFCBANK",
+      "timestamp": "2025-06-04T22:59:30.751156",
+      "current_price": 1941.2,
+      "price_change": 1.7,
+      "price_change_pct": 0.09,
+      "volume": -3175545,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.9072922554522955,
+        "volatility": 2.0767543426343424
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "ICICIBANK": {
+      "symbol": "ICICIBANK",
+      "timestamp": "2025-06-04T22:59:29.448673",
+      "current_price": 1431.0,
+      "price_change": -0.1,
+      "price_change_pct": -0.01,
+      "volume": -3937244,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.100207425202486,
+        "volatility": 1.9556469676089192
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "SBIN": {
+      "symbol": "SBIN",
+      "timestamp": "2025-06-04T22:59:42.414573",
+      "current_price": 806.5,
+      "price_change": 1.0,
+      "price_change_pct": 0.12,
+      "volume": -4666254,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 0.6845541726344101,
+        "volatility": 2.1733149775632943
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "BHARTIARTL": {
+      "symbol": "BHARTIARTL",
+      "timestamp": "2025-06-04T22:59:34.509506",
+      "current_price": 1875.4,
+      "price_change": 2.4,
+      "price_change_pct": 0.13,
+      "volume": -2901587,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 2.453689464121383,
+        "volatility": 2.578660561283647
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "ASIANPAINT": {
+      "symbol": "ASIANPAINT",
+      "timestamp": "2025-06-04T22:59:47.353394",
+      "current_price": 2249.0,
+      "price_change": -2.0,
+      "price_change_pct": -0.09,
+      "volume": -246968,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 2.113511844038245,
+        "volatility": 2.2628848885346753
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "MARUTI": {
+      "symbol": "MARUTI",
+      "timestamp": "2025-06-04T22:59:39.650562",
+      "current_price": 12163.0,
+      "price_change": -19.0,
+      "price_change_pct": -0.16,
+      "volume": -66351,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 14.7620599170069,
+        "volatility": 2.1178380866679984
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "NESTLEIND": {
+      "symbol": "NESTLEIND",
+      "timestamp": "2025-06-04T22:59:33.021322",
+      "current_price": 2397.5,
+      "price_change": 1.5,
+      "price_change_pct": 0.06,
+      "volume": -287733,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 3.336642534499561,
+        "volatility": 2.307579601594219
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "HINDUNILVR": {
+      "symbol": "HINDUNILVR",
+      "timestamp": "2025-06-04T22:59:40.868683",
+      "current_price": 2364.5,
+      "price_change": 0.0,
+      "price_change_pct": 0.0,
+      "volume": -1083106,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.9065322382129903,
+        "volatility": 2.0577914476818187
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "KOTAKBANK": {
+      "symbol": "KOTAKBANK",
+      "timestamp": "2025-06-04T22:59:31.929351",
+      "current_price": 2046.3,
+      "price_change": -4.9,
+      "price_change_pct": -0.24,
+      "volume": -1134762,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 2.8591965266224557,
+        "volatility": 2.2435533414490885
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "LT": {
+      "symbol": "LT",
+      "timestamp": "2025-06-04T22:59:37.790793",
+      "current_price": 3626.5,
+      "price_change": 5.5,
+      "price_change_pct": 0.15,
+      "volume": -533086,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 4.4146373193072685,
+        "volatility": 2.5871976696989223
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "AXISBANK": {
+      "symbol": "AXISBANK",
+      "timestamp": "2025-06-04T22:59:48.443876",
+      "current_price": 1171.0,
+      "price_change": -0.7,
+      "price_change_pct": -0.06,
+      "volume": -2110264,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 1.3597248658353578,
+        "volatility": 2.4642933392606983
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    },
+    "WIPRO": {
+      "symbol": "WIPRO",
+      "timestamp": "2025-06-04T22:59:50.236659",
+      "current_price": 246.86,
+      "price_change": -0.19,
+      "price_change_pct": -0.08,
+      "volume": -2142015,
+      "technical_indicators": {},
+      "macro_data": {
+        "atr": 0.21369915690696334,
+        "volatility": 2.4073464414285817
+      },
+      "overall_signal": "NEUTRAL",
+      "confidence_score": 0.0,
+      "key_insights": []
+    }
+  }
+}
