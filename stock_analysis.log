@@ -72,3 +72,304 @@
 2025-06-04 22:59:50,270 - INFO - Analysis exported to output\stock_analysis_20250604_225950.json
 2025-06-04 22:59:50,271 - INFO - Analysis pipeline completed in 22.88 seconds
 2025-06-04 22:59:50,271 - INFO - Results saved to: output\stock_analysis_20250604_225950.json
+2025-06-05 00:28:42,338 - INFO - Starting analysis for 15 stocks
+2025-06-05 00:28:42,339 - INFO - Starting analysis for NESTLEIND
+2025-06-05 00:28:42,339 - INFO - Starting analysis for WIPRO
+2025-06-05 00:28:42,339 - INFO - Starting analysis for SBIN
+2025-06-05 00:28:42,339 - INFO - Starting analysis for INFY
+2025-06-05 00:28:42,339 - INFO - Starting analysis for HINDUNILVR
+2025-06-05 00:28:42,339 - INFO - Starting analysis for TCS
+2025-06-05 00:28:42,339 - INFO - Starting analysis for BHARTIARTL
+2025-06-05 00:28:42,339 - INFO - Starting analysis for HDFCBANK
+2025-06-05 00:28:42,341 - INFO - Starting analysis for KOTAKBANK
+2025-06-05 00:28:42,341 - INFO - Starting analysis for ASIANPAINT
+2025-06-05 00:28:42,341 - INFO - Starting analysis for ICICIBANK
+2025-06-05 00:28:42,341 - INFO - Starting analysis for LT
+2025-06-05 00:28:42,341 - INFO - Starting analysis for RELIANCE
+2025-06-05 00:28:42,341 - INFO - Starting analysis for MARUTI
+2025-06-05 00:28:42,341 - INFO - Starting analysis for AXISBANK
+2025-06-05 00:28:42,343 - INFO - Fetching LAST_SESSION data for NESTLEIND from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,345 - INFO - Fetching LAST_SESSION data for WIPRO from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,346 - INFO - Fetching LAST_SESSION data for SBIN from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,349 - INFO - Fetching LAST_SESSION data for INFY from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,352 - INFO - Fetching LAST_SESSION data for HINDUNILVR from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,353 - INFO - Fetching LAST_SESSION data for TCS from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,355 - INFO - Fetching LAST_SESSION data for BHARTIARTL from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,355 - INFO - Fetching LAST_SESSION data for HDFCBANK from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,357 - INFO - Fetching LAST_SESSION data for KOTAKBANK from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,359 - INFO - Fetching LAST_SESSION data for ASIANPAINT from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,359 - INFO - Fetching LAST_SESSION data for ICICIBANK from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,360 - INFO - Fetching LAST_SESSION data for LT from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,361 - INFO - Fetching LAST_SESSION data for RELIANCE from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,362 - INFO - Fetching LAST_SESSION data for MARUTI from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,362 - INFO - Fetching LAST_SESSION data for AXISBANK from 2025-05-30 15:30 to 2025-06-04 15:30
+2025-06-05 00:28:42,700 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:42,700 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:43,946 - WARNING - Could not fetch ticker info for INFY: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,946 - WARNING - Could not fetch ticker info for ICICIBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,954 - WARNING - Could not fetch ticker info for NESTLEIND: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,956 - WARNING - Could not fetch ticker info for ASIANPAINT: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,959 - WARNING - Could not fetch ticker info for SBIN: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,961 - WARNING - Could not fetch ticker info for HDFCBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,962 - WARNING - Could not fetch ticker info for WIPRO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,962 - WARNING - Could not fetch ticker info for TCS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,963 - WARNING - Could not fetch ticker info for LT: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:43,964 - WARNING - Could not fetch ticker info for KOTAKBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:44,045 - WARNING - Could not fetch ticker info for HINDUNILVR: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:44,055 - WARNING - Could not fetch ticker info for BHARTIARTL: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:44,097 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:44,164 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:45,214 - WARNING - Could not fetch historical data for ICICIBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,214 - WARNING - Could not fetch historical data for NESTLEIND: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,217 - WARNING - Could not fetch historical data for LT: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,219 - WARNING - No yfinance data for ICICIBANK
+2025-06-05 00:28:45,220 - WARNING - No yfinance data for NESTLEIND
+2025-06-05 00:28:45,220 - WARNING - No yfinance data for LT
+2025-06-05 00:28:45,221 - WARNING - Could not fetch historical data for INFY: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,221 - WARNING - Could not fetch historical data for KOTAKBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,224 - WARNING - Could not fetch historical data for TCS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,225 - WARNING - No yfinance data for INFY
+2025-06-05 00:28:45,225 - WARNING - No yfinance data for KOTAKBANK
+2025-06-05 00:28:45,226 - WARNING - No yfinance data for TCS
+2025-06-05 00:28:45,226 - WARNING - Could not fetch historical data for WIPRO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,226 - WARNING - Could not fetch historical data for ASIANPAINT: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,226 - WARNING - Could not fetch historical data for HDFCBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,230 - WARNING - No yfinance data for WIPRO
+2025-06-05 00:28:45,230 - WARNING - No yfinance data for ASIANPAINT
+2025-06-05 00:28:45,232 - WARNING - No yfinance data for HDFCBANK
+2025-06-05 00:28:45,301 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:45,301 - WARNING - Could not fetch historical data for SBIN: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,302 - WARNING - Connection pool is full, discarding connection: query2.finance.yahoo.com. Connection pool size: 10
+2025-06-05 00:28:45,302 - WARNING - No yfinance data for SBIN
+2025-06-05 00:28:45,303 - WARNING - Could not fetch historical data for HINDUNILVR: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:45,305 - WARNING - No yfinance data for HINDUNILVR
+2025-06-05 00:28:45,444 - INFO - Successfully fetched 1440 candles for NESTLEIND (LAST_SESSION)
+2025-06-05 00:28:45,444 - INFO - Successfully fetched 1440 candles for HINDUNILVR (LAST_SESSION)
+2025-06-05 00:28:45,444 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,453 - INFO - Analysis completed for NESTLEIND: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,454 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,455 - INFO - Analysis completed for HINDUNILVR: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,456 - INFO - Progress: 1/15 stocks analyzed
+2025-06-05 00:28:45,457 - INFO - Progress: 2/15 stocks analyzed
+2025-06-05 00:28:45,462 - INFO - Successfully fetched 1440 candles for LT (LAST_SESSION)
+2025-06-05 00:28:45,470 - INFO - Successfully fetched 1440 candles for AXISBANK (LAST_SESSION)
+2025-06-05 00:28:45,471 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,473 - INFO - Analysis completed for LT: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,474 - INFO - Progress: 3/15 stocks analyzed
+2025-06-05 00:28:45,486 - INFO - Successfully fetched 1440 candles for SBIN (LAST_SESSION)
+2025-06-05 00:28:45,487 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,489 - INFO - Analysis completed for SBIN: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,496 - INFO - Successfully fetched 1440 candles for KOTAKBANK (LAST_SESSION)
+2025-06-05 00:28:45,497 - INFO - Progress: 4/15 stocks analyzed
+2025-06-05 00:28:45,498 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,499 - INFO - Analysis completed for KOTAKBANK: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,499 - INFO - Progress: 5/15 stocks analyzed
+2025-06-05 00:28:45,514 - INFO - Successfully fetched 1440 candles for MARUTI (LAST_SESSION)
+2025-06-05 00:28:45,521 - INFO - Successfully fetched 1440 candles for RELIANCE (LAST_SESSION)
+2025-06-05 00:28:45,530 - INFO - Successfully fetched 1440 candles for BHARTIARTL (LAST_SESSION)
+2025-06-05 00:28:45,536 - INFO - Successfully fetched 1440 candles for INFY (LAST_SESSION)
+2025-06-05 00:28:45,545 - INFO - Successfully fetched 1440 candles for WIPRO (LAST_SESSION)
+2025-06-05 00:28:45,551 - INFO - Successfully fetched 1440 candles for TCS (LAST_SESSION)
+2025-06-05 00:28:45,559 - INFO - Successfully fetched 1440 candles for HDFCBANK (LAST_SESSION)
+2025-06-05 00:28:45,566 - INFO - Successfully fetched 1440 candles for ASIANPAINT (LAST_SESSION)
+2025-06-05 00:28:45,568 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,569 - INFO - Analysis completed for INFY: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,572 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,574 - INFO - Analysis completed for WIPRO: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,576 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,577 - INFO - Analysis completed for TCS: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,577 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,580 - INFO - Analysis completed for HDFCBANK: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,581 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,582 - INFO - Analysis completed for ASIANPAINT: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,583 - INFO - Progress: 6/15 stocks analyzed
+2025-06-05 00:28:45,590 - INFO - Successfully fetched 1440 candles for ICICIBANK (LAST_SESSION)
+2025-06-05 00:28:45,590 - INFO - Progress: 7/15 stocks analyzed
+2025-06-05 00:28:45,590 - INFO - Progress: 8/15 stocks analyzed
+2025-06-05 00:28:45,591 - INFO - Progress: 9/15 stocks analyzed
+2025-06-05 00:28:45,591 - INFO - Progress: 10/15 stocks analyzed
+2025-06-05 00:28:45,593 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:45,594 - INFO - Analysis completed for ICICIBANK: HOLD (confidence: 0.00)
+2025-06-05 00:28:45,595 - INFO - Progress: 11/15 stocks analyzed
+2025-06-05 00:28:46,406 - WARNING - Could not fetch historical data for BHARTIARTL: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:46,406 - WARNING - No yfinance data for BHARTIARTL
+2025-06-05 00:28:46,409 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:46,409 - INFO - Analysis completed for BHARTIARTL: HOLD (confidence: 0.00)
+2025-06-05 00:28:46,409 - INFO - Progress: 12/15 stocks analyzed
+2025-06-05 00:28:47,516 - WARNING - Could not fetch ticker info for MARUTI: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:47,524 - WARNING - Could not fetch ticker info for AXISBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:47,524 - WARNING - Could not fetch ticker info for RELIANCE: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:49,099 - WARNING - Could not fetch historical data for MARUTI: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:49,100 - WARNING - Could not fetch historical data for AXISBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:49,100 - WARNING - Could not fetch historical data for RELIANCE: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 00:28:49,100 - WARNING - No yfinance data for MARUTI
+2025-06-05 00:28:49,100 - WARNING - No yfinance data for AXISBANK
+2025-06-05 00:28:49,101 - WARNING - No yfinance data for RELIANCE
+2025-06-05 00:28:49,103 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:49,104 - INFO - Analysis completed for MARUTI: HOLD (confidence: 0.00)
+2025-06-05 00:28:49,105 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:49,106 - INFO - Analysis completed for AXISBANK: HOLD (confidence: 0.00)
+2025-06-05 00:28:49,106 - INFO - Progress: 13/15 stocks analyzed
+2025-06-05 00:28:49,107 - INFO - Progress: 14/15 stocks analyzed
+2025-06-05 00:28:49,107 - ERROR - Error calculating technical indicators: input array type is not double
+2025-06-05 00:28:49,108 - INFO - Analysis completed for RELIANCE: HOLD (confidence: 0.00)
+2025-06-05 00:28:49,109 - INFO - Progress: 15/15 stocks analyzed
+2025-06-05 00:28:49,161 - INFO - Analysis saved to stock_analysis_20250605_002849.json
+2025-06-05 00:28:49,163 - INFO - Analysis completed successfully
+2025-06-05 01:15:27,214 - INFO - Starting analysis for RELIANCE
+2025-06-05 01:15:27,214 - INFO - Fetching URL: https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history?symbol=RELIANCE&resolution=1D&from=1731786327&to=1749066327&countback=200&currencyCode=INR
+2025-06-05 01:15:27,394 - INFO - Response status for RELIANCE: 200
+2025-06-05 01:15:27,394 - INFO - Raw API response keys: ['s', 't', 'o', 'h', 'l', 'c', 'v']
+2025-06-05 01:15:27,394 - INFO - Data points received for RELIANCE: 200
+2025-06-05 01:15:27,394 - INFO - First few timestamps: [1723593600, 1723766400, 1724025600, 1724112000, 1724198400]
+2025-06-05 01:15:27,394 - INFO - Last few closes: [1417.8, 1420.9, 1413.7, 1405.5, 1423.5]
+2025-06-05 01:15:27,403 - INFO - Volume stats for RELIANCE: min=2127335, max=41620730, mean=13840581
+2025-06-05 01:15:27,404 - INFO - Data cleaning for RELIANCE: 200 -> 200 rows
+2025-06-05 01:15:27,404 - INFO - Successfully processed 200 candles for RELIANCE
+2025-06-05 01:15:27,404 - INFO - Trying yfinance symbol: RELIANCE.NS
+2025-06-05 01:15:29,384 - WARNING - yfinance failed for RELIANCE.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:29,384 - INFO - Trying yfinance symbol: RELIANCE.BO
+2025-06-05 01:15:30,755 - WARNING - yfinance failed for RELIANCE.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:30,755 - INFO - Trying yfinance symbol: RELIANCE
+2025-06-05 01:15:32,114 - WARNING - yfinance failed for RELIANCE: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:32,114 - ERROR - All yfinance symbol formats failed for RELIANCE
+2025-06-05 01:15:32,114 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:32,115 - INFO - 5-period averages calculated
+2025-06-05 01:15:32,115 - INFO - 10-period averages calculated
+2025-06-05 01:15:32,115 - INFO - 20-period indicators calculated
+2025-06-05 01:15:32,115 - INFO - 50-period averages calculated
+2025-06-05 01:15:32,115 - INFO - 200-period averages calculated
+2025-06-05 01:15:32,115 - INFO - RSI calculated: 57.18
+2025-06-05 01:15:32,115 - INFO - MACD calculated
+2025-06-05 01:15:32,121 - INFO - Technical indicators calculation completed. RSI: 57.17864477405752, SMA20: 1422.6700000000003
+2025-06-05 01:15:32,122 - INFO - Analysis completed for RELIANCE: STRONG_BUY (75.0% confidence)
+2025-06-05 01:15:32,123 - INFO - Starting batch analysis for 5 stocks
+2025-06-05 01:15:32,124 - INFO - Starting analysis for RELIANCE
+2025-06-05 01:15:32,124 - INFO - Using cached data for RELIANCE
+2025-06-05 01:15:32,125 - INFO - Starting analysis for TCS
+2025-06-05 01:15:32,125 - INFO - Trying yfinance symbol: RELIANCE.NS
+2025-06-05 01:15:32,125 - INFO - Fetching URL: https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history?symbol=TCS&resolution=1D&from=1731786332&to=1749066332&countback=200&currencyCode=INR
+2025-06-05 01:15:32,127 - INFO - Starting analysis for INFY
+2025-06-05 01:15:32,127 - INFO - Fetching URL: https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history?symbol=INFY&resolution=1D&from=1731786332&to=1749066332&countback=200&currencyCode=INR
+2025-06-05 01:15:32,128 - INFO - Starting analysis for HDFCBANK
+2025-06-05 01:15:32,128 - INFO - Fetching URL: https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history?symbol=HDFCBANK&resolution=1D&from=1731786332&to=1749066332&countback=200&currencyCode=INR
+2025-06-05 01:15:32,128 - INFO - Starting analysis for ICICIBANK
+2025-06-05 01:15:32,128 - INFO - Fetching URL: https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/history?symbol=ICICIBANK&resolution=1D&from=1731786332&to=1749066332&countback=200&currencyCode=INR
+2025-06-05 01:15:32,215 - INFO - Response status for TCS: 200
+2025-06-05 01:15:32,215 - INFO - Raw API response keys: ['s', 't', 'o', 'h', 'l', 'c', 'v']
+2025-06-05 01:15:32,215 - INFO - Data points received for TCS: 200
+2025-06-05 01:15:32,215 - INFO - First few timestamps: [1723593600, 1723766400, 1724025600, 1724112000, 1724198400]
+2025-06-05 01:15:32,215 - INFO - Last few closes: [3498.1, 3463.4, 3449.8, 3405.2, 3380.9]
+2025-06-05 01:15:32,215 - INFO - Volume stats for TCS: min=154895, max=7894300, mean=2394974
+2025-06-05 01:15:32,221 - INFO - Data cleaning for TCS: 200 -> 200 rows
+2025-06-05 01:15:32,221 - INFO - Successfully processed 200 candles for TCS
+2025-06-05 01:15:32,221 - INFO - Trying yfinance symbol: TCS.NS
+2025-06-05 01:15:32,274 - INFO - Response status for HDFCBANK: 200
+2025-06-05 01:15:32,274 - INFO - Raw API response keys: ['s', 't', 'o', 'h', 'l', 'c', 'v']
+2025-06-05 01:15:32,274 - INFO - Data points received for HDFCBANK: 200
+2025-06-05 01:15:32,274 - INFO - First few timestamps: [1723593600, 1723766400, 1724025600, 1724112000, 1724198400]
+2025-06-05 01:15:32,274 - INFO - Last few closes: [1927.5, 1944.9, 1932.1, 1924.6, 1941.2]
+2025-06-05 01:15:32,283 - INFO - Volume stats for HDFCBANK: min=879846, max=222671050, mean=14835159
+2025-06-05 01:15:32,284 - INFO - Data cleaning for HDFCBANK: 200 -> 200 rows
+2025-06-05 01:15:32,286 - INFO - Successfully processed 200 candles for HDFCBANK
+2025-06-05 01:15:32,286 - INFO - Trying yfinance symbol: HDFCBANK.NS
+2025-06-05 01:15:32,296 - INFO - Response status for INFY: 200
+2025-06-05 01:15:32,296 - INFO - Raw API response keys: ['s', 't', 'o', 'h', 'l', 'c', 'v']
+2025-06-05 01:15:32,296 - INFO - Data points received for INFY: 200
+2025-06-05 01:15:32,296 - INFO - First few timestamps: [1723593600, 1723766400, 1724025600, 1724112000, 1724198400]
+2025-06-05 01:15:32,300 - INFO - Last few closes: [1585.6, 1562.7, 1553.8, 1543.0, 1551.2]
+2025-06-05 01:15:32,301 - INFO - Volume stats for INFY: min=371966, max=21715252, mean=6602177
+2025-06-05 01:15:32,305 - INFO - Data cleaning for INFY: 200 -> 200 rows
+2025-06-05 01:15:32,305 - INFO - Successfully processed 200 candles for INFY
+2025-06-05 01:15:32,306 - INFO - Trying yfinance symbol: INFY.NS
+2025-06-05 01:15:32,306 - INFO - Response status for ICICIBANK: 200
+2025-06-05 01:15:32,307 - INFO - Raw API response keys: ['s', 't', 'o', 'h', 'l', 'c', 'v']
+2025-06-05 01:15:32,307 - INFO - Data points received for ICICIBANK: 200
+2025-06-05 01:15:32,307 - INFO - First few timestamps: [1723593600, 1723766400, 1724025600, 1724112000, 1724198400]
+2025-06-05 01:15:32,307 - INFO - Last few closes: [1456.5, 1445.8, 1450.5, 1437.9, 1431.0]
+2025-06-05 01:15:32,309 - INFO - Volume stats for ICICIBANK: min=1007022, max=73257767, mean=12113376
+2025-06-05 01:15:32,311 - INFO - Data cleaning for ICICIBANK: 200 -> 200 rows
+2025-06-05 01:15:32,313 - INFO - Successfully processed 200 candles for ICICIBANK
+2025-06-05 01:15:32,314 - INFO - Trying yfinance symbol: ICICIBANK.NS
+2025-06-05 01:15:33,321 - WARNING - yfinance failed for RELIANCE.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:33,321 - INFO - Trying yfinance symbol: RELIANCE.BO
+2025-06-05 01:15:33,427 - WARNING - yfinance failed for TCS.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:33,427 - INFO - Trying yfinance symbol: TCS.BO
+2025-06-05 01:15:34,355 - WARNING - yfinance failed for HDFCBANK.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:34,355 - INFO - Trying yfinance symbol: HDFCBANK.BO
+2025-06-05 01:15:34,368 - WARNING - yfinance failed for ICICIBANK.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:34,368 - WARNING - yfinance failed for INFY.NS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:34,368 - INFO - Trying yfinance symbol: ICICIBANK.BO
+2025-06-05 01:15:34,368 - INFO - Trying yfinance symbol: INFY.BO
+2025-06-05 01:15:35,628 - WARNING - yfinance failed for RELIANCE.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:35,634 - INFO - Trying yfinance symbol: RELIANCE
+2025-06-05 01:15:35,634 - WARNING - yfinance failed for TCS.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:35,634 - INFO - Trying yfinance symbol: TCS
+2025-06-05 01:15:35,636 - WARNING - yfinance failed for HDFCBANK.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:35,636 - INFO - Trying yfinance symbol: HDFCBANK
+2025-06-05 01:15:36,699 - WARNING - yfinance failed for INFY.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:36,701 - WARNING - yfinance failed for ICICIBANK.BO: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:36,701 - INFO - Trying yfinance symbol: INFY
+2025-06-05 01:15:36,701 - INFO - Trying yfinance symbol: ICICIBANK
+2025-06-05 01:15:38,095 - WARNING - yfinance failed for HDFCBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:38,095 - ERROR - All yfinance symbol formats failed for HDFCBANK
+2025-06-05 01:15:38,095 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:38,112 - INFO - 5-period averages calculated
+2025-06-05 01:15:38,112 - INFO - 10-period averages calculated
+2025-06-05 01:15:38,112 - INFO - 20-period indicators calculated
+2025-06-05 01:15:38,112 - WARNING - yfinance failed for TCS: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:38,114 - INFO - 50-period averages calculated
+2025-06-05 01:15:38,114 - ERROR - All yfinance symbol formats failed for TCS
+2025-06-05 01:15:38,114 - INFO - 200-period averages calculated
+2025-06-05 01:15:38,116 - INFO - RSI calculated: 56.45
+2025-06-05 01:15:38,116 - INFO - MACD calculated
+2025-06-05 01:15:38,119 - INFO - Technical indicators calculation completed. RSI: 56.45223084112676, SMA20: 1928.565000000001
+2025-06-05 01:15:38,122 - INFO - Analysis completed for HDFCBANK: HOLD (50.0% confidence)
+2025-06-05 01:15:38,122 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:38,123 - INFO - 5-period averages calculated
+2025-06-05 01:15:38,123 - INFO - 10-period averages calculated
+2025-06-05 01:15:38,123 - INFO - 20-period indicators calculated
+2025-06-05 01:15:38,123 - INFO - 50-period averages calculated
+2025-06-05 01:15:38,124 - INFO - 200-period averages calculated
+2025-06-05 01:15:38,124 - INFO - RSI calculated: 38.23
+2025-06-05 01:15:38,124 - INFO - MACD calculated
+2025-06-05 01:15:38,125 - INFO - Technical indicators calculation completed. RSI: 38.229882116617354, SMA20: 3499.0049999999997
+2025-06-05 01:15:38,127 - INFO - Analysis completed for TCS: BUY (66.7% confidence)
+2025-06-05 01:15:38,128 - WARNING - yfinance failed for RELIANCE: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:38,128 - ERROR - All yfinance symbol formats failed for RELIANCE
+2025-06-05 01:15:38,129 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:38,130 - INFO - 5-period averages calculated
+2025-06-05 01:15:38,130 - INFO - 10-period averages calculated
+2025-06-05 01:15:38,130 - INFO - 20-period indicators calculated
+2025-06-05 01:15:38,130 - INFO - 50-period averages calculated
+2025-06-05 01:15:38,130 - INFO - 200-period averages calculated
+2025-06-05 01:15:38,130 - INFO - RSI calculated: 57.18
+2025-06-05 01:15:38,132 - INFO - MACD calculated
+2025-06-05 01:15:38,133 - INFO - Technical indicators calculation completed. RSI: 57.17864477405752, SMA20: 1422.6700000000003
+2025-06-05 01:15:38,134 - INFO - Analysis completed for RELIANCE: STRONG_BUY (75.0% confidence)
+2025-06-05 01:15:39,844 - WARNING - yfinance failed for INFY: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:39,844 - WARNING - yfinance failed for ICICIBANK: Too Many Requests. Rate limited. Try after a while.
+2025-06-05 01:15:39,844 - ERROR - All yfinance symbol formats failed for INFY
+2025-06-05 01:15:39,844 - ERROR - All yfinance symbol formats failed for ICICIBANK
+2025-06-05 01:15:39,844 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:39,847 - INFO - 5-period averages calculated
+2025-06-05 01:15:39,847 - INFO - 10-period averages calculated
+2025-06-05 01:15:39,847 - INFO - 20-period indicators calculated
+2025-06-05 01:15:39,847 - INFO - 50-period averages calculated
+2025-06-05 01:15:39,847 - INFO - 200-period averages calculated
+2025-06-05 01:15:39,847 - INFO - RSI calculated: 49.62
+2025-06-05 01:15:39,847 - INFO - MACD calculated
+2025-06-05 01:15:39,847 - INFO - Technical indicators calculation completed. RSI: 49.615783143474054, SMA20: 1566.4850000000004
+2025-06-05 01:15:39,847 - INFO - Analysis completed for INFY: HOLD (50.0% confidence)
+2025-06-05 01:15:39,847 - INFO - Calculating indicators for 200 data points
+2025-06-05 01:15:39,852 - INFO - 5-period averages calculated
+2025-06-05 01:15:39,852 - INFO - 10-period averages calculated
+2025-06-05 01:15:39,853 - INFO - 20-period indicators calculated
+2025-06-05 01:15:39,853 - INFO - 50-period averages calculated
+2025-06-05 01:15:39,853 - INFO - 200-period averages calculated
+2025-06-05 01:15:39,853 - INFO - RSI calculated: 50.69
+2025-06-05 01:15:39,853 - INFO - MACD calculated
+2025-06-05 01:15:39,854 - INFO - Technical indicators calculation completed. RSI: 50.68854920804844, SMA20: 1442.04
+2025-06-05 01:15:39,856 - INFO - Analysis completed for ICICIBANK: HOLD (50.0% confidence)
+2025-06-05 01:15:39,856 - INFO - Batch analysis completed: 5/5 successful
+2025-06-05 01:15:39,860 - INFO - Analysis results saved to stock_analysis_20250605_011539.json
