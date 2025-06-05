@@ -171,8 +171,8 @@ class TechnicalAnalysisEngine:
                     }
                 },
                 'stocks': {
-                    'watchlist': ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK'],
-                    'high_priority': ['RELIANCE', 'TCS']
+                    'watchlist': ["GSFC", "INDEGENE", "REDINGTON", "NTPC", "NEWGEN", "DIAPOWER", "ABFRL", "MANAPPURAM", "JINDALSAW", "RALLIS", "YESBANK", "GLAND", "HAL"],
+                    'high_priority': ["GSFC", "INDEGENE"]
                 },
                 'market_holidays': []
             }
@@ -1056,7 +1056,7 @@ async def main():
             
             # Multiple stocks analysis
             print("\nAnalyzing multiple stocks...")
-            symbols = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK"]
+            symbols = ["GSFC", "INDEGENE", "REDINGTON", "NTPC"]
             batch_results = await engine.analyze_multiple_stocks(symbols)
             
             # Print summary of batch results
