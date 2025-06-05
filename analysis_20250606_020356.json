@@ -1,0 +1,348 @@
+{
+  "metadata": {
+    "timestamp": "2025-06-06 02:03:56",
+    "total_stocks": 7,
+    "analyzed_stocks": 7,
+    "failed_stocks": 0
+  },
+  "summary": {
+    "top_gainers": [
+      {
+        "symbol": "ORICONENT",
+        "change_pct": 20.0
+      },
+      {
+        "symbol": "BAJAJINDEF",
+        "change_pct": 20.0
+      },
+      {
+        "symbol": "PKTEA",
+        "change_pct": 19.99
+      },
+      {
+        "symbol": "BHARATWIRE",
+        "change_pct": 16.11
+      },
+      {
+        "symbol": "RILINFRA",
+        "change_pct": 14.96
+      }
+    ],
+    "top_losers": [
+      {
+        "symbol": "PKTEA",
+        "change_pct": 19.99
+      },
+      {
+        "symbol": "BHARATWIRE",
+        "change_pct": 16.11
+      },
+      {
+        "symbol": "RILINFRA",
+        "change_pct": 14.96
+      },
+      {
+        "symbol": "RAMASTEEL",
+        "change_pct": 12.72
+      },
+      {
+        "symbol": "POWERGRID",
+        "change_pct": 1.98
+      }
+    ],
+    "bullish_signals": 5,
+    "bearish_signals": 2,
+    "neutral_signals": 0,
+    "high_volume_activity": 6,
+    "strong_buy_candidates": []
+  },
+  "stocks": {
+    "RAMASTEEL": {
+      "symbol": "RAMASTEEL",
+      "price": {
+        "current": 13.2,
+        "change": 1.49,
+        "change_pct": 12.72,
+        "high_52w": 17.55,
+        "low_52w": 8.5
+      },
+      "moving_averages": {
+        "sma20": 11.19,
+        "sma50": 10.37,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bullish"
+      },
+      "momentum": {
+        "rsi": 77.3,
+        "rsi_signal": "overbought",
+        "macd": 0.515,
+        "macd_signal": "bullish",
+        "stoch": 68.9,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 0.63,
+        "bb_position": 120.6,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 190889359,
+        "avg_20d": 26984762,
+        "volume_ratio": 7.07,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bullish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "ORICONENT": {
+      "symbol": "ORICONENT",
+      "price": {
+        "current": 48.84,
+        "change": 8.14,
+        "change_pct": 20.0,
+        "high_52w": 49.3,
+        "low_52w": 26.67
+      },
+      "moving_averages": {
+        "sma20": 41.35,
+        "sma50": 40.49,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bullish"
+      },
+      "momentum": {
+        "rsi": 77.2,
+        "rsi_signal": "overbought",
+        "macd": 0.881,
+        "macd_signal": "bullish",
+        "stoch": 48.7,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 1.85,
+        "bb_position": 141.4,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 3824585,
+        "avg_20d": 424920,
+        "volume_ratio": 9.0,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bullish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "BAJAJINDEF": {
+      "symbol": "BAJAJINDEF",
+      "price": {
+        "current": 286.47,
+        "change": 47.74,
+        "change_pct": 20.0,
+        "high_52w": 295.05,
+        "low_52w": 199.24
+      },
+      "moving_averages": {
+        "sma20": 233.58,
+        "sma50": 238.27,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bearish"
+      },
+      "momentum": {
+        "rsi": 73.9,
+        "rsi_signal": "overbought",
+        "macd": 6.668,
+        "macd_signal": "bullish",
+        "stoch": 61.1,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 14.84,
+        "bb_position": 137.8,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 418754,
+        "avg_20d": 51856,
+        "volume_ratio": 8.08,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bearish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "PKTEA": {
+      "symbol": "PKTEA",
+      "price": {
+        "current": 882.5,
+        "change": 147.05,
+        "change_pct": 19.99,
+        "high_52w": 935.0,
+        "low_52w": 280.0
+      },
+      "moving_averages": {
+        "sma20": 766.23,
+        "sma50": 733.55,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bullish"
+      },
+      "momentum": {
+        "rsi": 63.1,
+        "rsi_signal": "neutral",
+        "macd": 19.547,
+        "macd_signal": "bullish",
+        "stoch": 51.7,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 69.94,
+        "bb_position": 92.6,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 27754,
+        "avg_20d": 7035,
+        "volume_ratio": 3.94,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bullish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "RILINFRA": {
+      "symbol": "RILINFRA",
+      "price": {
+        "current": 51.1,
+        "change": 6.65,
+        "change_pct": 14.96,
+        "high_52w": 97.2,
+        "low_52w": 25.55
+      },
+      "moving_averages": {
+        "sma20": 35.24,
+        "sma50": 34.76,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bullish"
+      },
+      "momentum": {
+        "rsi": 86.6,
+        "rsi_signal": "overbought",
+        "macd": 2.315,
+        "macd_signal": "bullish",
+        "stoch": 90.6,
+        "stoch_signal": "overbought"
+      },
+      "volatility": {
+        "atr": 2.64,
+        "bb_position": 137.6,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 476600,
+        "avg_20d": 59195,
+        "volume_ratio": 8.05,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bullish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "BHARATWIRE": {
+      "symbol": "BHARATWIRE",
+      "price": {
+        "current": 222.65,
+        "change": 30.9,
+        "change_pct": 16.11,
+        "high_52w": 400.6,
+        "low_52w": 122.23
+      },
+      "moving_averages": {
+        "sma20": 186.62,
+        "sma50": 184.53,
+        "price_vs_sma20": "above",
+        "price_vs_sma50": "above",
+        "sma_trend": "bullish"
+      },
+      "momentum": {
+        "rsi": 70.6,
+        "rsi_signal": "overbought",
+        "macd": 4.841,
+        "macd_signal": "bullish",
+        "stoch": 67.2,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 10.79,
+        "bb_position": 137.6,
+        "bb_signal": "overbought"
+      },
+      "volume": {
+        "current": 3765613,
+        "avg_20d": 325267,
+        "volume_ratio": 11.58,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bullish",
+        "strength": "moderate",
+        "volume_confirmation": "strong"
+      }
+    },
+    "POWERGRID": {
+      "symbol": "POWERGRID",
+      "price": {
+        "current": 294.25,
+        "change": 5.7,
+        "change_pct": 1.98,
+        "high_52w": 366.25,
+        "low_52w": 222.7
+      },
+      "moving_averages": {
+        "sma20": 295.95,
+        "sma50": 299.05,
+        "price_vs_sma20": "below",
+        "price_vs_sma50": "below",
+        "sma_trend": "bearish"
+      },
+      "momentum": {
+        "rsi": 48.3,
+        "rsi_signal": "neutral",
+        "macd": -2.526,
+        "macd_signal": "bearish",
+        "stoch": 36.8,
+        "stoch_signal": "neutral"
+      },
+      "volatility": {
+        "atr": 6.96,
+        "bb_position": 41.6,
+        "bb_signal": "neutral"
+      },
+      "volume": {
+        "current": 13110486,
+        "avg_20d": 14198167,
+        "volume_ratio": 0.92,
+        "obv_trend": "positive"
+      },
+      "signals": {
+        "overall": "bearish",
+        "strength": "moderate",
+        "volume_confirmation": "weak"
+      }
+    }
+  }
+}
