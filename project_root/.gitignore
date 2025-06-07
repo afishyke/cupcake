@@ -1,0 +1,11 @@
+# Ignore the entire credentials folder
+credentials/
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore environment files
+.env
+
+# Ignore output files
+outputs/

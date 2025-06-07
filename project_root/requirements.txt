@@ -1,0 +1,9 @@
+# In requirements.txt
+pandas
+numpy
+requests
+TA-Lib
+websocket-client
+protobuf
+scikit-learn 
+numba 
