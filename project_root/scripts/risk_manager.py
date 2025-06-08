@@ -1,220 +1,195 @@
+#!/usr/bin/env python3
 """
-Risk Manager Module - Stateful class for tracking trade-specific risk controls
-Maintains risk state and calculates dynamic risk levels for each symbol/trade.
+Ultra-fast risk management module for real-time trading
+Optimized for speed and reliability with minimal overhead
 """
 
+import json
 import logging
-from typing import Dict, Optional
-from datetime import datetime
+from typing import Dict, Optional, Tuple
+from dataclasses import dataclass
+from numba import jit
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
+@dataclass
+class RiskMetrics:
+    """Lightweight risk metrics container"""
+    pre_set_stop_level: float
+    trailing_stop: float
+    position_size: int
+    max_loss: float
+    profit_target: float
+    risk_reward_ratio: float
+    current_pnl: float
+    drawdown_pct: float
+
 class RiskManager:
-    """
-    A stateful risk management class that tracks trade-specific risk controls.
-    Each instance should be created per symbol/trade to maintain separate state.
-    """
+    """Ultra-fast risk management with pre-compiled calculations"""
     
-    def __init__(self, 
-                 entry_price: float,
-                 stop_loss_pct: float = 2.0,
-                 profit_target_pct: float = 6.0,
-                 trailing_stop_pct: float = 1.5):
-        """
-        Initialize risk manager for a specific trade.
+    def __init__(self, risk_settings_path: str = "config/risk_settings.json"):
+        self.settings = {}
+        self.active_positions = {}
+        self.max_positions = {}
+        self._load_settings(risk_settings_path)
         
-        Args:
-            entry_price: The entry price of the position
-            stop_loss_pct: Stop loss percentage from entry
-            profit_target_pct: Profit target percentage from entry
-            trailing_stop_pct: Trailing stop percentage from peak
-        """
-        self.entry_price = float(entry_price)
-        self.stop_loss_pct = stop_loss_pct
-        self.profit_target_pct = profit_target_pct
-        self.trailing_stop_pct = trailing_stop_pct
-        
-        # State variables
-        self.max_price_seen = entry_price
-        self.min_price_seen = entry_price
-        self.max_drawdown_pct = 0.0
-        self.max_profit_pct = 0.0
-        
-        # Risk levels
-        self.stop_level = entry_price * (1 - stop_loss_pct / 100)
-        self.target_level = entry_price * (1 + profit_target_pct / 100)
-        self.dynamic_trailing_stop = self.stop_level
-        
-        # Tracking
-        self.position_direction = 1  # 1 for long, -1 for short
-        self.last_update_time = datetime.now()
-        
-        logger.info(f"Risk Manager initialized - Entry: {entry_price}, Stop: {self.stop_level}, Target: {self.target_level}")
-    
-    def update(self, current_price: float) -> Dict[str, float]:
-        """
-        Update risk manager with current price and recalculate all risk metrics.
-        
-        Args:
-            current_price: Current market price
-            
-        Returns:
-            Dictionary containing all current risk levels and metrics
-        """
+    def _load_settings(self, path: str) -> None:
+        """Load risk settings with error handling"""
         try:
-            current_price = float(current_price)
-            
-            if current_price <= 0:
-                logger.warning(f"Invalid price received: {current_price}")
-                return self._get_current_state()
-            
-            # Update price extremes
-            if current_price > self.max_price_seen:
-                self.max_price_seen = current_price
-                # Update trailing stop when new high is reached
-                self._update_trailing_stop()
-            
-            if current_price < self.min_price_seen:
-                self.min_price_seen = current_price
-            
-            # Calculate current profit/loss percentage
-            current_pnl_pct = ((current_price - self.entry_price) / self.entry_price) * 100
-            
-            # Update max profit achieved
-            if current_pnl_pct > self.max_profit_pct:
-                self.max_profit_pct = current_pnl_pct
-            
-            # Calculate max drawdown from peak
-            drawdown_from_peak = ((self.max_price_seen - current_price) / self.max_price_seen) * 100
-            if drawdown_from_peak > self.max_drawdown_pct:
-                self.max_drawdown_pct = drawdown_from_peak
-            
-            # Calculate drawdown from entry
-            drawdown_from_entry = ((self.entry_price - current_price) / self.entry_price) * 100
-            if drawdown_from_entry < 0:
-                drawdown_from_entry = 0.0  # No drawdown if price is above entry
-            
-            self.last_update_time = datetime.now()
-            
-            return self._get_current_state()
-            
+            with open(path, 'r') as f:
+                self.settings = json.load(f)
+            logger.info(f"Loaded risk settings for {len(self.settings)} instruments")
         except Exception as e:
-            logger.error(f"Error updating risk manager: {e}")
-            return self._get_current_state()
+            logger.error(f"Failed to load risk settings: {e}")
+            # Default fallback settings
+            self.settings = {
+                "default": {
+                    "stop_loss_pct": 2.0,
+                    "trailing_stop_pct": 1.5,
+                    "max_position_size": 100,
+                    "risk_per_trade": 1.0,
+                    "profit_target_ratio": 2.0
+                }
+            }
     
-    def _update_trailing_stop(self):
-        """Update the trailing stop level based on the new maximum price."""
-        new_trailing_stop = self.max_price_seen * (1 - self.trailing_stop_pct / 100)
+    @jit(nopython=True, cache=True)
+    def _calculate_stop_loss(entry_price: float, stop_pct: float, is_long: bool) -> float:
+        """JIT-compiled stop loss calculation"""
+        if is_long:
+            return entry_price * (1.0 - stop_pct / 100.0)
+        else:
+            return entry_price * (1.0 + stop_pct / 100.0)
+    
+    @jit(nopython=True, cache=True)
+    def _calculate_trailing_stop(current_price: float, entry_price: float, 
+                                trailing_pct: float, is_long: bool) -> float:
+        """JIT-compiled trailing stop calculation"""
+        if is_long:
+            return current_price * (1.0 - trailing_pct / 100.0)
+        else:
+            return current_price * (1.0 + trailing_pct / 100.0)
+    
+    @jit(nopython=True, cache=True)
+    def _calculate_position_size(account_balance: float, risk_pct: float, 
+                                entry_price: float, stop_loss: float) -> int:
+        """JIT-compiled position sizing"""
+        risk_amount = account_balance * (risk_pct / 100.0)
+        price_diff = abs(entry_price - stop_loss)
+        if price_diff > 0:
+            return int(risk_amount / price_diff)
+        return 0
+    
+    def get_risk_params(self, instrument_key: str) -> Dict:
+        """Get risk parameters for instrument"""
+        return self.settings.get(instrument_key, self.settings.get("default", {}))
+    
+    def calculate_risk_metrics(self, instrument_key: str, entry_price: float, 
+                             current_price: float, is_long: bool = True,
+                             account_balance: float = 100000.0) -> RiskMetrics:
+        """Calculate comprehensive risk metrics"""
+        params = self.get_risk_params(instrument_key)
         
-        # Only update if the new trailing stop is higher than current
-        if new_trailing_stop > self.dynamic_trailing_stop:
-            self.dynamic_trailing_stop = new_trailing_stop
-            logger.debug(f"Trailing stop updated to: {self.dynamic_trailing_stop}")
+        # Fast calculations using JIT functions
+        stop_loss = self._calculate_stop_loss(
+            entry_price, params.get("stop_loss_pct", 2.0), is_long
+        )
+        
+        trailing_stop = self._calculate_trailing_stop(
+            current_price, entry_price, params.get("trailing_stop_pct", 1.5), is_long
+        )
+        
+        position_size = self._calculate_position_size(
+            account_balance, params.get("risk_per_trade", 1.0), 
+            entry_price, stop_loss
+        )
+        
+        # PnL calculations
+        if is_long:
+            current_pnl = (current_price - entry_price) * position_size
+        else:
+            current_pnl = (entry_price - current_price) * position_size
+            
+        max_loss = abs(entry_price - stop_loss) * position_size
+        profit_target = entry_price + (abs(entry_price - stop_loss) * 
+                                     params.get("profit_target_ratio", 2.0))
+        
+        drawdown_pct = (current_pnl / account_balance) * 100 if current_pnl < 0 else 0.0
+        
+        return RiskMetrics(
+            pre_set_stop_level=stop_loss,
+            trailing_stop=trailing_stop,
+            position_size=position_size,
+            max_loss=max_loss,
+            profit_target=profit_target,
+            risk_reward_ratio=params.get("profit_target_ratio", 2.0),
+            current_pnl=current_pnl,
+            drawdown_pct=drawdown_pct
+        )
     
-    def _get_current_state(self) -> Dict[str, float]:
-        """Get the current state of all risk metrics."""
-        return {
-            "entry_price": self.entry_price,
-            "pre_set_stop_level": self.stop_level,
-            "profit_target_level": self.target_level,
-            "dynamic_trailing_stop": self.dynamic_trailing_stop,
-            "max_drawdown_pct": self.max_drawdown_pct,
-            "max_profit_pct": self.max_profit_pct,
-            "max_price_seen": self.max_price_seen,
-            "min_price_seen": self.min_price_seen,
-            "current_risk_reward_ratio": self._calculate_risk_reward_ratio()
+    def update_position(self, instrument_key: str, entry_price: float, 
+                       quantity: int, is_long: bool) -> None:
+        """Track active position"""
+        self.active_positions[instrument_key] = {
+            "entry_price": entry_price,
+            "quantity": quantity,
+            "is_long": is_long,
+            "max_favorable_price": entry_price
         }
     
-    def _calculate_risk_reward_ratio(self) -> float:
-        """Calculate current risk-reward ratio."""
-        try:
-            potential_loss = self.entry_price - self.dynamic_trailing_stop
-            potential_gain = self.target_level - self.entry_price
+    def should_exit_position(self, instrument_key: str, current_price: float) -> Tuple[bool, str]:
+        """Fast exit signal detection"""
+        if instrument_key not in self.active_positions:
+            return False, ""
             
-            if potential_loss > 0:
-                return potential_gain / potential_loss
-            else:
-                return 0.0
-        except:
-            return 0.0
-    
-    def is_stop_triggered(self, current_price: float) -> bool:
-        """
-        Check if any stop condition is triggered.
+        position = self.active_positions[instrument_key]
+        risk_metrics = self.calculate_risk_metrics(
+            instrument_key, position["entry_price"], current_price, position["is_long"]
+        )
         
-        Args:
-            current_price: Current market price
-            
-        Returns:
-            True if stop is triggered, False otherwise
-        """
-        return (current_price <= self.stop_level or 
-                current_price <= self.dynamic_trailing_stop)
-    
-    def is_target_reached(self, current_price: float) -> bool:
-        """
-        Check if profit target is reached.
-        
-        Args:
-            current_price: Current market price
-            
-        Returns:
-            True if target is reached, False otherwise
-        """
-        return current_price >= self.target_level
-    
-    def get_position_status(self, current_price: float) -> str:
-        """
-        Get current position status.
-        
-        Args:
-            current_price: Current market price
-            
-        Returns:
-            String indicating position status
-        """
-        if self.is_stop_triggered(current_price):
-            return "STOP_TRIGGERED"
-        elif self.is_target_reached(current_price):
-            return "TARGET_REACHED"
-        elif current_price > self.entry_price:
-            return "IN_PROFIT"
+        # Stop loss check
+        if position["is_long"]:
+            if current_price <= risk_metrics.pre_set_stop_level:
+                return True, "STOP_LOSS"
+            if current_price <= risk_metrics.trailing_stop:
+                return True, "TRAILING_STOP"
         else:
-            return "IN_LOSS"
-    
-    def adjust_risk_parameters(self, 
-                             new_stop_pct: Optional[float] = None,
-                             new_target_pct: Optional[float] = None,
-                             new_trailing_pct: Optional[float] = None):
-        """
-        Dynamically adjust risk parameters.
+            if current_price >= risk_metrics.pre_set_stop_level:
+                return True, "STOP_LOSS"
+            if current_price >= risk_metrics.trailing_stop:
+                return True, "TRAILING_STOP"
         
-        Args:
-            new_stop_pct: New stop loss percentage
-            new_target_pct: New profit target percentage  
-            new_trailing_pct: New trailing stop percentage
-        """
-        if new_stop_pct is not None:
-            self.stop_loss_pct = new_stop_pct
-            self.stop_level = self.entry_price * (1 - new_stop_pct / 100)
+        # Profit target check
+        if position["is_long"] and current_price >= risk_metrics.profit_target:
+            return True, "PROFIT_TARGET"
+        elif not position["is_long"] and current_price <= risk_metrics.profit_target:
+            return True, "PROFIT_TARGET"
             
-        if new_target_pct is not None:
-            self.profit_target_pct = new_target_pct
-            self.target_level = self.entry_price * (1 + new_target_pct / 100)
-            
-        if new_trailing_pct is not None:
-            self.trailing_stop_pct = new_trailing_pct
-            self._update_trailing_stop()
-            
-        logger.info(f"Risk parameters adjusted - Stop: {self.stop_level}, Target: {self.target_level}")
+        return False, ""
     
-    def reset_for_new_trade(self, new_entry_price: float):
-        """
-        Reset the risk manager for a new trade.
+    def get_portfolio_risk(self) -> Dict:
+        """Get overall portfolio risk metrics"""
+        total_positions = len(self.active_positions)
+        total_exposure = sum(
+            pos["entry_price"] * pos["quantity"] 
+            for pos in self.active_positions.values()
+        )
         
-        Args:
-            new_entry_price: New entry price
-        """
-        self.__init__(new_entry_price, self.stop_loss_pct, 
-                      self.profit_target_pct, self.trailing_stop_pct)
-        logger.info(f"Risk manager reset for new trade at entry: {new_entry_price}")
+        return {
+            "total_positions": total_positions,
+            "total_exposure": total_exposure,
+            "max_positions": self.max_positions.get("default", 10),
+            "can_add_position": total_positions < self.max_positions.get("default", 10)
+        }
+    
+    def remove_position(self, instrument_key: str) -> None:
+        """Remove closed position"""
+        self.active_positions.pop(instrument_key, None)
+    
+    def get_risk_summary(self) -> Dict:
+        """Get comprehensive risk summary"""
+        return {
+            "active_positions": len(self.active_positions),
+            "risk_settings_loaded": len(self.settings),
+            "portfolio_risk": self.get_portfolio_risk()
+        }
