@@ -1,0 +1,7 @@
+{
+  "api_key": "9e63bb98-31a5-4bc3-b93b-af3c219320e3",
+  "api_secret": "lhouvjvava",
+  "redirect_uri": "http://localhost:8000",
+  "access_token": "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIzV0NXTUQiLCJqdGkiOiI2ODQ3MTlhZTI1NDU5YTJlZGZlMWJlOGYiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6ZmFsc2UsImlhdCI6MTc0OTQ5MDA5NCwiaXNzIjoidWRhcGktZ2F0ZXdheS1zZXJ2aWNlIiwiZXhwIjoxNzQ5NTA2NDAwfQ.L2xThoC8qDo_H1px8LeJaO4O9F-19Lp7CYeQGVFFWW0",
+  "token_expires_at": "2025-06-10T21:58:14.357576"
+}
