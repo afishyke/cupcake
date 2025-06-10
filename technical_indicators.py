@@ -311,7 +311,20 @@ class UltraFastTechnicalAnalyzer:
                 "bb_std_dev": 2.0,
                 "adx_period": 14,
                 "ema_periods": [9, 21, 50],
-                "sma_periods": [20, 50]
+                "sma_periods": [20, 50, 200], # Added 200
+                "aroon_period": 14,
+                "stoch_fastk_period": 14,
+                "stoch_slowk_period": 3,
+                "stoch_slowd_period": 3,
+                "willr_period": 14,
+                "cci_period": 14,
+                "mfi_period": 14,
+                "atr_period": 14,
+                "keltner_period": 20,
+                "keltner_multiplier": 2.0,
+                "donchian_period": 20,
+                "chaikin_fastperiod": 3,
+                "chaikin_slowperiod": 10
             }
         }
     
@@ -353,10 +366,81 @@ class UltraFastTechnicalAnalyzer:
                 indicators[f'sma_{period}'] = fast_sma(close, period)
             
             # TA-Lib for complex indicators (optimized calls)
-            indicators['adx'] = talib.ADX(high, low, close, timeperiod=self.config['indicators']['adx_period'])
+            adx_period = self.config['indicators']['adx_period']
+            indicators['adx'] = talib.ADX(high, low, close, timeperiod=adx_period)
+            indicators['adx_plus'] = talib.PLUS_DI(high, low, close, timeperiod=adx_period)
+            indicators['adx_minus'] = talib.MINUS_DI(high, low, close, timeperiod=adx_period)
+
             indicators['macd'], indicators['macd_signal'], indicators['macd_hist'] = talib.MACD(close)
-            indicators['atr'] = talib.ATR(high, low, close, timeperiod=14)
             
+            # ATR - ensure it uses config
+            atr_p = self.config['indicators'].get('atr_period', 14)
+            indicators['atr'] = talib.ATR(high, low, close, timeperiod=atr_p)
+
+            # Parabolic SAR
+            indicators['sar'] = talib.SAR(high, low, acceleration=0.02, maximum=0.2)
+
+            # Aroon
+            aroon_period = self.config['indicators'].get('aroon_period', 14)
+            indicators['aroon_up'], indicators['aroon_down'] = talib.AROON(high, low, timeperiod=aroon_period)
+
+            # Stochastic Oscillator
+            stoch_fastk_period = self.config['indicators']['stoch_fastk_period']
+            stoch_slowk_period = self.config['indicators']['stoch_slowk_period']
+            stoch_slowd_period = self.config['indicators']['stoch_slowd_period']
+            indicators['stoch_k'], indicators['stoch_d'] = talib.STOCH(
+                high, low, close,
+                fastk_period=stoch_fastk_period,
+                slowk_period=stoch_slowk_period,
+                slowd_period=stoch_slowd_period
+            )
+
+            # Williams %R
+            willr_period = self.config['indicators']['willr_period']
+            indicators['williams_r'] = talib.WILLR(high, low, close, timeperiod=willr_period)
+
+            # Commodity Channel Index (CCI)
+            cci_period = self.config['indicators']['cci_period']
+            indicators['cci'] = talib.CCI(high, low, close, timeperiod=cci_period)
+
+            # Money Flow Index (MFI)
+            mfi_period = self.config['indicators']['mfi_period']
+            indicators['mfi'] = talib.MFI(high, low, close, volume, timeperiod=mfi_period)
+
+            # Keltner Channels
+            keltner_period = self.config['indicators']['keltner_period']
+            keltner_multiplier = self.config['indicators']['keltner_multiplier']
+            ema_close_keltner = talib.EMA(close, timeperiod=keltner_period)
+            atr_keltner = talib.ATR(high, low, close, timeperiod=keltner_period) # Use specific ATR for Keltner
+            indicators['keltner_middle'] = ema_close_keltner
+            indicators['keltner_upper'] = ema_close_keltner + (keltner_multiplier * atr_keltner)
+            indicators['keltner_lower'] = ema_close_keltner - (keltner_multiplier * atr_keltner)
+
+            # Donchian Channels
+            donchian_period = self.config['indicators']['donchian_period']
+            indicators['donchian_upper'] = talib.MAX(high, timeperiod=donchian_period)
+            indicators['donchian_lower'] = talib.MIN(low, timeperiod=donchian_period)
+            indicators['donchian_middle'] = (indicators['donchian_upper'] + indicators['donchian_lower']) / 2.0
+
+            # On-Balance Volume (OBV)
+            indicators['obv'] = talib.OBV(close, volume)
+
+            # Accumulation/Distribution Line (AD Line)
+            indicators['ad'] = talib.AD(high, low, close, volume)
+
+            # Volume Weighted Average Price (VWAP)
+            typical_price = (high + low + close) / 3.0
+            vwap_num = np.cumsum(typical_price * volume)
+            vwap_den = np.cumsum(volume)
+            indicators['vwap'] = np.divide(vwap_num, vwap_den, out=np.full_like(vwap_num, np.nan), where=vwap_den!=0)
+
+            # Chaikin A/D Oscillator
+            chaikin_fastperiod = self.config['indicators'].get('chaikin_fastperiod', 3)
+            chaikin_slowperiod = self.config['indicators'].get('chaikin_slowperiod', 10)
+            indicators['chaikin_ad'] = talib.ADOSC(high, low, close, volume,
+                                                   fastperiod=chaikin_fastperiod,
+                                                   slowperiod=chaikin_slowperiod)
+
             # Essential patterns only (reduced set for speed)
             for pattern_name in ['hammer', 'doji', 'engulfing']:
                 if pattern_name in self.pattern_functions:
@@ -377,48 +461,360 @@ class UltraFastTechnicalAnalyzer:
             if not indicators or len(indicators.get('close', [])) == 0:
                 return self._create_error_signal(instrument_key, "No data")
             
-            # Use JIT-compiled function for signal calculation
-            strength = calculate_signal_strength(
-                indicators.get('rsi', np.array([np.nan])),
-                indicators.get('adx', np.array([np.nan])),
-                indicators.get('macd_hist', np.array([np.nan])),
-                indicators['close'],
-                indicators.get('bb_upper', np.array([np.nan])),
-                indicators.get('bb_lower', np.array([np.nan]))
-            )
-            
-            # Determine signal type
-            if strength > 60: signal_type = SignalType.STRONG_BUY
-            elif strength > 20: signal_type = SignalType.BUY
-            elif strength < -60: signal_type = SignalType.STRONG_SELL
-            elif strength < -20: signal_type = SignalType.SELL
-            else: signal_type = SignalType.HOLD
-            
             # Get latest values
             latest_idx = -1
             current_price = indicators['close'][latest_idx]
             current_volume = int(indicators['volume'][latest_idx])
             current_time = indicators['timestamp'][latest_idx]
-            
-            # Build reasoning
-            rsi_val = indicators.get('rsi', [np.nan])[-1]
+
+            signal_strength = 0.0
+            signal_count = 0
             reasoning_parts = []
-            if not np.isnan(rsi_val):
-                if rsi_val < 30:
+
+            # RSI Logic
+            if 'rsi' in indicators and not np.isnan(indicators['rsi'][latest_idx]):
+                rsi_val = indicators['rsi'][latest_idx]
+                rsi_oversold_config = self.config['signals'].get('rsi_oversold', 30)
+                rsi_overbought_config = self.config['signals'].get('rsi_overbought', 70)
+                if rsi_val < rsi_oversold_config:
+                    signal_strength += 25
                     reasoning_parts.append(f"RSI oversold ({rsi_val:.1f})")
-                elif rsi_val > 70:
+                    signal_count += 1
+                elif rsi_val > rsi_overbought_config:
+                    signal_strength -= 25
                     reasoning_parts.append(f"RSI overbought ({rsi_val:.1f})")
+                    signal_count += 1
+
+            # ADX Trend Analysis (from problem description)
+            # Note: Requires 'adx_plus' and 'adx_minus' to be calculated in calculate_indicators_fast
+            if ('adx' in indicators and not np.isnan(indicators['adx'][latest_idx]) and
+                'adx_plus' in indicators and not np.isnan(indicators['adx_plus'][latest_idx]) and
+                'adx_minus' in indicators and not np.isnan(indicators['adx_minus'][latest_idx])):
+
+                adx_value = indicators['adx'][latest_idx]
+                adx_trend_strength_config = self.config['signals'].get('adx_trend_strength', 25)
+                if adx_value > adx_trend_strength_config:
+                    if indicators['adx_plus'][latest_idx] > indicators['adx_minus'][latest_idx]:
+                        signal_strength += 15
+                        reasoning_parts.append(f"Strong uptrend (ADX: {adx_value:.1f})")
+                    else:
+                        signal_strength -= 15
+                        reasoning_parts.append(f"Strong downtrend (ADX: {adx_value:.1f})")
+                    signal_count += 1
+
+            # EMA Crossover (from problem description)
+            # Note: Requires 'ema_9' and 'ema_21' (which are typically calculated)
+            if ('ema_9' in indicators and not np.isnan(indicators['ema_9'][latest_idx]) and
+                'ema_21' in indicators and not np.isnan(indicators['ema_21'][latest_idx])):
+                if indicators['ema_9'][latest_idx] > indicators['ema_21'][latest_idx]:
+                    signal_strength += 10
+                    reasoning_parts.append("EMA 9 > EMA 21 (bullish)")
+                else:
+                    signal_strength -= 10
+                    reasoning_parts.append("EMA 9 < EMA 21 (bearish)")
+                signal_count += 1
+
+            # SMA Logic
+            # Note: Requires 'sma_50' and 'sma_200' to be calculated in calculate_indicators_fast
+            if 'sma_50' in indicators and not np.isnan(indicators['sma_50'][latest_idx]):
+                if current_price > indicators['sma_50'][latest_idx]:
+                    signal_strength += 5
+                    reasoning_parts.append("Price above SMA50 (bullish)")
+                else:
+                    signal_strength -= 5
+                    reasoning_parts.append("Price below SMA50 (bearish)")
+                signal_count += 1
+
+            if 'sma_200' in indicators and not np.isnan(indicators['sma_200'][latest_idx]):
+                if current_price > indicators['sma_200'][latest_idx]:
+                    signal_strength += 10
+                    reasoning_parts.append("Price above SMA200 (long-term bullish)")
+                else:
+                    signal_strength -= 10
+                    reasoning_parts.append("Price below SMA200 (long-term bearish)")
+                signal_count += 1
+
+            if ('sma_50' in indicators and not np.isnan(indicators['sma_50'][latest_idx]) and
+                'sma_200' in indicators and not np.isnan(indicators['sma_200'][latest_idx])):
+                if indicators['sma_50'][latest_idx] > indicators['sma_200'][latest_idx]:
+                    signal_strength += 5
+                    reasoning_parts.append("SMA50 above SMA200 (golden cross context)")
+                else:
+                    signal_strength -= 5
+                    reasoning_parts.append("SMA50 below SMA200 (death cross context)")
+                signal_count += 1
+
+            # Parabolic SAR (SAR) Logic
+            # Note: Requires 'sar' to be calculated in calculate_indicators_fast
+            if 'sar' in indicators and not np.isnan(indicators['sar'][latest_idx]):
+                if current_price > indicators['sar'][latest_idx]:
+                    signal_strength += 10
+                    reasoning_parts.append("Price above SAR (bullish)")
+                else:
+                    signal_strength -= 10
+                    reasoning_parts.append("Price below SAR (bearish)")
+                signal_count += 1
+
+            # Aroon Logic
+            # Note: Requires 'aroon_up' and 'aroon_down' to be calculated in calculate_indicators_fast
+            if ('aroon_up' in indicators and not np.isnan(indicators['aroon_up'][latest_idx]) and
+                'aroon_down' in indicators and not np.isnan(indicators['aroon_down'][latest_idx])):
+                aroon_up_val = indicators['aroon_up'][latest_idx]
+                aroon_down_val = indicators['aroon_down'][latest_idx]
+                if aroon_up_val > 70 and aroon_down_val < 30:
+                    signal_strength += 10
+                    reasoning_parts.append("Aroon Up strong (bullish)")
+                    signal_count += 1
+                elif aroon_down_val > 70 and aroon_up_val < 30:
+                    signal_strength -= 10
+                    reasoning_parts.append("Aroon Down strong (bearish)")
+                    signal_count += 1
+
+            # --- START OF NEW MOMENTUM INDICATORS ---
+
+            # Stochastic Oscillator
+            # Note: Requires 'stoch_k' and 'stoch_d' to be calculated in calculate_indicators_fast
+            if ('stoch_k' in indicators and not np.isnan(indicators['stoch_k'][latest_idx]) and
+                'stoch_d' in indicators and not np.isnan(indicators['stoch_d'][latest_idx])): # stoch_d isn't used in current logic but good to check
+                stoch_k_val = indicators['stoch_k'][latest_idx]
+                if stoch_k_val < 20:
+                    signal_strength += 10
+                    reasoning_parts.append(f"Stochastic oversold ({stoch_k_val:.1f})")
+                    signal_count += 1
+                elif stoch_k_val > 80:
+                    signal_strength -= 10
+                    reasoning_parts.append(f"Stochastic overbought ({stoch_k_val:.1f})")
+                    signal_count += 1
+
+            # Williams %R
+            # Note: Requires 'williams_r' to be calculated in calculate_indicators_fast
+            if 'williams_r' in indicators and not np.isnan(indicators['williams_r'][latest_idx]):
+                williams_r_val = indicators['williams_r'][latest_idx]
+                if williams_r_val < -80:
+                    signal_strength += 10
+                    reasoning_parts.append(f"Williams %R oversold ({williams_r_val:.1f})")
+                    signal_count += 1
+                elif williams_r_val > -20:
+                    signal_strength -= 10
+                    reasoning_parts.append(f"Williams %R overbought ({williams_r_val:.1f})")
+                    signal_count += 1
+
+            # Commodity Channel Index (CCI)
+            # Note: Requires 'cci' to be calculated in calculate_indicators_fast
+            if 'cci' in indicators and not np.isnan(indicators['cci'][latest_idx]):
+                cci_val = indicators['cci'][latest_idx]
+                if cci_val < -100:
+                    signal_strength += 10
+                    reasoning_parts.append(f"CCI oversold ({cci_val:.1f})")
+                    signal_count += 1
+                elif cci_val > 100:
+                    signal_strength -= 10
+                    reasoning_parts.append(f"CCI overbought ({cci_val:.1f})")
+                    signal_count += 1
+
+            # Money Flow Index (MFI)
+            # Note: Requires 'mfi' to be calculated in calculate_indicators_fast
+            if 'mfi' in indicators and not np.isnan(indicators['mfi'][latest_idx]):
+                mfi_val = indicators['mfi'][latest_idx]
+                if mfi_val < 20:
+                    signal_strength += 10
+                    reasoning_parts.append(f"MFI oversold ({mfi_val:.1f})")
+                    signal_count += 1
+                elif mfi_val > 80:
+                    signal_strength -= 10
+                    reasoning_parts.append(f"MFI overbought ({mfi_val:.1f})")
+                    signal_count += 1
+
+            # --- END OF NEW MOMENTUM INDICATORS ---
+
+            # --- START OF NEW VOLATILITY INDICATORS ---
+
+            # Average True Range (ATR) - Contextual
+            # Note: 'atr' is already calculated in calculate_indicators_fast
+            if 'atr' in indicators and not np.isnan(indicators['atr'][latest_idx]) and current_price != 0:
+                atr_val = indicators['atr'][latest_idx]
+                atr_percentage = atr_val / current_price
+                if atr_percentage > 0.03:
+                    reasoning_parts.append(f"High volatility environment (ATR: {atr_val:.2f}, {atr_percentage*100:.1f}%)")
+                elif atr_percentage < 0.005:
+                    reasoning_parts.append(f"Low volatility environment (ATR: {atr_val:.2f}, {atr_percentage*100:.1f}%)")
+                # No signal_strength change or signal_count increment for contextual ATR
+
+            # Keltner Channels
+            # Note: Requires 'keltner_upper', 'keltner_lower', 'keltner_middle' to be calculated in calculate_indicators_fast
+            if ('keltner_upper' in indicators and not np.isnan(indicators['keltner_upper'][latest_idx]) and
+                'keltner_lower' in indicators and not np.isnan(indicators['keltner_lower'][latest_idx])):
+                keltner_upper_val = indicators['keltner_upper'][latest_idx]
+                keltner_lower_val = indicators['keltner_lower'][latest_idx]
+                if current_price > keltner_upper_val:
+                    signal_strength += 10 # Bullish breakout/strength
+                    reasoning_parts.append(f"Price above Keltner Upper ({keltner_upper_val:.2f})")
+                    signal_count += 1
+                elif current_price < keltner_lower_val:
+                    signal_strength -= 10 # Bearish breakdown/weakness
+                    reasoning_parts.append(f"Price below Keltner Lower ({keltner_lower_val:.2f})")
+                    signal_count += 1
+
+            # Donchian Channels
+            # Note: Requires 'donchian_upper', 'donchian_lower', 'donchian_middle' to be calculated in calculate_indicators_fast
+            if ('donchian_upper' in indicators and not np.isnan(indicators['donchian_upper'][latest_idx]) and
+                'donchian_lower' in indicators and not np.isnan(indicators['donchian_lower'][latest_idx])):
+                donchian_upper_val = indicators['donchian_upper'][latest_idx]
+                donchian_lower_val = indicators['donchian_lower'][latest_idx]
+                if current_price >= donchian_upper_val:
+                    signal_strength += 10 # Breakout above recent high
+                    reasoning_parts.append(f"Price breakout above Donchian Upper ({donchian_upper_val:.2f})")
+                    signal_count += 1
+                elif current_price <= donchian_lower_val:
+                    signal_strength -= 10 # Breakdown below recent low
+                    reasoning_parts.append(f"Price breakdown below Donchian Lower ({donchian_lower_val:.2f})")
+                    signal_count += 1
+
+            # --- END OF NEW VOLATILITY INDICATORS ---
+
+            # --- START OF NEW VOLUME INDICATORS ---
+
+            # On-Balance Volume (OBV)
+            # Note: Requires 'obv' to be calculated in calculate_indicators_fast
+            # Compares current OBV with OBV 10 periods ago.
+            obv_check_period = 10
+            if ('obv' in indicators and
+                len(indicators['obv']) > obv_check_period and
+                not np.isnan(indicators['obv'][latest_idx]) and
+                not np.isnan(indicators['obv'][latest_idx - obv_check_period])):
+
+                current_obv = indicators['obv'][latest_idx]
+                past_obv = indicators['obv'][latest_idx - obv_check_period]
+                if current_obv > past_obv:
+                    signal_strength += 5
+                    reasoning_parts.append(f"OBV rising (current: {current_obv:.0f}, past: {past_obv:.0f})")
+                    signal_count += 1
+                elif current_obv < past_obv:
+                    signal_strength -= 5
+                    reasoning_parts.append(f"OBV falling (current: {current_obv:.0f}, past: {past_obv:.0f})")
+                    signal_count += 1
+
+            # Accumulation/Distribution Line (AD Line)
+            # Note: Requires 'ad' to be calculated in calculate_indicators_fast
+            # Compares current AD Line with AD Line 10 periods ago.
+            ad_check_period = 10
+            if ('ad' in indicators and
+                len(indicators['ad']) > ad_check_period and
+                not np.isnan(indicators['ad'][latest_idx]) and
+                not np.isnan(indicators['ad'][latest_idx - ad_check_period])):
+
+                current_ad = indicators['ad'][latest_idx]
+                past_ad = indicators['ad'][latest_idx - ad_check_period]
+                if current_ad > past_ad:
+                    signal_strength += 5
+                    reasoning_parts.append(f"AD Line rising (current: {current_ad:.0f}, past: {past_ad:.0f})")
+                    signal_count += 1
+                elif current_ad < past_ad:
+                    signal_strength -= 5
+                    reasoning_parts.append(f"AD Line falling (current: {current_ad:.0f}, past: {past_ad:.0f})")
+                    signal_count += 1
+
+            # Volume Weighted Average Price (VWAP)
+            # Note: Requires 'vwap' to be calculated in calculate_indicators_fast
+            if 'vwap' in indicators and not np.isnan(indicators['vwap'][latest_idx]):
+                vwap_val = indicators['vwap'][latest_idx]
+                if current_price > vwap_val:
+                    signal_strength += 7
+                    reasoning_parts.append(f"Price above VWAP ({vwap_val:.2f})")
+                    signal_count += 1
+                elif current_price < vwap_val:
+                    signal_strength -= 7
+                    reasoning_parts.append(f"Price below VWAP ({vwap_val:.2f})")
+                    signal_count += 1
+
+            # Chaikin A/D Oscillator
+            # Note: Requires 'chaikin_ad' to be calculated in calculate_indicators_fast
+            if 'chaikin_ad' in indicators and not np.isnan(indicators['chaikin_ad'][latest_idx]):
+                chaikin_ad_val = indicators['chaikin_ad'][latest_idx]
+                if chaikin_ad_val > 0:
+                    signal_strength += 7
+                    reasoning_parts.append(f"Chaikin A/D positive ({chaikin_ad_val:.0f})")
+                    signal_count += 1
+                elif chaikin_ad_val < 0:
+                    signal_strength -= 7
+                    reasoning_parts.append(f"Chaikin A/D negative ({chaikin_ad_val:.0f})")
+                    signal_count += 1
+
+            # --- END OF NEW VOLUME INDICATORS ---
+
+            normalized_signal_strength = 0.0
+            if signal_count > 0:
+                normalized_signal_strength = (signal_strength / signal_count) * 10.0
+
+            # Clamp the normalized strength for consistent range in TechnicalSignal object
+            clamped_signal_strength_for_report = max(-100.0, min(100.0, normalized_signal_strength))
+
+            # Determine signal type from normalized_signal_strength
+            if normalized_signal_strength > 60:
+                signal_type = SignalType.STRONG_BUY
+            elif normalized_signal_strength > 20:
+                signal_type = SignalType.BUY
+            elif normalized_signal_strength < -60:
+                signal_type = SignalType.STRONG_SELL
+            elif normalized_signal_strength < -20:
+                signal_type = SignalType.SELL
+            else:
+                signal_type = SignalType.HOLD
+
+            # Populate indicators for the signal report
+            reported_indicators = {}
+
+            # Helper to safely add indicators
+            def add_to_report(key):
+                if key in indicators and not np.isnan(indicators[key][latest_idx]):
+                    reported_indicators[key] = indicators[key][latest_idx]
+
+            add_to_report('rsi')
+            add_to_report('adx')
+            add_to_report('adx_plus')
+            add_to_report('adx_minus')
+
+            # EMAs from config
+            for period in self.config['indicators'].get('ema_periods', []):
+                add_to_report(f'ema_{period}')
+
+            # SMAs from config
+            for period in self.config['indicators'].get('sma_periods', []):
+                add_to_report(f'sma_{period}')
+
+            add_to_report('bb_upper')
+            add_to_report('bb_middle')
+            add_to_report('bb_lower')
+            add_to_report('sar')
+            add_to_report('aroon_up')
+            add_to_report('aroon_down')
+            add_to_report('stoch_k')
+            add_to_report('stoch_d')
+            add_to_report('williams_r')
+            add_to_report('cci')
+            add_to_report('mfi')
+            add_to_report('atr')
+            add_to_report('keltner_upper')
+            add_to_report('keltner_middle')
+            add_to_report('keltner_lower')
+            add_to_report('donchian_upper')
+            add_to_report('donchian_middle')
+            add_to_report('donchian_lower')
+            add_to_report('obv')
+            add_to_report('ad')
+            add_to_report('vwap')
+            add_to_report('chaikin_ad')
             
             return TechnicalSignal(
                 instrument=instrument_key,
                 timestamp=current_time,
                 signal_type=signal_type,
-                strength=abs(strength),
-                indicators={'rsi': rsi_val if not np.isnan(rsi_val) else 0},
-                patterns=[],
+                strength=abs(clamped_signal_strength_for_report), # Use the clamped value
+                indicators=reported_indicators,
+                patterns=[], # Pattern detection is separate
                 price=current_price,
                 volume=current_volume,
-                reasoning="; ".join(reasoning_parts) or "Technical analysis"
+                reasoning="; ".join(reasoning_parts) or "Signal analysis" # Changed default
             )
             
         except Exception as e:
