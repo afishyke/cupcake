@@ -147,32 +147,33 @@ class AdvancedTechnicalAnalyzer:
         """Setup candlestick pattern recognition functions"""
         return {
             # Reversal patterns
-            'hammer': talib.CDLHAMMER,
-            'hanging_man': talib.CDLHANGINGMAN,
-            'inverted_hammer': talib.CDLINVERTEDHAMMER,
-            'shooting_star': talib.CDLSHOOTINGSTAR,
-            'doji': talib.CDLDOJI,
-            'dragonfly_doji': talib.CDLDRAGONFLY,
-            'gravestone_doji': talib.CDLGRAVESTONE,
-            'morning_star': talib.CDLMORNINGSTAR,
-            'evening_star': talib.CDLEVENINGSTAR,
-            'engulfing_bullish': talib.CDLENGULFING,
-            'harami': talib.CDLHARAMI,
-            'piercing_line': talib.CDLPIERCING,
-            'dark_cloud': talib.CDLDARKCLOUDCOVER,
-            
-            # Continuation patterns
-            'rising_three': talib.CDLRISING,
-            'falling_three': talib.CDLFALLING,
-            'up_gap_three': talib.CDLUPGAPTHREE,
-            'down_gap_three': talib.CDLDOWNGAPTHREE,
-            
-            # Powerful patterns
-            'three_white_soldiers': talib.CDL3WHITESOLDIERS,
-            'three_black_crows': talib.CDL3BLACKCROWS,
-            'abandoned_baby': talib.CDLABANDONEDBABY,
-            'belt_hold': talib.CDLBELTHOLD
-        }
+            # Reversal patterns
+'hammer': talib.CDLHAMMER,
+'hanging_man': talib.CDLHANGINGMAN,
+'inverted_hammer': talib.CDLINVERTEDHAMMER,
+'shooting_star': talib.CDLSHOOTINGSTAR,
+'doji': talib.CDLDOJI,
+'dragonfly_doji': talib.CDLDRAGONFLYDOJI,
+'gravestone_doji': talib.CDLGRAVESTONEDOJI,  # Fixed: was CDLGRAVESTONE
+'morning_star': talib.CDLMORNINGSTAR,
+'evening_star': talib.CDLEVENINGSTAR,
+'engulfing_bullish': talib.CDLENGULFING,
+'harami': talib.CDLHARAMI,
+'piercing_line': talib.CDLPIERCING,
+'dark_cloud': talib.CDLDARKCLOUDCOVER,
+
+# Continuation patterns
+'rising_three': talib.CDL3LINESTRIKE,  # 3-Line Strike (similar pattern)
+'falling_three': talib.CDL3LINESTRIKE,  # 3-Line Strike (check sign)
+'up_gap_three': talib.CDLUPSIDEGAP2CROWS,  # Upside Gap Two Crows
+'down_gap_three': talib.CDLGAPSIDESIDEWHITE,  # Gap Side-by-Side White
+
+# Powerful patterns
+'three_white_soldiers': talib.CDL3WHITESOLDIERS,
+'three_black_crows': talib.CDL3BLACKCROWS,
+'abandoned_baby': talib.CDLABANDONEDBABY,
+'belt_hold': talib.CDLBELTHOLD
+                }
     
     def load_data(self, instrument_key: str, source: str = "historical") -> Optional[pd.DataFrame]:
         """
