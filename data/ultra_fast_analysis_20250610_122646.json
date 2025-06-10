@@ -1,0 +1,287 @@
+{
+  "NSE_EQ|INE467B01029":{
+    "instrument":"NSE_EQ|INE467B01029",
+    "symbol_name":"Tata Consultancy Services",
+    "analysis_timestamp":"2025-06-10T12:26:45.037137",
+    "signal":{
+      "instrument":"NSE_EQ|INE467B01029",
+      "timestamp":"2025-06-10T06:52:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":37.209970552581574
+      },
+      "patterns":[],
+      "price":3473.199951171875,
+      "volume":2418,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE002A01018":{
+    "instrument":"NSE_EQ|INE002A01018",
+    "symbol_name":"Reliance Industries",
+    "analysis_timestamp":"2025-06-10T12:26:45.072308",
+    "signal":{
+      "instrument":"NSE_EQ|INE002A01018",
+      "timestamp":"2025-06-10T06:52:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":43.859367699956145
+      },
+      "patterns":[],
+      "price":1444.199951171875,
+      "volume":7382,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  },
+  "NSE_EQ|INE090A01021":{
+    "instrument":"NSE_EQ|INE090A01021",
+    "symbol_name":"ICICI Bank",
+    "analysis_timestamp":"2025-06-10T12:26:45.241258",
+    "signal":{
+      "instrument":"NSE_EQ|INE090A01021",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":50.81197042097185
+      },
+      "patterns":[],
+      "price":1419.800048828125,
+      "volume":12083,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE009A01021":{
+    "instrument":"NSE_EQ|INE009A01021",
+    "symbol_name":"Infosys",
+    "analysis_timestamp":"2025-06-10T12:26:45.249809",
+    "signal":{
+      "instrument":"NSE_EQ|INE009A01021",
+      "timestamp":"2025-06-10T06:52:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":45.2842361892293
+      },
+      "patterns":[],
+      "price":1604.5,
+      "volume":11734,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE040A01034":{
+    "instrument":"NSE_EQ|INE040A01034",
+    "symbol_name":"HDFC Bank",
+    "analysis_timestamp":"2025-06-10T12:26:45.301671",
+    "signal":{
+      "instrument":"NSE_EQ|INE040A01034",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":53.155085325245224
+      },
+      "patterns":[],
+      "price":1964.9000244140625,
+      "volume":8505,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE154A01025":{
+    "instrument":"NSE_EQ|INE154A01025",
+    "symbol_name":"ITC",
+    "analysis_timestamp":"2025-06-10T12:26:45.350978",
+    "signal":{
+      "instrument":"NSE_EQ|INE154A01025",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":2.777777777777778,
+      "indicators":{
+        "rsi":27.96470725005959
+      },
+      "patterns":[],
+      "price":425.70001220703125,
+      "volume":8371,
+      "reasoning":"RSI oversold (28.0)"
+    },
+    "summary":"Signal: HOLD (Strength: 2.8%)"
+  },
+  "NSE_EQ|INE030A01027":{
+    "instrument":"NSE_EQ|INE030A01027",
+    "symbol_name":"Hindustan Unilever",
+    "analysis_timestamp":"2025-06-10T12:26:45.419824",
+    "signal":{
+      "instrument":"NSE_EQ|INE030A01027",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":44.13726045472699
+      },
+      "patterns":[],
+      "price":2391.800048828125,
+      "volume":261,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE397D01024":{
+    "instrument":"NSE_EQ|INE397D01024",
+    "symbol_name":"Bharti Airtel",
+    "analysis_timestamp":"2025-06-10T12:26:45.440663",
+    "signal":{
+      "instrument":"NSE_EQ|INE397D01024",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":38.29912799157178
+      },
+      "patterns":[],
+      "price":1862.800048828125,
+      "volume":4676,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  },
+  "NSE_EQ|INE237A01028":{
+    "instrument":"NSE_EQ|INE237A01028",
+    "symbol_name":"Kotak Mahindra Bank",
+    "analysis_timestamp":"2025-06-10T12:26:45.555895",
+    "signal":{
+      "instrument":"NSE_EQ|INE237A01028",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":50.57540554279761
+      },
+      "patterns":[],
+      "price":2162.5,
+      "volume":7825,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE021A01026":{
+    "instrument":"NSE_EQ|INE021A01026",
+    "symbol_name":"Asian Paints",
+    "analysis_timestamp":"2025-06-10T12:26:45.581886",
+    "signal":{
+      "instrument":"NSE_EQ|INE021A01026",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":42.96408796100562
+      },
+      "patterns":[],
+      "price":2225.199951171875,
+      "volume":2070,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  },
+  "NSE_EQ|INE018A01030":{
+    "instrument":"NSE_EQ|INE018A01030",
+    "symbol_name":"Larsen & Toubro",
+    "analysis_timestamp":"2025-06-10T12:26:45.604941",
+    "signal":{
+      "instrument":"NSE_EQ|INE018A01030",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":44.47518061848281
+      },
+      "patterns":[],
+      "price":3685.10009765625,
+      "volume":3156,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE296A01024":{
+    "instrument":"NSE_EQ|INE296A01024",
+    "symbol_name":"Bajaj Finance",
+    "analysis_timestamp":"2025-06-10T12:26:45.615889",
+    "signal":{
+      "instrument":"NSE_EQ|INE296A01024",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":35.55845054612864
+      },
+      "patterns":[],
+      "price":9531.0,
+      "volume":2668,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  },
+  "NSE_EQ|INE062A01020":{
+    "instrument":"NSE_EQ|INE062A01020",
+    "symbol_name":"State Bank of India",
+    "analysis_timestamp":"2025-06-10T12:26:45.631780",
+    "signal":{
+      "instrument":"NSE_EQ|INE062A01020",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":42.51496554819246
+      },
+      "patterns":[],
+      "price":816.5999755859375,
+      "volume":9556,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  },
+  "NSE_EQ|INE585B01010":{
+    "instrument":"NSE_EQ|INE585B01010",
+    "symbol_name":"Maruti Suzuki",
+    "analysis_timestamp":"2025-06-10T12:26:45.640783",
+    "signal":{
+      "instrument":"NSE_EQ|INE585B01010",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":0.0,
+      "indicators":{
+        "rsi":46.922795300080516
+      },
+      "patterns":[],
+      "price":12566.0,
+      "volume":246,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 0.0%)"
+  },
+  "NSE_EQ|INE860A01027":{
+    "instrument":"NSE_EQ|INE860A01027",
+    "symbol_name":"HCL Technologies",
+    "analysis_timestamp":"2025-06-10T12:26:45.658594",
+    "signal":{
+      "instrument":"NSE_EQ|INE860A01027",
+      "timestamp":"2025-06-10T06:53:00.000000000",
+      "signal_type":"SignalType.HOLD",
+      "strength":11.111111111111112,
+      "indicators":{
+        "rsi":58.23562897794146
+      },
+      "patterns":[],
+      "price":1683.4000244140625,
+      "volume":11100,
+      "reasoning":"Technical analysis"
+    },
+    "summary":"Signal: HOLD (Strength: 11.1%)"
+  }
+}
