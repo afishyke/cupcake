@@ -1,0 +1,13 @@
+2025-06-19 02:15:08,350 - INFO - Live data fetcher logging to: /home/abhishek/projects/CUPCAKE/logs/live_data_fetcher_20250619_021508_IST.log
+2025-06-19 02:15:08,351 - INFO - Script directory: /home/abhishek/projects/CUPCAKE/scripts
+2025-06-19 02:15:08,351 - INFO - Looking for symbols.json at: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 02:15:08,352 - INFO - Loaded credentials from /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-19 02:15:08,352 - INFO - Loaded 15 symbols from /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 02:15:08,356 - INFO - Connected to Redis at localhost:6379, DB 0
+2025-06-19 02:15:08,357 - INFO - Starting continuous live data fetching...
+2025-06-19 02:15:08,357 - INFO - Monitoring 15 symbols
+2025-06-19 02:15:08,357 - INFO - Log file: /home/abhishek/projects/CUPCAKE/logs/live_data_fetcher_20250619_021508_IST.log
+2025-06-19 02:15:08,357 - INFO - Performing initial gap filling...
+2025-06-19 02:15:08,365 - INFO - No existing data for Bajaj Finance, skipping gap fill
+2025-06-19 02:15:08,437 - INFO - Market not open yet, waiting...
+2025-06-19 02:15:24,603 - INFO - Received signal 2, shutting down gracefully...

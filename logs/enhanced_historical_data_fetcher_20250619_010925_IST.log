@@ -1,0 +1,22 @@
+2025-06-19 01:09:25,773 - INFO - Logging to: /home/abhishek/projects/CUPCAKE/logs/enhanced_historical_data_fetcher_20250619_010925_IST.log
+2025-06-19 01:09:25,774 - INFO - Script directory: /home/abhishek/projects/CUPCAKE/scripts
+2025-06-19 01:09:25,775 - INFO - Looking for symbols.json at: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 01:09:25,775 - INFO - Loaded credentials from /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-19 01:09:25,775 - ERROR - Failed to load symbols: Expecting value: line 1 column 1 (char 0)
+2025-06-19 01:09:25,775 - ERROR - Fatal error in enhanced main: Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "/home/abhishek/projects/CUPCAKE/scripts/historical_data_fetcher.py", line 753, in main
+    fetcher = EnhancedHistoricalDataFetcher(credentials_path, symbols_path)
+  File "/home/abhishek/projects/CUPCAKE/scripts/historical_data_fetcher.py", line 453, in __init__
+    self.symbols = self._load_symbols()
+  File "/home/abhishek/projects/CUPCAKE/scripts/historical_data_fetcher.py", line 487, in _load_symbols
+    data = json.load(f)
+  File "/home/abhishek/anaconda3/envs/cupcake-v2/lib/python3.10/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+  File "/home/abhishek/anaconda3/envs/cupcake-v2/lib/python3.10/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "/home/abhishek/anaconda3/envs/cupcake-v2/lib/python3.10/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/home/abhishek/anaconda3/envs/cupcake-v2/lib/python3.10/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

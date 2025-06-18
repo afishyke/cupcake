@@ -1,0 +1,16 @@
+2025-06-19 00:42:55,560 - INFO - PROGRAM_ERROR: Unexpected error - 'UpstoxAuthClient' object has no attribute '_load_config'
+2025-06-19 00:43:33,525 - INFO - PROGRAM_ERROR: Unexpected error - 'UpstoxAuthClient' object has no attribute '_load_config'
+2025-06-19 00:46:15 IST - INFO - PROGRAM_START: Upstox Authentication Client started
+2025-06-19 00:46:15 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:15 IST - INFO - AUTH_ATTEMPT: Token still valid, skipping authentication
+2025-06-19 00:46:15 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:16 IST - INFO - CONNECTION_SUCCESS: Connected as User: Akash Ani (ID: 3WCWMD)
+2025-06-19 00:46:16 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:16 IST - INFO - PROGRAM_SUCCESS: Authentication and connection test completed successfully
+2025-06-19 00:46:31 IST - INFO - PROGRAM_START: Upstox Authentication Client started
+2025-06-19 00:46:31 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:31 IST - INFO - AUTH_ATTEMPT: Token still valid, skipping authentication
+2025-06-19 00:46:31 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:31 IST - INFO - CONNECTION_SUCCESS: Connected as User: Akash Ani (ID: 3WCWMD)
+2025-06-19 00:46:31 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-19 09:27:54.437492+00:00
+2025-06-19 00:46:31 IST - INFO - PROGRAM_SUCCESS: Authentication and connection test completed successfully
