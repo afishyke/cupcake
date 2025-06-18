@@ -44,6 +44,7 @@ tick-tick-stock-monitor/
 │   ├── MarketDataFeed_pb2.py          # Generated from .proto
 │   ├── historical_data_fetcher.py
 │   ├── live_data.py
+|   ├── Data_Fetcher_Runner.py         # runs both historical_data_fetcher.py & live_data.py
 │   ├── websocket_client.py
 │   ├── protofolio.py
 │   ├── technical_indicators.py
@@ -106,6 +107,9 @@ tick-tick-stock-monitor/
 # - Updates real‑time pipeline every minute
 # - Integrates with MarketDataFeed_pb2.py
 ```
+### `Data_Fetcher_Runner.py`
+# Runs both historical_data_fetcher.py & live_data.py simultaneously
+# - Ensures no row is empty
 
 #### `websocket_client.py`
 ```python
