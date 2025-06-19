@@ -1,0 +1,120 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# Documentation
+README.md
+docs/
+*.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Log files (will be mounted as volume)
+logs/
+*.log
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Security and credentials (will be mounted separately)
+.env
+.env.local
+.env.*.local
+authentication/credentials.json
+
+# Docker files (not needed in container)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Development and test files
+tests/
+test_*.py
+*_test.py
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Database files (will be in volumes)
+*.db
+*.sqlite
+*.sqlite3
+
+# Compiled files
+*.compiled
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
+
+# Redis dumps
+dump.rdb
+
+# Python virtual environment
+.venv/
+venv/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Local development scripts
+dev/
+development/
+local/
+
+# Performance and profiling
+*.prof
+*.profile
