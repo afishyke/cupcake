@@ -35,12 +35,17 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Setup IST timezone for logging
 IST_TIMEZONE = pytz.timezone('Asia/Kolkata')
 
+# New config paths
+CREDENTIALS_PATH = os.getenv('CUPCAKE_CREDENTIALS_PATH', os.path.join('keys', 'credentials', 'credentials.json'))
+SYMBOLS_PATH = os.getenv('CUPCAKE_SYMBOLS_PATH', os.path.join('keys', 'config', 'symbols.json'))
+LOG_DIR = os.getenv('CUPCAKE_LOG_DIR', 'logs')
+
 # Create log filename with IST date and time
 def get_log_filename():
     """Generate log filename with IST date and time"""
     ist_now = datetime.now(IST_TIMEZONE)
     timestamp = ist_now.strftime('%Y%m%d_%H%M%S_IST')
-    log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+    log_dir = LOG_DIR
     os.makedirs(log_dir, exist_ok=True)
     return os.path.join(log_dir, f"enhanced_historical_data_fetcher_{timestamp}.log")
 
@@ -741,16 +746,12 @@ class EnhancedHistoricalDataFetcher:
 
 def main():
     """Enhanced main function with better reporting and error handling"""
-    credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
-    # Look for symbols.json in the same directory as this script
-    symbols_path = os.path.join(SCRIPT_DIR, "symbols.json")
-    
     logger.info(f"Script directory: {SCRIPT_DIR}")
-    logger.info(f"Looking for symbols.json at: {symbols_path}")
+    logger.info(f"Looking for symbols.json at: {SYMBOLS_PATH}")
     
     try:
         # Initialize enhanced fetcher
-        fetcher = EnhancedHistoricalDataFetcher(credentials_path, symbols_path)
+        fetcher = EnhancedHistoricalDataFetcher(CREDENTIALS_PATH, SYMBOLS_PATH)
         
         start_time = datetime.now()
         logger.info(f"Starting enhanced data fetch at {start_time}")

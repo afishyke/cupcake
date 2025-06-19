@@ -1,0 +1,17 @@
+# keys/key.txt
+
+This folder is used to store all sensitive, environment-specific, or configuration files required by the project.
+
+Recommended structure:
+
+- credentials/
+    - credentials.json      # API keys, secrets, tokens for Upstox or other services
+- config/
+    - symbols.json          # List of trading symbols and instrument keys
+    - other_config.json     # Any additional configuration files
+- logs/ (optional)
+    - For storing log files if you want to keep them with keys (not recommended for production)
+
+**Do NOT commit actual credentials or sensitive files to version control.**
+
+All scripts should reference files from this folder instead of hardcoded absolute paths. 

@@ -37,8 +37,8 @@ def check_files():
     files_to_check = {
         "Historical Fetcher": "historical_data_fetcher.py",
         "Enhanced Live Fetcher": "enhanced_live_data_fetcher.py",  # Updated filename
-        "Symbols File": "symbols.json",
-        "Credentials": "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+        "Symbols File": os.path.join('..', 'keys', 'config', 'symbols.json'),
+        "Credentials": os.path.join('..', 'keys', 'credentials', 'credentials.json')
     }
     
     print("\n📁 FILE CHECK:")

@@ -34,9 +34,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Environment-based configuration
-CREDENTIALS_PATH = os.getenv('CUPCAKE_CREDENTIALS_PATH', '/home/abhishek/projects/CUPCAKE/authentication/credentials.json')
-SYMBOLS_PATH = os.getenv('CUPCAKE_SYMBOLS_PATH', '/home/abhishek/projects/CUPCAKE/scripts/symbols.json')
-LOG_DIR = os.getenv('CUPCAKE_LOG_DIR', '/home/abhishek/projects/CUPCAKE/logs')
+CREDENTIALS_PATH = os.getenv('CUPCAKE_CREDENTIALS_PATH', os.path.join('keys', 'credentials', 'credentials.json'))
+SYMBOLS_PATH = os.getenv('CUPCAKE_SYMBOLS_PATH', os.path.join('keys', 'config', 'symbols.json'))
+LOG_DIR = os.getenv('CUPCAKE_LOG_DIR', 'logs')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
 REDIS_DB = int(os.getenv('REDIS_DB', '1'))

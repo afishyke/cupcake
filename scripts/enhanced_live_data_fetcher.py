@@ -40,11 +40,16 @@ IST_TIMEZONE = pytz.timezone('Asia/Kolkata')
 # Global flag for graceful shutdown
 SHUTDOWN_FLAG = threading.Event()
 
+# New config paths
+CREDENTIALS_PATH = os.getenv('CUPCAKE_CREDENTIALS_PATH', os.path.join('keys', 'credentials', 'credentials.json'))
+SYMBOLS_PATH = os.getenv('CUPCAKE_SYMBOLS_PATH', os.path.join('keys', 'config', 'symbols.json'))
+LOG_DIR = os.getenv('CUPCAKE_LOG_DIR', 'logs')
+
 def get_log_filename():
     """Generate log filename with IST date and time"""
     ist_now = datetime.now(IST_TIMEZONE)
     timestamp = ist_now.strftime('%Y%m%d_%H%M%S_IST')
-    log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+    log_dir = LOG_DIR
     os.makedirs(log_dir, exist_ok=True)
     return os.path.join(log_dir, f"enhanced_live_data_fetcher_{timestamp}.log")
 
@@ -640,15 +645,12 @@ class EnhancedLiveDataFetcher:
 
 def main():
     """Main function for live data fetching"""
-    credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
-    symbols_path = os.path.join(SCRIPT_DIR, "symbols.json")
-    
     logger.info(f"Script directory: {SCRIPT_DIR}")
-    logger.info(f"Looking for symbols.json at: {symbols_path}")
+    logger.info(f"Looking for symbols.json at: {SYMBOLS_PATH}")
     
     try:
         # Initialize live data fetcher
-        fetcher = EnhancedLiveDataFetcher(credentials_path, symbols_path)
+        fetcher = EnhancedLiveDataFetcher(CREDENTIALS_PATH, SYMBOLS_PATH)
         
         # Run continuous fetching
         fetcher.run_continuous()
