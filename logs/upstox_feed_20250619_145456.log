@@ -1,0 +1,10 @@
+2025-06-19 14:54:56,884 - INFO - 🚀 Starting Upstox WebSocket v3 Client - Log: CUPCAKE/logs/upstox_feed_20250619_145456.log
+2025-06-19 14:54:56,884 - INFO - 🏁 Starting Upstox WebSocket v3 receive-only client...
+2025-06-19 14:54:57,026 - INFO - ✅ Got authorized WebSocket URL
+2025-06-19 14:54:57,048 - INFO - 🔗 Connecting to WebSocket...
+2025-06-19 14:54:57,232 - INFO - ✅ WebSocket connected
+2025-06-19 14:54:57,233 - INFO - ✅ Ready to receive data (v3 is pre-authenticated, receive-only)
+2025-06-19 14:54:57,233 - INFO - ℹ️  Note: You'll receive data for instruments subscribed in your Upstox app
+2025-06-19 14:54:57,233 - INFO - 📨 Starting to receive messages (v3 receive-only mode)
+2025-06-19 14:54:57,233 - INFO - 📊 Market Status Update #1: {'BCD_FO': 'NORMAL_OPEN', 'NSE_INDEX': 'NORMAL_OPEN', 'BSE_FO': 'NORMAL_OPEN', 'MCX_FO': 'NORMAL_OPEN', 'NCD_FO': 'NORMAL_OPEN', 'NSE_COM': 'NORMAL_OPEN', 'NSE_FO': 'NORMAL_OPEN', 'BSE_INDEX': 'NORMAL_OPEN', 'NSE_EQ': 'NORMAL_OPEN', 'BSE_EQ': 'NORMAL_OPEN', 'MCX_INDEX': 'NORMAL_OPEN'}
+2025-06-19 15:00:24,012 - INFO - 🔌 Disconnected from WebSocket
