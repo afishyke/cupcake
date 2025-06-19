@@ -1,0 +1,56 @@
+2025-06-19 11:54:15,193 - INFO - Live fetcher logging to: /home/abhishek/projects/CUPCAKE/logs/enhanced_live_data_fetcher_20250619_115415_IST.log
+2025-06-19 11:54:15,195 - INFO - Script directory: /home/abhishek/projects/CUPCAKE/scripts
+2025-06-19 11:54:15,195 - INFO - Looking for symbols.json at: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 11:54:15,195 - INFO - Loaded credentials from /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-19 11:54:15,195 - INFO - Loaded 15 symbols from /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 11:54:15,197 - INFO - Live fetcher connected to Redis at localhost:6379, DB 0
+2025-06-19 11:54:15,197 - INFO - Live data fetcher initialized for 15 symbols
+2025-06-19 11:54:15,197 - INFO - === STARTING CONTINUOUS LIVE DATA FETCHING ===
+2025-06-19 11:54:15,197 - INFO - Fetch interval: 1 minute(s)
+2025-06-19 11:54:15,197 - INFO - Total symbols: 15
+2025-06-19 11:54:15,197 - INFO - Market timer active: True
+2025-06-19 11:54:15,197 - INFO - Press Ctrl+C to stop...
+2025-06-19 11:54:15,197 - INFO - ============================================================
+2025-06-19 11:54:15,197 - INFO - Waiting 59.8 seconds until next fetch at 11:55:15
+2025-06-19 11:55:15,059 - INFO - === FETCH CYCLE 1 ===
+2025-06-19 11:55:15,059 - INFO - Current time: 11:55:15
+2025-06-19 11:55:15,059 - INFO - Target timestamp: 11:54:00
+2025-06-19 11:55:15,059 - INFO - Fetching data for 15 symbols at 11:54:00
+2025-06-19 11:55:15,344 - ERROR - API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 11:55:15,955 - INFO - Fetch cycle completed: 13/15 successful (86.7%)
+2025-06-19 11:55:15,956 - WARNING - Failed symbols: ['Hindustan Unilever', 'Bajaj Finance']
+2025-06-19 11:55:15,956 - INFO - Waiting 59.0 seconds until next fetch at 11:56:15
+2025-06-19 11:56:15,058 - INFO - === FETCH CYCLE 2 ===
+2025-06-19 11:56:15,058 - INFO - Current time: 11:56:15
+2025-06-19 11:56:15,058 - INFO - Target timestamp: 11:55:00
+2025-06-19 11:56:15,058 - INFO - Fetching data for 15 symbols at 11:55:00
+2025-06-19 11:56:15,320 - ERROR - API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 11:56:15,927 - INFO - Fetch cycle completed: 14/15 successful (93.3%)
+2025-06-19 11:56:15,927 - WARNING - Failed symbols: ['Bajaj Finance']
+2025-06-19 11:56:15,927 - INFO - Waiting 59.1 seconds until next fetch at 11:57:15
+2025-06-19 11:57:15,058 - INFO - === FETCH CYCLE 3 ===
+2025-06-19 11:57:15,059 - INFO - Current time: 11:57:15
+2025-06-19 11:57:15,059 - INFO - Target timestamp: 11:56:00
+2025-06-19 11:57:15,059 - INFO - Fetching data for 15 symbols at 11:56:00
+2025-06-19 11:57:15,325 - ERROR - API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 11:57:15,957 - INFO - Fetch cycle completed: 14/15 successful (93.3%)
+2025-06-19 11:57:15,957 - WARNING - Failed symbols: ['Bajaj Finance']
+2025-06-19 11:57:15,957 - INFO - Waiting 59.0 seconds until next fetch at 11:58:15
+2025-06-19 11:58:15,057 - INFO - === FETCH CYCLE 4 ===
+2025-06-19 11:58:15,058 - INFO - Current time: 11:58:15
+2025-06-19 11:58:15,058 - INFO - Target timestamp: 11:57:00
+2025-06-19 11:58:15,058 - INFO - Fetching data for 15 symbols at 11:57:00
+2025-06-19 11:58:15,390 - ERROR - API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 11:58:15,942 - INFO - Fetch cycle completed: 14/15 successful (93.3%)
+2025-06-19 11:58:15,942 - WARNING - Failed symbols: ['Bajaj Finance']
+2025-06-19 11:58:15,942 - INFO - Waiting 59.1 seconds until next fetch at 11:59:15
+2025-06-19 11:59:15,059 - INFO - === FETCH CYCLE 5 ===
+2025-06-19 11:59:15,059 - INFO - Current time: 11:59:15
+2025-06-19 11:59:15,059 - INFO - Target timestamp: 11:58:00
+2025-06-19 11:59:15,059 - INFO - Fetching data for 15 symbols at 11:58:00
+2025-06-19 11:59:15,326 - ERROR - API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 11:59:15,951 - INFO - Fetch cycle completed: 14/15 successful (93.3%)
+2025-06-19 11:59:15,951 - WARNING - Failed symbols: ['Bajaj Finance']
+2025-06-19 11:59:15,951 - INFO - Waiting 59.0 seconds until next fetch at 12:00:15
+2025-06-19 11:59:39,744 - INFO - Received signal 2, initiating graceful shutdown...
+2025-06-19 11:59:39,977 - INFO - === LIVE DATA FETCHING STOPPED ===

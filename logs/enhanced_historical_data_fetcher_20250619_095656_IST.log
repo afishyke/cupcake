@@ -1,0 +1,161 @@
+2025-06-19 09:56:56,764 - INFO - Logging to: /home/abhishek/projects/CUPCAKE/logs/enhanced_historical_data_fetcher_20250619_095656_IST.log
+2025-06-19 09:56:56,766 - INFO - Script directory: /home/abhishek/projects/CUPCAKE/scripts
+2025-06-19 09:56:56,766 - INFO - Looking for symbols.json at: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 09:56:56,766 - INFO - Loaded credentials from /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-19 09:56:56,766 - INFO - Loaded 15 symbols from /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 09:56:56,768 - INFO - Connected to Redis at localhost:6379, DB 0
+2025-06-19 09:56:56,768 - INFO - Flushed Redis database
+2025-06-19 09:56:56,768 - INFO - Starting enhanced data fetch at 2025-06-19 09:56:56.768652
+2025-06-19 09:56:56,768 - INFO - Starting to process 15 symbols with 3 workers
+2025-06-19 09:56:56,768 - INFO - Processing symbol: Reliance Industries (NSE_EQ|INE002A01018)
+2025-06-19 09:56:56,769 - INFO - Processing symbol: Tata Consultancy Services (NSE_EQ|INE467B01029)
+2025-06-19 09:56:56,769 - INFO - Processing symbol: Infosys (NSE_EQ|INE009A01021)
+2025-06-19 09:56:56,869 - INFO - Trying V3 intraday API for Infosys
+2025-06-19 09:56:56,869 - INFO - Trying V3 intraday API for Reliance Industries
+2025-06-19 09:56:56,899 - INFO - Trying V3 intraday API for Tata Consultancy Services
+2025-06-19 09:56:56,981 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:56,981 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:56,982 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:56,990 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:56,990 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:56,991 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,014 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,014 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,014 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,076 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,080 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,080 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,105 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,109 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,110 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,122 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,125 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,125 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,160 - INFO - Added 250 candles for Reliance_Industries
+2025-06-19 09:56:57,164 - INFO - Processing symbol: HDFC Bank (NSE_EQ|INE040A01034)
+2025-06-19 09:56:57,166 - INFO - Trying V3 intraday API for HDFC Bank
+2025-06-19 09:56:57,165 - INFO - Added 250 candles for Infosys
+2025-06-19 09:56:57,168 - INFO - Progress: 1/15 symbols processed
+2025-06-19 09:56:57,170 - INFO - Processing symbol: ICICI Bank (NSE_EQ|INE090A01021)
+2025-06-19 09:56:57,172 - INFO - Trying V3 intraday API for ICICI Bank
+2025-06-19 09:56:57,177 - INFO - Added 250 candles for Tata_Consultancy_Services
+2025-06-19 09:56:57,178 - INFO - Processing symbol: Hindustan Unilever (NSE_EQ|INE030A01027)
+2025-06-19 09:56:57,178 - INFO - Trying V3 intraday API for Hindustan Unilever
+2025-06-19 09:56:57,262 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,262 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,262 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,271 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,271 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,272 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,279 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,280 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,280 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,350 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,352 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,353 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,356 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,358 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,358 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,363 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,365 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,365 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,371 - INFO - Progress: 2/15 symbols processed
+2025-06-19 09:56:57,409 - INFO - Added 250 candles for Hindustan_Unilever
+2025-06-19 09:56:57,410 - INFO - Added 250 candles for HDFC_Bank
+2025-06-19 09:56:57,413 - INFO - Processing symbol: ITC (NSE_EQ|INE154A01025)
+2025-06-19 09:56:57,414 - INFO - Added 250 candles for ICICI_Bank
+2025-06-19 09:56:57,414 - INFO - Trying V3 intraday API for ITC
+2025-06-19 09:56:57,414 - INFO - Processing symbol: State Bank of India (NSE_EQ|INE062A01020)
+2025-06-19 09:56:57,416 - INFO - Trying V3 intraday API for State Bank of India
+2025-06-19 09:56:57,417 - INFO - Processing symbol: Bharti Airtel (NSE_EQ|INE397D01024)
+2025-06-19 09:56:57,418 - INFO - Trying V3 intraday API for Bharti Airtel
+2025-06-19 09:56:57,507 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,507 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,507 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,510 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,511 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,511 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,513 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,513 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,513 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,572 - INFO - Progress: 3/15 symbols processed
+2025-06-19 09:56:57,578 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,580 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,580 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,595 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,597 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,602 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,603 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,606 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,606 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,656 - INFO - Added 250 candles for Bharti_Airtel
+2025-06-19 09:56:57,659 - INFO - Processing symbol: Kotak Mahindra Bank (NSE_EQ|INE237A01028)
+2025-06-19 09:56:57,659 - INFO - Trying V3 intraday API for Kotak Mahindra Bank
+2025-06-19 09:56:57,668 - INFO - Added 250 candles for ITC
+2025-06-19 09:56:57,670 - INFO - Added 250 candles for State_Bank_of_India
+2025-06-19 09:56:57,670 - INFO - Processing symbol: Larsen & Toubro (NSE_EQ|INE018A01030)
+2025-06-19 09:56:57,671 - INFO - Trying V3 intraday API for Larsen & Toubro
+2025-06-19 09:56:57,672 - INFO - Processing symbol: Asian Paints (NSE_EQ|INE021A01026)
+2025-06-19 09:56:57,672 - INFO - Trying V3 intraday API for Asian Paints
+2025-06-19 09:56:57,752 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,753 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,753 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,770 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,771 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,771 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,776 - INFO - Progress: 4/15 symbols processed
+2025-06-19 09:56:57,777 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:57,778 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:57,778 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:57,855 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,859 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,859 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,867 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,870 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,870 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,887 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:57,893 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:57,894 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:57,970 - INFO - Added 250 candles for Larsen_and_Toubro
+2025-06-19 09:56:57,974 - INFO - Added 250 candles for Kotak_Mahindra_Bank
+2025-06-19 09:56:57,975 - INFO - Processing symbol: Maruti Suzuki (NSE_EQ|INE585B01010)
+2025-06-19 09:56:57,978 - INFO - Processing symbol: Bajaj Finance (NSE_EQ|INE296A01024)
+2025-06-19 09:56:57,978 - INFO - Progress: 5/15 symbols processed
+2025-06-19 09:56:57,979 - INFO - Trying V3 intraday API for Maruti Suzuki
+2025-06-19 09:56:57,979 - INFO - Trying V3 intraday API for Bajaj Finance
+2025-06-19 09:56:57,981 - INFO - Added 250 candles for Asian_Paints
+2025-06-19 09:56:57,984 - INFO - Processing symbol: HCL Technologies (NSE_EQ|INE860A01027)
+2025-06-19 09:56:57,985 - INFO - Trying V3 intraday API for HCL Technologies
+2025-06-19 09:56:58,078 - ERROR - V3 Intraday API request failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/minutes/1
+2025-06-19 09:56:58,082 - INFO - V3 intraday failed, trying V2 for Bajaj Finance
+2025-06-19 09:56:58,086 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:58,089 - INFO - V3 Intraday: Got 41 candles
+2025-06-19 09:56:58,089 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:58,090 - INFO - Need 209 more candles from historical data
+2025-06-19 09:56:58,091 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:58,091 - INFO - Fetching historical data from 2025-06-17 to 2025-06-18
+2025-06-19 09:56:58,181 - INFO - Progress: 6/15 symbols processed
+2025-06-19 09:56:58,196 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:58,200 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:58,201 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:58,207 - ERROR - V2 Intraday API failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v2/historical-candle/intraday/NSE_EQ%7CINE296A01024/1minute
+2025-06-19 09:56:58,208 - INFO - Need 250 more candles from historical data
+2025-06-19 09:56:58,212 - INFO - Fetching historical data from 2025-06-17 to 2025-06-19
+2025-06-19 09:56:58,239 - INFO - V3 Historical: Got 750 candles
+2025-06-19 09:56:58,244 - INFO - Final dataset: 250 candles from 2025-06-18 12:01:00+05:30 to 2025-06-19 09:55:00+05:30
+2025-06-19 09:56:58,251 - INFO - ✓ Successfully included today's data
+2025-06-19 09:56:58,331 - INFO - Added 250 candles for Maruti_Suzuki
+2025-06-19 09:56:58,342 - INFO - Added 250 candles for HCL_Technologies
+2025-06-19 09:56:58,382 - INFO - Progress: 7/15 symbols processed
+2025-06-19 09:56:58,400 - ERROR - V3 Historical API failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v3/historical-candle/NSE_EQ%7CINE296A01024/minutes/1/2025-06-19/2025-06-17
+2025-06-19 09:56:58,495 - ERROR - V2 Historical API failed for NSE_EQ|INE296A01024: 400 Client Error: Bad Request for url: https://api.upstox.com/v2/historical-candle/NSE_EQ%7CINE296A01024/1minute/2025-06-19/2025-06-17
+2025-06-19 09:56:58,495 - WARNING - No data received for Bajaj Finance
+2025-06-19 09:56:58,583 - INFO - Progress: 8/15 symbols processed
+2025-06-19 09:56:58,783 - INFO - Progress: 9/15 symbols processed
+2025-06-19 09:56:58,984 - INFO - Progress: 10/15 symbols processed
+2025-06-19 09:56:59,185 - INFO - Progress: 11/15 symbols processed
+2025-06-19 09:56:59,385 - INFO - Progress: 12/15 symbols processed
+2025-06-19 09:56:59,586 - INFO - Progress: 13/15 symbols processed
+2025-06-19 09:56:59,786 - INFO - Progress: 14/15 symbols processed
+2025-06-19 09:56:59,987 - INFO - Progress: 15/15 symbols processed
+2025-06-19 09:57:00,189 - INFO - Enhanced fetch completed in 0:00:03.420063. 14 successful, 1 failed

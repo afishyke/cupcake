@@ -69,13 +69,6 @@ class UpstoxAuthClient:
             )
         with open(self.config_file, 'r') as f:
             return json.load(f)
-        """Load configuration from file"""
-        if not os.path.exists(self.config_file):
-            raise FileNotFoundError(
-                f"Config file {self.config_file} not found. Please create it first."
-            )
-        with open(self.config_file, 'r') as f:
-            return json.load(f)
     
     def _save_config(self):
         """Save configuration to file"""
@@ -105,7 +98,13 @@ class UpstoxAuthClient:
         if expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=timezone.utc)
         
-        is_valid = datetime.now(timezone.utc) < expires_at - timedelta(minutes=5)
+        # Get current time in UTC (timezone-aware)
+        current_time = datetime.now(timezone.utc)
+        
+        # Calculate expiry time with buffer (both are now timezone-aware)
+        expiry_with_buffer = expires_at - timedelta(minutes=5)
+        
+        is_valid = current_time < expiry_with_buffer
         
         if is_valid:
             self._log_event("TOKEN_CHECK", f"Token is valid, expires at {expires_at}")
@@ -153,15 +152,20 @@ class UpstoxAuthClient:
             # ==== FORCE EXPIRY AT NEXT 3:30 AM IST ====
             now_utc = datetime.now(timezone.utc)
             ist_offset = timedelta(hours=5, minutes=30)
-            now_ist = now_utc + ist_offset
+            
+            # Create IST timezone
+            ist_tz = timezone(ist_offset)
+            now_ist = now_utc.astimezone(ist_tz)
 
-            today_330_ist = datetime.combine(now_ist.date(), time(3, 30))
+            # Create timezone-aware datetime for 3:30 AM IST
+            today_330_ist = datetime.combine(now_ist.date(), time(3, 30)).replace(tzinfo=ist_tz)
             if now_ist >= today_330_ist:
                 target_ist = today_330_ist + timedelta(days=1)
             else:
                 target_ist = today_330_ist
 
-            expires_at_utc = (target_ist - ist_offset).replace(tzinfo=timezone.utc)
+            # Convert to UTC for storage
+            expires_at_utc = target_ist.astimezone(timezone.utc)
             self.config['token_expires_at'] = expires_at_utc.isoformat()
             # ============================================
             

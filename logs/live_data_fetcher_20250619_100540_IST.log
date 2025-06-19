@@ -1,0 +1,22 @@
+2025-06-19 10:05:40,634 - INFO - Live data fetcher logging to: /home/abhishek/projects/CUPCAKE/logs/live_data_fetcher_20250619_100540_IST.log
+2025-06-19 10:05:40,634 - INFO - Script directory: /home/abhishek/projects/CUPCAKE/scripts
+2025-06-19 10:05:40,635 - INFO - Looking for symbols.json at: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 10:05:40,635 - INFO - Loaded credentials from /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-19 10:05:40,635 - INFO - Loaded 15 symbols from /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-19 10:05:40,640 - INFO - Connected to Redis at localhost:6379, DB 0
+2025-06-19 10:05:40,640 - INFO - Starting continuous live data fetching...
+2025-06-19 10:05:40,640 - INFO - Monitoring 15 symbols
+2025-06-19 10:05:40,640 - INFO - Log file: /home/abhishek/projects/CUPCAKE/logs/live_data_fetcher_20250619_100540_IST.log
+2025-06-19 10:05:40,640 - INFO - Performing initial gap filling...
+2025-06-19 10:05:40,715 - INFO - === Cycle 1 - 2025-06-19 10:05:40 IST ===
+2025-06-19 10:05:40,715 - INFO - Processing 15 symbols with 3 workers
+2025-06-19 10:05:40,833 - ERROR - Upstox API error fetching NSE_EQ|INE296A01024 for 2025-06-19 09:15:00+05:53: (400)
+Reason: Bad Request
+HTTP response headers: HTTPHeaderDict({'Date': 'Thu, 19 Jun 2025 04:35:40 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'vary': 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers', 'message': 'request failed', 'requestid': '3426e211-7395-4307-8757-61c5e47a5214', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate', 'pragma': 'no-cache', 'expires': '0', 'strict-transport-security': 'max-age=0; includeSubDomains', 'x-frame-options': 'DENY', 'CF-Cache-Status': 'MISS', 'Set-Cookie': '__cf_bm=TSwNWe43lxEImlXvU7PMXkvXtoUwlmr9rdPzam3.o9E-1750307740-1.0.1.1-HRQtAkMtalA2fo8MjG7CEVflIOhkI3PLwCipF7PutWR8G9vKET.j7tHHSKBXmrtd; path=/; expires=Thu, 19-Jun-25 05:05:40 GMT; domain=.upstox.com; HttpOnly; Secure; SameSite=None, _cfuvid=7gSlgup4FqkhSChwGc6kcS4EnhJ9XW4jfuJKFFK2NpA-1750307740803-0.0.1.1-604800000; path=/; domain=.upstox.com; HttpOnly; Secure; SameSite=None', 'Server': 'cloudflare', 'CF-RAY': '95205233afac72c9-CNN', 'alt-svc': 'h3=":443"; ma=86400'})
+HTTP response body: b'{"status":"error","errors":[{"errorCode":"UDAPI100011","message":"Invalid Instrument key","propertyPath":null,"invalidValue":null,"error_code":"UDAPI100011","property_path":null,"invalid_value":null}]}'
+
+2025-06-19 10:05:40,949 - ERROR - Fallback fetch failed for NSE_EQ|INE296A01024: 404 Client Error: Not Found for url: https://api.upstox.com/v3/historical-candle/intraday/NSE_EQ%7CINE296A01024/1minute
+2025-06-19 10:05:40,949 - WARNING - No candle data received for Bajaj Finance at 2025-06-19 09:15:00+05:53
+2025-06-19 10:05:42,228 - INFO - Cycle 1 completed: 14/15 successful, 1 failed
+2025-06-19 10:05:42,229 - INFO - Waiting 47.8 seconds until next fetch at 10:06:30
+2025-06-19 10:05:51,160 - INFO - Received signal 2, shutting down gracefully...
