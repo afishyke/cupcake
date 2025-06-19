@@ -1,0 +1,30 @@
+{"timestamp": "2025-06-19 16:22:23,599", "level": "INFO", "message": "\ud83d\ude80 High-Performance Market Analytics Engine Starting...", "module": "websocket_client", "function": "_setup_logging", "line": 470}
+{"timestamp": "2025-06-19 16:22:23,599", "level": "INFO", "message": "\u2705 Configuration loaded: 15 instruments", "module": "websocket_client", "function": "_load_configuration", "line": 496}
+{"timestamp": "2025-06-19 16:22:23,609", "level": "INFO", "message": "\u2705 Redis TimeSeries initialized with bulk operations", "module": "websocket_client", "function": "_setup_redis", "line": 529}
+{"timestamp": "2025-06-19 16:22:23,610", "level": "INFO", "message": "\u2705 Analytics engines initialized for 15 instruments", "module": "websocket_client", "function": "_initialize_analytics", "line": 540}
+{"timestamp": "2025-06-19 16:22:23,611", "level": "INFO", "message": "\ud83d\ude80 Initializing High-Performance Market Data Streamer...", "module": "websocket_client", "function": "start_streaming", "line": 911}
+{"timestamp": "2025-06-19 16:22:23,613", "level": "INFO", "message": "\ud83d\udd17 Connecting to Upstox WebSocket...", "module": "websocket_client", "function": "start_streaming", "line": 926}
+{"timestamp": "2025-06-19 16:22:23,975", "level": "INFO", "message": "Websocket connected", "module": "_logging", "function": "info", "line": 89}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "\u2705 WebSocket connection opened", "module": "websocket_client", "function": "on_open", "line": 886}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "\ud83d\udce1 Subscribing to 15 instruments...", "module": "websocket_client", "function": "on_open", "line": 889}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "\u2705 Subscription successful", "module": "websocket_client", "function": "on_open", "line": 891}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "    1. Reliance Industries (NSE_EQ|INE002A01018)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "    2. Tata Consultancy Services (NSE_EQ|INE467B01029)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,976", "level": "INFO", "message": "    3. Infosys (NSE_EQ|INE009A01021)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    4. HDFC Bank (NSE_EQ|INE040A01034)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    5. ICICI Bank (NSE_EQ|INE090A01021)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    6. Hindustan Unilever (NSE_EQ|INE030A01027)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    7. ITC (NSE_EQ|INE154A01025)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    8. State Bank of India (NSE_EQ|INE062A01020)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "    9. Bharti Airtel (NSE_EQ|INE397D01024)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   10. Kotak Mahindra Bank (NSE_EQ|INE237A01028)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   11. Larsen & Toubro (NSE_EQ|INE018A01030)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   12. Asian Paints (NSE_EQ|INE021A01026)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   13. Maruti Suzuki (NSE_EQ|INE585B01010)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   14. Bajaj Finance (NSE_EQ|INE296A01024)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:22:23,977", "level": "INFO", "message": "   15. HCL Technologies (NSE_EQ|INE860A01027)", "module": "websocket_client", "function": "on_open", "line": 895}
+{"timestamp": "2025-06-19 16:33:45,692", "level": "INFO", "message": "\ud83d\udce1 Received signal 2, initiating graceful shutdown...", "module": "websocket_client", "function": "_signal_handler", "line": 428}
+{"timestamp": "2025-06-19 16:33:45,746", "level": "ERROR", "message": "error from callback <bound method Streamer.handle_close of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x72642a1665f0>>: HighPerformanceTracker.on_close() takes 1 positional argument but 3 were given", "module": "_logging", "function": "error", "line": 77}
+{"timestamp": "2025-06-19 16:33:45,746", "level": "ERROR", "message": "\u274c WebSocket error: HighPerformanceTracker.on_close() takes 1 positional argument but 3 were given", "module": "websocket_client", "function": "on_error", "line": 902}
+{"timestamp": "2025-06-19 16:33:45,746", "level": "INFO", "message": "\ud83d\udcbe Flushing final analytics to Redis...", "module": "websocket_client", "function": "stop_streaming", "line": 940}
+{"timestamp": "2025-06-19 16:33:45,747", "level": "INFO", "message": "\ud83d\uded1 Streaming stopped gracefully", "module": "websocket_client", "function": "stop_streaming", "line": 946}
