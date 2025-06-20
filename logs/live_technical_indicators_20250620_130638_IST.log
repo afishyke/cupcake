@@ -1,0 +1,18 @@
+2025-06-20 13:06:38,637 - INFO - Technical Indicators logging to: /home/abhishek/projects/CUPCAKE/logs/live_technical_indicators_20250620_130638_IST.log
+2025-06-20 13:06:38,641 - INFO - Connected to Redis DB0 (OHLCV source)
+2025-06-20 13:06:38,650 - INFO - Connected to Redis DB2 (Technical Indicators)
+2025-06-20 13:06:38,651 - INFO - ✅ Flushed Redis DB2 (Technical Indicators) - Starting fresh session
+2025-06-20 13:06:38,652 - ERROR - ❌ TA-Lib initialization failed: input array type is not double
+2025-06-20 13:06:38,652 - ERROR - Fatal error in technical indicator system: input array type is not double
+Traceback (most recent call last):
+  File "/home/abhishek/projects/CUPCAKE/scripts/technical_indicators.py", line 1053, in main
+    indicator_system = LiveTechnicalIndicatorSystem(symbols_path)
+  File "/home/abhishek/projects/CUPCAKE/scripts/technical_indicators.py", line 745, in __init__
+    self.calculator = TechnicalIndicatorCalculator(self.config)
+  File "/home/abhishek/projects/CUPCAKE/scripts/technical_indicators.py", line 331, in __init__
+    talib.SMA(np.array([1, 2, 3, 4, 5]), timeperiod=3)
+  File "/home/abhishek/anaconda3/envs/cupcake-v2/lib/python3.10/site-packages/talib/__init__.py", line 80, in wrapper
+    result = func(*_args, **_kwds)
+  File "talib/_func.pxi", line 4536, in talib._ta_lib.SMA
+  File "talib/_func.pxi", line 22, in talib._ta_lib.check_array
+Exception: input array type is not double

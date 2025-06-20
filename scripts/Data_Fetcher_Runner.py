@@ -93,6 +93,7 @@ def run_enhanced_live_fetch():
     print("  • V3 OHLC API for faster, more reliable data fetching")
     print("  • Same Redis TimeSeries format as historical fetcher")
     print("  • Automatic previous minute candle detection")
+    print("  • Automatic gap filling for seamless data continuity")
     print("  • Concurrent processing for multiple symbols")
     print("  • Market hours awareness and optimal timing")
     print("  • Comprehensive error handling and statistics")
@@ -400,6 +401,10 @@ def main():
             print("\n🔍 Quick data verification...")
             check_data_continuity()
             
+            # Add buffer for Redis write completion and gap detection preparation
+            print("\n⏳ Allowing Redis write completion...")
+            time.sleep(3)
+            
             # Calculate optimal timing for live fetch
             if not args.no_timing:
                 wait_seconds = calculate_optimal_timing()
@@ -412,9 +417,11 @@ def main():
                     time.sleep(2)  # Small buffer
             else:
                 print("\n🚀 Starting enhanced live fetch with standard delay...")
-                time.sleep(3)
+                time.sleep(5)  # Slightly longer delay to ensure coordination
             
-            # Then run enhanced live fetch
+            print("🔄 Live fetcher will automatically check and fill any transition gaps...")
+            
+            # Then run enhanced live fetch with gap filling
             live_success = run_enhanced_live_fetch()
             
             print("\n✅ Enhanced pipeline V2 finished!")

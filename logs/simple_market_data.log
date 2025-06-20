@@ -1,0 +1,713 @@
+2025-06-20 12:40:54,829 - INFO - 🚀 Simple Market Data Streamer Starting...
+2025-06-20 12:40:54,829 - INFO - 📁 Loading credentials from: /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-20 12:40:54,829 - INFO - ✅ Access token loaded (length: 313)
+2025-06-20 12:40:54,832 - ERROR - ❌ Token validation failed: UserApi.get_profile() missing 1 required positional argument: 'api_version'
+2025-06-20 12:40:54,833 - ERROR - 💡 Your access token might be expired. Please regenerate it.
+2025-06-20 12:40:54,833 - ERROR - ❌ Configuration loading failed: UserApi.get_profile() missing 1 required positional argument: 'api_version'
+2025-06-20 12:40:54,833 - ERROR - 💡 Please check:
+2025-06-20 12:40:54,833 - ERROR -    1. Credentials file exists and has valid access_token
+2025-06-20 12:40:54,833 - ERROR -    2. Access token is not expired
+2025-06-20 12:40:54,833 - ERROR -    3. Symbols file exists and is valid JSON
+2025-06-20 12:59:22,292 - INFO - 🚀 Simple Market Data Streamer Starting...
+2025-06-20 12:59:22,292 - INFO - 📁 Loading credentials from: /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-20 12:59:22,292 - INFO - ✅ Access token loaded (length: 313)
+2025-06-20 12:59:22,296 - ERROR - ❌ Token validation failed: UserApi.get_profile() missing 1 required positional argument: 'api_version'
+2025-06-20 12:59:22,296 - ERROR - 💡 Your access token might be expired. Please regenerate it.
+2025-06-20 12:59:22,296 - ERROR - ❌ Configuration loading failed: UserApi.get_profile() missing 1 required positional argument: 'api_version'
+2025-06-20 12:59:22,296 - ERROR - 💡 Please check:
+2025-06-20 12:59:22,296 - ERROR -    1. Credentials file exists and has valid access_token
+2025-06-20 12:59:22,296 - ERROR -    2. Access token is not expired
+2025-06-20 12:59:22,296 - ERROR -    3. Symbols file exists and is valid JSON
+2025-06-20 13:08:09,439 - INFO - 🚀 Simple Market Data Streamer Starting...
+2025-06-20 13:08:09,439 - INFO - 📁 Loading credentials from: /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-20 13:08:09,440 - INFO - ✅ Access token loaded (length: 313)
+2025-06-20 13:08:09,566 - INFO - ✅ Token valid - User: Akash Ani
+2025-06-20 13:08:09,567 - INFO - 📁 Loading symbols from: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-20 13:08:09,568 - INFO - ✅ Configuration loaded: 15 instruments
+2025-06-20 13:08:09,568 - INFO - 🚀 Starting Simple Market Data Streamer...
+2025-06-20 13:08:09,569 - INFO - 🔗 Connecting to Upstox WebSocket...
+2025-06-20 13:08:09,879 - INFO - Websocket connected
+2025-06-20 13:08:09,880 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:09,880 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:09,880 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:09,916 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:10,171 - INFO - Websocket connected
+2025-06-20 13:08:10,171 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:10,171 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,172 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,203 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:10,496 - INFO - Websocket connected
+2025-06-20 13:08:10,496 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:10,496 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,496 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,528 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:10,734 - INFO - Websocket connected
+2025-06-20 13:08:10,734 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:10,735 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,735 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,768 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:10,967 - INFO - Websocket connected
+2025-06-20 13:08:10,967 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:10,967 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:10,968 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,001 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:11,312 - INFO - Websocket connected
+2025-06-20 13:08:11,312 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:11,312 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,313 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,348 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:11,632 - INFO - Websocket connected
+2025-06-20 13:08:11,632 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:11,633 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,633 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,663 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:11,869 - INFO - Websocket connected
+2025-06-20 13:08:11,869 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:11,869 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,870 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:11,900 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:12,105 - INFO - Websocket connected
+2025-06-20 13:08:12,106 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:12,106 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,106 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,138 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:12,360 - INFO - Websocket connected
+2025-06-20 13:08:12,361 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:12,361 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,361 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,396 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:12,686 - INFO - Websocket connected
+2025-06-20 13:08:12,686 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:12,686 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,686 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,720 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:12,941 - INFO - Websocket connected
+2025-06-20 13:08:12,941 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:12,942 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,942 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:12,975 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:13,202 - INFO - Websocket connected
+2025-06-20 13:08:13,203 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:13,203 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,203 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,236 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:13,448 - INFO - Websocket connected
+2025-06-20 13:08:13,448 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:13,448 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,448 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,484 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:13,692 - INFO - Websocket connected
+2025-06-20 13:08:13,692 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:13,693 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,693 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,728 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:13,943 - INFO - Websocket connected
+2025-06-20 13:08:13,944 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:13,944 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,944 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:13,976 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:14,204 - INFO - Websocket connected
+2025-06-20 13:08:14,204 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:14,204 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,205 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,239 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:14,461 - INFO - Websocket connected
+2025-06-20 13:08:14,461 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:14,461 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,461 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,498 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:14,692 - INFO - Websocket connected
+2025-06-20 13:08:14,692 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:14,692 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,692 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,724 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:14,948 - INFO - Websocket connected
+2025-06-20 13:08:14,948 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:14,948 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,949 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:14,980 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:15,187 - INFO - Websocket connected
+2025-06-20 13:08:15,188 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:15,188 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,188 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,222 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:15,440 - INFO - Websocket connected
+2025-06-20 13:08:15,440 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:15,440 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,440 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,473 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:15,682 - INFO - Websocket connected
+2025-06-20 13:08:15,682 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:15,682 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,683 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,715 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:15,921 - INFO - Websocket connected
+2025-06-20 13:08:15,922 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:15,922 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,922 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:15,954 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:16,169 - INFO - Websocket connected
+2025-06-20 13:08:16,169 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:16,170 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,170 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,201 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:16,428 - INFO - Websocket connected
+2025-06-20 13:08:16,428 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:16,429 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,429 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,462 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:16,779 - INFO - Websocket connected
+2025-06-20 13:08:16,779 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:16,779 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,780 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:16,814 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:17,139 - INFO - Websocket connected
+2025-06-20 13:08:17,139 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:17,139 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,139 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,175 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:17,379 - INFO - Websocket connected
+2025-06-20 13:08:17,380 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:17,380 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,380 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,410 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:17,629 - INFO - Websocket connected
+2025-06-20 13:08:17,630 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:17,630 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,630 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,660 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:17,876 - INFO - Websocket connected
+2025-06-20 13:08:17,876 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:17,876 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,877 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:17,906 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:18,125 - INFO - Websocket connected
+2025-06-20 13:08:18,125 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:18,125 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,125 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,159 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:18,378 - INFO - Websocket connected
+2025-06-20 13:08:18,379 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:18,379 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,379 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,413 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:18,643 - INFO - Websocket connected
+2025-06-20 13:08:18,643 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:18,643 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,643 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,678 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:18,900 - INFO - Websocket connected
+2025-06-20 13:08:18,900 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:18,900 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,900 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:18,937 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:19,149 - INFO - Websocket connected
+2025-06-20 13:08:19,150 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:19,150 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,150 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,185 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:19,383 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:19,392 - INFO - Websocket connected
+2025-06-20 13:08:19,393 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:19,393 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,393 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,423 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:19,578 - INFO - 🛑 Disconnecting from WebSocket...
+2025-06-20 13:08:19,578 - INFO - ✅ Streaming stopped gracefully
+2025-06-20 13:08:19,619 - INFO - Websocket connected
+2025-06-20 13:08:19,619 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:19,619 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,619 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,620 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:19,906 - INFO - Websocket connected
+2025-06-20 13:08:19,906 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:19,906 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,907 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:19,940 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:20,151 - INFO - Websocket connected
+2025-06-20 13:08:20,152 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:20,152 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,152 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,183 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:20,388 - INFO - Websocket connected
+2025-06-20 13:08:20,388 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:20,388 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,388 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,424 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:20,623 - INFO - Websocket connected
+2025-06-20 13:08:20,623 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:20,623 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,623 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,655 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:20,853 - INFO - Websocket connected
+2025-06-20 13:08:20,853 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:20,853 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,854 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:20,885 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:21,098 - INFO - Websocket connected
+2025-06-20 13:08:21,098 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:21,099 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,099 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,128 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:21,353 - INFO - Websocket connected
+2025-06-20 13:08:21,353 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:21,353 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,353 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,386 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:21,584 - INFO - Websocket connected
+2025-06-20 13:08:21,585 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:21,585 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,585 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,616 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:21,840 - INFO - Websocket connected
+2025-06-20 13:08:21,840 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:21,840 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,841 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:21,873 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:22,079 - INFO - Websocket connected
+2025-06-20 13:08:22,079 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:22,079 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,079 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,112 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:22,318 - INFO - Websocket connected
+2025-06-20 13:08:22,318 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:22,319 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,319 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,351 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:22,611 - INFO - Websocket connected
+2025-06-20 13:08:22,612 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:22,612 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,612 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,643 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:22,856 - INFO - Websocket connected
+2025-06-20 13:08:22,856 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:22,856 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,856 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:22,887 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:23,105 - INFO - Websocket connected
+2025-06-20 13:08:23,106 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:23,106 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,106 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,138 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:23,355 - INFO - Websocket connected
+2025-06-20 13:08:23,356 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:23,356 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,356 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,391 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:23,594 - INFO - Websocket connected
+2025-06-20 13:08:23,595 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:23,595 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,595 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,627 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:23,862 - INFO - Websocket connected
+2025-06-20 13:08:23,863 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:23,863 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,863 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:23,896 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:24,104 - INFO - Websocket connected
+2025-06-20 13:08:24,105 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:24,105 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,105 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,138 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:24,338 - INFO - Websocket connected
+2025-06-20 13:08:24,338 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:24,339 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,339 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,368 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:24,567 - INFO - Websocket connected
+2025-06-20 13:08:24,567 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:24,567 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,567 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,597 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:24,806 - INFO - Websocket connected
+2025-06-20 13:08:24,807 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:24,807 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,807 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:24,840 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:25,038 - INFO - Websocket connected
+2025-06-20 13:08:25,038 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:25,039 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,039 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,067 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:25,287 - INFO - Websocket connected
+2025-06-20 13:08:25,287 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:25,288 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,288 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,323 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:25,528 - INFO - Websocket connected
+2025-06-20 13:08:25,529 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:25,529 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,529 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,561 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:25,749 - INFO - Websocket connected
+2025-06-20 13:08:25,750 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:25,750 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,750 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,782 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:25,985 - INFO - Websocket connected
+2025-06-20 13:08:25,985 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:25,985 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:25,985 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,015 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:26,201 - INFO - Websocket connected
+2025-06-20 13:08:26,201 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:26,201 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,201 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,231 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:26,442 - INFO - Websocket connected
+2025-06-20 13:08:26,442 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:26,442 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,443 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,476 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:26,693 - INFO - Websocket connected
+2025-06-20 13:08:26,694 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:26,694 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,694 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,729 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:26,944 - INFO - Websocket connected
+2025-06-20 13:08:26,944 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:26,944 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,944 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:26,980 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:27,176 - INFO - Websocket connected
+2025-06-20 13:08:27,176 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:27,176 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,176 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,206 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:27,441 - INFO - Websocket connected
+2025-06-20 13:08:27,442 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:27,442 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,442 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,477 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:27,696 - INFO - Websocket connected
+2025-06-20 13:08:27,696 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:27,697 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,697 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,730 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:27,936 - INFO - Websocket connected
+2025-06-20 13:08:27,937 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:27,937 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,937 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:27,972 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:28,188 - INFO - Websocket connected
+2025-06-20 13:08:28,188 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:28,188 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,189 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,218 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:28,423 - INFO - Websocket connected
+2025-06-20 13:08:28,423 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:28,423 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,424 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,458 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:28,662 - INFO - Websocket connected
+2025-06-20 13:08:28,663 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:28,663 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,663 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,703 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:28,993 - INFO - Websocket connected
+2025-06-20 13:08:28,994 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:28,994 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:28,994 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,023 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:29,221 - INFO - Websocket connected
+2025-06-20 13:08:29,221 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:29,221 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,221 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,252 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:29,457 - INFO - Websocket connected
+2025-06-20 13:08:29,457 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:29,458 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,458 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,491 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:29,688 - INFO - Websocket connected
+2025-06-20 13:08:29,689 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:29,689 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,689 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,721 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:29,916 - INFO - Websocket connected
+2025-06-20 13:08:29,916 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:29,916 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,917 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:29,948 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:30,162 - INFO - Websocket connected
+2025-06-20 13:08:30,162 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:30,162 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,163 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,197 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:30,400 - INFO - Websocket connected
+2025-06-20 13:08:30,400 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:30,400 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,400 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,432 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:30,631 - INFO - Websocket connected
+2025-06-20 13:08:30,632 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:30,632 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,632 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,661 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:30,855 - INFO - Websocket connected
+2025-06-20 13:08:30,855 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:30,856 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,856 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:30,886 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:31,102 - INFO - Websocket connected
+2025-06-20 13:08:31,102 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:31,102 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,102 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,138 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:31,340 - INFO - Websocket connected
+2025-06-20 13:08:31,340 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:31,340 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,340 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,374 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:31,572 - INFO - Websocket connected
+2025-06-20 13:08:31,572 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:31,573 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,573 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,602 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:31,802 - INFO - Websocket connected
+2025-06-20 13:08:31,802 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:31,803 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,803 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:31,832 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:32,071 - INFO - Websocket connected
+2025-06-20 13:08:32,072 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:32,072 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,072 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,111 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:32,175 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:32,320 - INFO - Websocket connected
+2025-06-20 13:08:32,320 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:32,321 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,321 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,356 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:32,366 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:32,555 - INFO - Websocket connected
+2025-06-20 13:08:32,556 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:32,556 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,556 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,586 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:32,607 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:32,786 - INFO - Websocket connected
+2025-06-20 13:08:32,787 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:32,787 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,787 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:32,816 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:33,031 - INFO - Websocket connected
+2025-06-20 13:08:33,031 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:33,032 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,032 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,070 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:33,284 - INFO - Websocket connected
+2025-06-20 13:08:33,285 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:33,285 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,285 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,315 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:33,531 - INFO - Websocket connected
+2025-06-20 13:08:33,532 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:33,532 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,532 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,565 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:33,763 - INFO - Websocket connected
+2025-06-20 13:08:33,763 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:33,764 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,764 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:33,794 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:33,806 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:34,012 - INFO - Websocket connected
+2025-06-20 13:08:34,013 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:34,013 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,013 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,049 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:34,259 - INFO - Websocket connected
+2025-06-20 13:08:34,259 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:34,260 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,260 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,293 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:34,502 - INFO - Websocket connected
+2025-06-20 13:08:34,502 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:34,502 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,502 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,532 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:34,694 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:34,741 - INFO - Websocket connected
+2025-06-20 13:08:34,741 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:34,741 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,742 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,775 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:34,987 - INFO - Websocket connected
+2025-06-20 13:08:34,988 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:34,988 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:34,988 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,024 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:35,222 - INFO - Websocket connected
+2025-06-20 13:08:35,222 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:35,222 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,222 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,254 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:35,406 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:35,466 - INFO - Websocket connected
+2025-06-20 13:08:35,466 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:35,467 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,467 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,502 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:35,714 - INFO - Websocket connected
+2025-06-20 13:08:35,714 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:35,714 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,715 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,747 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:35,886 - INFO - 📡 Received signal 2, shutting down...
+2025-06-20 13:08:35,957 - INFO - Websocket connected
+2025-06-20 13:08:35,957 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:35,958 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,958 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:35,990 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:36,181 - INFO - Websocket connected
+2025-06-20 13:08:36,181 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:36,182 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,182 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,214 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:36,411 - INFO - Websocket connected
+2025-06-20 13:08:36,412 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:36,412 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,412 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,444 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:36,637 - INFO - Websocket connected
+2025-06-20 13:08:36,638 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:36,638 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,638 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,670 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:36,894 - INFO - Websocket connected
+2025-06-20 13:08:36,895 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:36,895 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,895 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:36,931 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:37,144 - INFO - Websocket connected
+2025-06-20 13:08:37,145 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:37,145 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,145 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,178 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:37,415 - INFO - Websocket connected
+2025-06-20 13:08:37,415 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:37,416 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,416 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,450 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:37,671 - INFO - Websocket connected
+2025-06-20 13:08:37,671 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:37,671 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,671 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,706 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:37,902 - INFO - Websocket connected
+2025-06-20 13:08:37,902 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:37,902 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,902 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:37,934 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:38,130 - INFO - Websocket connected
+2025-06-20 13:08:38,130 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:38,131 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,131 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,161 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:38,357 - INFO - Websocket connected
+2025-06-20 13:08:38,358 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:38,358 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,358 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,390 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:38,599 - INFO - Websocket connected
+2025-06-20 13:08:38,600 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:38,600 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,600 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,635 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:38,876 - INFO - Websocket connected
+2025-06-20 13:08:38,876 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:38,876 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,876 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:38,911 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:39,129 - INFO - Websocket connected
+2025-06-20 13:08:39,129 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:39,129 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,130 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,165 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:39,389 - INFO - Websocket connected
+2025-06-20 13:08:39,389 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:39,390 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,390 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,419 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:39,639 - INFO - Websocket connected
+2025-06-20 13:08:39,639 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:39,639 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,640 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,674 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:39,884 - INFO - Websocket connected
+2025-06-20 13:08:39,884 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:39,885 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,885 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:39,915 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:40,122 - INFO - Websocket connected
+2025-06-20 13:08:40,122 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:40,122 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,122 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,155 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:40,345 - INFO - Websocket connected
+2025-06-20 13:08:40,345 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:40,345 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,345 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,375 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:40,588 - INFO - Websocket connected
+2025-06-20 13:08:40,589 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:40,589 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,589 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,625 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:40,863 - INFO - Websocket connected
+2025-06-20 13:08:40,864 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:40,864 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,864 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:40,899 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:41,115 - INFO - Websocket connected
+2025-06-20 13:08:41,115 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:41,115 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,116 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,145 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:41,367 - INFO - Websocket connected
+2025-06-20 13:08:41,368 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:41,368 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,368 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,403 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:41,609 - INFO - Websocket connected
+2025-06-20 13:08:41,609 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:41,609 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,610 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,640 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:41,835 - INFO - Websocket connected
+2025-06-20 13:08:41,835 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:41,835 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,836 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:41,865 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:42,069 - INFO - Websocket connected
+2025-06-20 13:08:42,069 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:42,069 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,070 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,100 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:42,301 - INFO - Websocket connected
+2025-06-20 13:08:42,301 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:42,301 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,301 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,332 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:42,556 - INFO - Websocket connected
+2025-06-20 13:08:42,557 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:42,558 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,558 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,595 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:42,813 - INFO - Websocket connected
+2025-06-20 13:08:42,813 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:42,813 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,813 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:42,845 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:43,061 - INFO - Websocket connected
+2025-06-20 13:08:43,061 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:43,061 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:43,061 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:43,096 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)
+2025-06-20 13:08:43,308 - INFO - Websocket connected
+2025-06-20 13:08:43,308 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:08:43,308 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x7c2aef5f0940>>: SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:43,309 - INFO - tearing down on exception SimpleMarketTracker.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:08:43,341 - INFO - 🔌 WebSocket connection closed (Code: None, Message: None)

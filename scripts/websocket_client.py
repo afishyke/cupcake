@@ -1,39 +1,38 @@
 #!/usr/bin/env python3
 """
-High-Performance Real-time Market Analytics Engine
-Optimized for minimal latency and maximum throughput
+websocket_client.py - High-Performance Low-Level Implementation
+Using specialized libraries for real-time market analytics
 
-Key Optimizations:
-- NumPy circular buffers (no Pandas DataFrame creation per tick)
-- Incremental calculations for all indicators
-- Multi-timeframe analysis (1m, 5m, 15m)
-- Advanced pattern detection
-- Robust outlier filtering
-- Environment-based configuration
-- Graceful shutdown with data persistence
+Libraries:
+- websockets: Direct WebSocket connection (not Upstox SDK)
+- redis: Direct Redis operations with proper error handling
+- numpy: High-performance numerical calculations
+- asyncio: Asynchronous processing for better performance
+- numba: JIT compilation for critical calculations
 """
 
-import upstox_client
+import asyncio
+import websockets
+import json
 import time
 import logging
 import os
-import json
-import redis
 import signal
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 import pytz
 import numpy as np
-from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, NamedTuple
-import threading
+import redis
+from collections import deque, defaultdict
+from typing import Dict, List, Optional, NamedTuple, Tuple
 from dataclasses import dataclass
-import math
+import requests
+import threading
 from numba import jit
 import warnings
 warnings.filterwarnings('ignore')
 
-# Environment-based configuration
+# Configuration
 CREDENTIALS_PATH = os.getenv('CUPCAKE_CREDENTIALS_PATH', '/home/abhishek/projects/CUPCAKE/authentication/credentials.json')
 SYMBOLS_PATH = os.getenv('CUPCAKE_SYMBOLS_PATH', '/home/abhishek/projects/CUPCAKE/scripts/symbols.json')
 LOG_DIR = os.getenv('CUPCAKE_LOG_DIR', '/home/abhishek/projects/CUPCAKE/logs')
@@ -42,11 +41,14 @@ REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
 REDIS_DB = int(os.getenv('REDIS_DB', '1'))
 
 # Analytics parameters
-BUFFER_SIZE = int(os.getenv('BUFFER_SIZE', '600'))  # 10 minutes at 1 tick/sec
-OUTLIER_SIGMA = float(os.getenv('OUTLIER_SIGMA', '3.0'))  # Standard deviations for outlier detection
+ROLLING_WINDOW_SIZE = 600
+VWAP_PERIODS = [30, 60, 300]
+MA_PERIODS = [20, 50]
+VOLATILITY_THRESHOLD = 0.02
+LIQUIDITY_THRESHOLD = 1000
 
 class TickData(NamedTuple):
-    """Lightweight tick data structure"""
+    """Optimized tick data structure"""
     timestamp: float
     ltp: float
     bid: float
@@ -56,429 +58,434 @@ class TickData(NamedTuple):
     volume: int
 
 @dataclass
-class MultiTimeframeMetrics:
-    """Multi-timeframe analytics results"""
+class RealTimeMetrics:
+    """Real-time calculated metrics with validation"""
     timestamp: float
     instrument: str
-    
-    # Price metrics
     ltp: float
     mid_price: float
     spread: float
     spread_bps: float
+    vwap_30s: float
+    vwap_60s: float
+    vwap_300s: float
+    order_imbalance: float
+    total_depth: int
+    tick_return: float
+    volatility_5min: float
+    liquidity_flag: bool
+    volatility_flag: bool
+    vwap_ma_signal: int
+    trend_strength: float
     
-    # Volume metrics
-    vwap_1m: float
-    vwap_5m: float
-    vwap_15m: float
-    vwma_10: float
-    vwma_30: float
-    
-    # Volatility metrics
-    true_range: float
-    atr_14: float
-    parkinson_vol: float
-    
-    # Technical indicators
-    roc_1m: float
-    roc_5m: float
-    ema_9: float
-    ema_21: float
-    
-    # Order book metrics
-    imbalance: float
-    liquidity_score: float
-    
-    # Pattern signals
-    bb_squeeze: bool
-    keltner_breakout: int  # -1, 0, 1
-    macd_signal: int      # -1, 0, 1
-    vwap_alignment: int   # -1, 0, 1 (all timeframes aligned)
+    def validate_values(self) -> bool:
+        """Validate all float values for Redis storage"""
+        float_fields = [
+            'ltp', 'mid_price', 'spread', 'spread_bps',
+            'vwap_30s', 'vwap_60s', 'vwap_300s',
+            'order_imbalance', 'tick_return', 'volatility_5min',
+            'trend_strength'
+        ]
+        
+        for field in float_fields:
+            value = getattr(self, field)
+            if not isinstance(value, (int, float)) or np.isnan(value) or np.isinf(value):
+                return False
+        
+        return True
 
-class CircularBuffer:
-    """High-performance circular buffer for time series data"""
+@jit(nopython=True)
+def calculate_vwap_numba(prices: np.ndarray, volumes: np.ndarray, timestamps: np.ndarray, 
+                        current_time: float, period_seconds: int) -> float:
+    """Fast VWAP calculation using Numba JIT"""
+    cutoff_time = current_time - period_seconds
+    total_pv = 0.0
+    total_volume = 0.0
     
-    def __init__(self, size: int):
+    for i in range(len(timestamps) - 1, -1, -1):
+        if timestamps[i] < cutoff_time:
+            break
+        if volumes[i] > 0:
+            total_pv += prices[i] * volumes[i]
+            total_volume += volumes[i]
+    
+    return total_pv / total_volume if total_volume > 0 else 0.0
+
+@jit(nopython=True)
+def calculate_volatility_numba(returns: np.ndarray) -> float:
+    """Fast volatility calculation using Numba"""
+    if len(returns) < 2:
+        return 0.0
+    
+    mean_return = np.mean(returns)
+    variance = np.mean((returns - mean_return) ** 2)
+    return np.sqrt(variance * len(returns)) if variance > 0 else 0.0
+
+class HighPerformanceBuffer:
+    """Ultra-fast rolling buffer using NumPy arrays"""
+    
+    def __init__(self, size: int = ROLLING_WINDOW_SIZE):
         self.size = size
-        self.buffer = np.full(size, np.nan, dtype=np.float64)
-        self.timestamps = np.full(size, np.nan, dtype=np.float64)
         self.index = 0
         self.count = 0
+        
+        # Pre-allocated NumPy arrays for speed
+        self.timestamps = np.full(size, np.nan, dtype=np.float64)
+        self.ltp = np.full(size, np.nan, dtype=np.float64)
+        self.bid = np.full(size, np.nan, dtype=np.float64)
+        self.ask = np.full(size, np.nan, dtype=np.float64)
+        self.bid_qty = np.full(size, 0, dtype=np.int32)
+        self.ask_qty = np.full(size, 0, dtype=np.int32)
+        self.volume = np.full(size, 0, dtype=np.int32)
+        self.tick_returns = np.full(size, np.nan, dtype=np.float64)
+        
+        # Thread lock for safety
         self.lock = threading.Lock()
     
-    def add(self, timestamp: float, value: float) -> None:
-        """Add new value to circular buffer"""
+    def add_tick(self, tick: TickData) -> bool:
+        """Add tick with ultra-fast circular buffer"""
         with self.lock:
-            self.buffer[self.index] = value
-            self.timestamps[self.index] = timestamp
+            # Validation
+            if tick.ltp <= 0 or not np.isfinite(tick.ltp):
+                return False
+            
+            # Calculate tick return
+            tick_return = 0.0
+            if self.count > 0:
+                prev_idx = (self.index - 1) % self.size if self.count == self.size else self.index - 1
+                if prev_idx >= 0 and self.ltp[prev_idx] > 0:
+                    tick_return = (tick.ltp - self.ltp[prev_idx]) / self.ltp[prev_idx]
+            
+            # Store in circular buffer
+            self.timestamps[self.index] = tick.timestamp
+            self.ltp[self.index] = tick.ltp
+            self.bid[self.index] = tick.bid
+            self.ask[self.index] = tick.ask
+            self.bid_qty[self.index] = tick.bid_qty
+            self.ask_qty[self.index] = tick.ask_qty
+            self.volume[self.index] = tick.volume
+            self.tick_returns[self.index] = tick_return
+            
+            # Update pointers
             self.index = (self.index + 1) % self.size
             self.count = min(self.count + 1, self.size)
+            
+            return True
     
-    def get_recent(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
-        """Get last n values with timestamps"""
+    def get_valid_data(self) -> Tuple[np.ndarray, ...]:
+        """Get valid data arrays"""
         with self.lock:
             if self.count == 0:
-                return np.array([]), np.array([])
+                return tuple(np.array([]) for _ in range(8))
             
-            n = min(n, self.count)
             if self.count < self.size:
                 # Buffer not full yet
                 end_idx = self.count
-                values = self.buffer[:end_idx][-n:]
-                timestamps = self.timestamps[:end_idx][-n:]
+                return (
+                    self.timestamps[:end_idx].copy(),
+                    self.ltp[:end_idx].copy(),
+                    self.bid[:end_idx].copy(),
+                    self.ask[:end_idx].copy(),
+                    self.bid_qty[:end_idx].copy(),
+                    self.ask_qty[:end_idx].copy(),
+                    self.volume[:end_idx].copy(),
+                    self.tick_returns[:end_idx].copy()
+                )
             else:
                 # Buffer is full, handle wraparound
-                if n <= self.index:
-                    values = self.buffer[self.index-n:self.index]
-                    timestamps = self.timestamps[self.index-n:self.index]
+                if self.index == 0:
+                    # No wraparound needed
+                    return (
+                        self.timestamps.copy(),
+                        self.ltp.copy(),
+                        self.bid.copy(),
+                        self.ask.copy(),
+                        self.bid_qty.copy(),
+                        self.ask_qty.copy(),
+                        self.volume.copy(),
+                        self.tick_returns.copy()
+                    )
                 else:
-                    # Need to wrap around
-                    part1_size = n - self.index
-                    part1_values = self.buffer[-part1_size:]
-                    part1_timestamps = self.timestamps[-part1_size:]
-                    part2_values = self.buffer[:self.index]
-                    part2_timestamps = self.timestamps[:self.index]
-                    values = np.concatenate([part1_values, part2_values])
-                    timestamps = np.concatenate([part1_timestamps, part2_timestamps])
-            
-            return timestamps, values
+                    # Reconstruct in chronological order
+                    timestamps = np.concatenate([self.timestamps[self.index:], self.timestamps[:self.index]])
+                    ltp = np.concatenate([self.ltp[self.index:], self.ltp[:self.index]])
+                    bid = np.concatenate([self.bid[self.index:], self.bid[:self.index]])
+                    ask = np.concatenate([self.ask[self.index:], self.ask[:self.index]])
+                    bid_qty = np.concatenate([self.bid_qty[self.index:], self.bid_qty[:self.index]])
+                    ask_qty = np.concatenate([self.ask_qty[self.index:], self.ask_qty[:self.index]])
+                    volume = np.concatenate([self.volume[self.index:], self.volume[:self.index]])
+                    tick_returns = np.concatenate([self.tick_returns[self.index:], self.tick_returns[:self.index]])
+                    
+                    return timestamps, ltp, bid, ask, bid_qty, ask_qty, volume, tick_returns
     
-    def get_all_valid(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Get all valid values"""
-        return self.get_recent(self.count)
+    def calculate_metrics(self, instrument: str) -> Optional[RealTimeMetrics]:
+        """Calculate all metrics using NumPy vectorization"""
+        timestamps, ltp, bid, ask, bid_qty, ask_qty, volume, tick_returns = self.get_valid_data()
+        
+        if len(timestamps) == 0:
+            return None
+        
+        try:
+            current_time = timestamps[-1]
+            current_ltp = ltp[-1]
+            current_bid = bid[-1]
+            current_ask = ask[-1]
+            current_bid_qty = int(bid_qty[-1])
+            current_ask_qty = int(ask_qty[-1])
+            current_tick_return = tick_returns[-1] if not np.isnan(tick_returns[-1]) else 0.0
+            
+            # Mid-price and spread
+            mid_price = (current_bid + current_ask) / 2 if current_bid > 0 and current_ask > 0 else current_ltp
+            spread = current_ask - current_bid if current_bid > 0 and current_ask > 0 else 0.0
+            spread_bps = (spread / mid_price * 10000) if mid_price > 0 else 0.0
+            
+            # VWAP calculations using Numba
+            vwap_30s = calculate_vwap_numba(ltp, volume.astype(np.float64), timestamps, current_time, 30)
+            vwap_60s = calculate_vwap_numba(ltp, volume.astype(np.float64), timestamps, current_time, 60)
+            vwap_300s = calculate_vwap_numba(ltp, volume.astype(np.float64), timestamps, current_time, 300)
+            
+            # Order book imbalance
+            total_qty = current_bid_qty + current_ask_qty
+            order_imbalance = (current_bid_qty - current_ask_qty) / total_qty if total_qty > 0 else 0.0
+            
+            # Volatility using Numba
+            valid_returns = tick_returns[~np.isnan(tick_returns)]
+            if len(valid_returns) > 10:
+                # Use last 300 returns (roughly 5 minutes)
+                recent_returns = valid_returns[-min(300, len(valid_returns)):]
+                volatility_5min = calculate_volatility_numba(recent_returns)
+            else:
+                volatility_5min = 0.0
+            
+            # Moving averages for signals
+            ma_20 = np.mean(ltp[-20:]) if len(ltp) >= 20 else np.mean(ltp)
+            ma_50 = np.mean(ltp[-50:]) if len(ltp) >= 50 else np.mean(ltp)
+            
+            # VWAP-MA crossover signal
+            vwap_ma_signal = 0
+            if vwap_60s > 0 and ma_20 > 0:
+                if vwap_60s > ma_20 * 1.001:
+                    vwap_ma_signal = 1
+                elif vwap_60s < ma_20 * 0.999:
+                    vwap_ma_signal = -1
+            
+            # Trend strength
+            trend_strength = (ma_20 - ma_50) / ma_50 if ma_50 > 0 else 0.0
+            
+            # Flags
+            liquidity_flag = total_qty >= LIQUIDITY_THRESHOLD
+            volatility_flag = volatility_5min > VOLATILITY_THRESHOLD
+            
+            # Create metrics object
+            metrics = RealTimeMetrics(
+                timestamp=current_time,
+                instrument=instrument,
+                ltp=float(current_ltp),
+                mid_price=float(mid_price),
+                spread=float(spread),
+                spread_bps=float(spread_bps),
+                vwap_30s=float(vwap_30s),
+                vwap_60s=float(vwap_60s),
+                vwap_300s=float(vwap_300s),
+                order_imbalance=float(order_imbalance),
+                total_depth=int(total_qty),
+                tick_return=float(current_tick_return),
+                volatility_5min=float(volatility_5min),
+                liquidity_flag=liquidity_flag,
+                volatility_flag=volatility_flag,
+                vwap_ma_signal=int(vwap_ma_signal),
+                trend_strength=float(trend_strength)
+            )
+            
+            # Validate before returning
+            if metrics.validate_values():
+                return metrics
+            else:
+                logging.warning(f"Invalid metrics calculated for {instrument}")
+                return None
+                
+        except Exception as e:
+            logging.error(f"Error calculating metrics for {instrument}: {e}")
+            return None
 
-class InstrumentAnalytics:
-    """High-performance analytics for a single instrument"""
-    
-    def __init__(self, instrument_key: str, buffer_size: int = BUFFER_SIZE):
-        self.instrument_key = instrument_key
-        self.buffer_size = buffer_size
-        
-        # Circular buffers for raw data
-        self.price_buffer = CircularBuffer(buffer_size)
-        self.volume_buffer = CircularBuffer(buffer_size)
-        self.bid_buffer = CircularBuffer(buffer_size)
-        self.ask_buffer = CircularBuffer(buffer_size)
-        self.bid_qty_buffer = CircularBuffer(buffer_size)
-        self.ask_qty_buffer = CircularBuffer(buffer_size)
-        
-        # Running calculations for efficiency
-        self.last_price = 0.0
-        self.last_volume = 0
-        self.cumulative_pv = 0.0  # price * volume
-        self.cumulative_volume = 0
-        
-        # EMA states
-        self.ema_9_state = None
-        self.ema_21_state = None
-        
-        # ATR calculation state
-        self.atr_state = None
-        self.prev_close = 0.0
-        
-        # MACD state
-        self.macd_ema_12 = None
-        self.macd_ema_26 = None
-        self.macd_signal_ema = None
-        
-        # Outlier detection
-        self.price_mean = 0.0
-        self.price_var = 0.0
-        self.outlier_count = 0
-        
-        self.lock = threading.Lock()
-    
-    def is_outlier(self, price: float) -> bool:
-        """Detect price outliers using running statistics"""
-        if self.price_mean == 0.0:
-            return False
-        
-        std_dev = math.sqrt(self.price_var) if self.price_var > 0 else 0
-        if std_dev == 0:
-            return False
-        
-        z_score = abs(price - self.price_mean) / std_dev
-        return z_score > OUTLIER_SIGMA
-    
-    def update_running_stats(self, price: float, n: int):
-        """Update running mean and variance for outlier detection"""
-        if n == 1:
-            self.price_mean = price
-            self.price_var = 0.0
-        else:
-            # Welford's online algorithm
-            delta = price - self.price_mean
-            self.price_mean += delta / n
-            delta2 = price - self.price_mean
-            self.price_var += (delta * delta2 - self.price_var) / n
-    
-    def add_tick(self, tick: TickData) -> bool:
-        """Add new tick data with outlier filtering"""
-        with self.lock:
-            # Outlier detection
-            if self.is_outlier(tick.ltp):
-                self.outlier_count += 1
-                return False
-            
-            # Sanity checks
-            if tick.ltp <= 0 or tick.volume < 0:
-                return False
-            
-            if tick.bid > tick.ask and tick.bid > 0 and tick.ask > 0:
-                return False  # Invalid bid-ask spread
-            
-            # Update running statistics
-            _, valid_prices = self.price_buffer.get_all_valid()
-            n_valid = len(valid_prices) + 1
-            self.update_running_stats(tick.ltp, n_valid)
-            
-            # Add to buffers
-            self.price_buffer.add(tick.timestamp, tick.ltp)
-            self.volume_buffer.add(tick.timestamp, tick.volume)
-            self.bid_buffer.add(tick.timestamp, tick.bid)
-            self.ask_buffer.add(tick.timestamp, tick.ask)
-            self.bid_qty_buffer.add(tick.timestamp, tick.bid_qty)
-            self.ask_qty_buffer.add(tick.timestamp, tick.ask_qty)
-            
-            # Update cumulative VWAP components
-            if tick.volume > 0:
-                self.cumulative_pv += tick.ltp * tick.volume
-                self.cumulative_volume += tick.volume
-            
-            self.last_price = tick.ltp
-            self.last_volume = tick.volume
-            
-            return True
-
-@jit(nopython=True)
-def calculate_vwap_numba(prices: np.ndarray, volumes: np.ndarray, lookback: int) -> float:
-    """Fast VWAP calculation using Numba"""
-    if len(prices) == 0 or lookback <= 0:
-        return 0.0
-    
-    start_idx = max(0, len(prices) - lookback)
-    price_slice = prices[start_idx:]
-    volume_slice = volumes[start_idx:]
-    
-    valid_mask = ~np.isnan(price_slice) & ~np.isnan(volume_slice) & (volume_slice > 0)
-    
-    if not np.any(valid_mask):
-        return 0.0
-    
-    valid_prices = price_slice[valid_mask]
-    valid_volumes = volume_slice[valid_mask]
-    
-    total_value = np.sum(valid_prices * valid_volumes)
-    total_volume = np.sum(valid_volumes)
-    
-    return total_value / total_volume if total_volume > 0 else 0.0
-
-@jit(nopython=True)
-def calculate_parkinson_volatility(highs: np.ndarray, lows: np.ndarray, window: int) -> float:
-    """Calculate Parkinson volatility estimator"""
-    if len(highs) < window or window <= 1:
-        return 0.0
-    
-    log_hl_ratios = np.log(highs[-window:] / lows[-window:])
-    valid_ratios = log_hl_ratios[~np.isnan(log_hl_ratios)]
-    
-    if len(valid_ratios) == 0:
-        return 0.0
-    
-    parkinson_var = np.mean(valid_ratios ** 2) / (4 * np.log(2))
-    return np.sqrt(parkinson_var * 252)  # Annualized
-
-@jit(nopython=True)
-def calculate_true_range(high: float, low: float, prev_close: float) -> float:
-    """Calculate True Range"""
-    if prev_close <= 0:
-        return high - low if high > low else 0.0
-    
-    tr1 = high - low
-    tr2 = abs(high - prev_close)
-    tr3 = abs(low - prev_close)
-    
-    return max(tr1, tr2, tr3)
-
-class AdvancedAnalyticsEngine:
-    """Advanced analytics calculations"""
-    
-    @staticmethod
-    def calculate_ema(price: float, prev_ema: Optional[float], period: int) -> float:
-        """Calculate Exponential Moving Average"""
-        if prev_ema is None:
-            return price
-        
-        alpha = 2.0 / (period + 1)
-        return alpha * price + (1 - alpha) * prev_ema
-    
-    @staticmethod
-    def calculate_atr(true_range: float, prev_atr: Optional[float], period: int = 14) -> float:
-        """Calculate Average True Range"""
-        if prev_atr is None:
-            return true_range
-        
-        return ((period - 1) * prev_atr + true_range) / period
-    
-    @staticmethod
-    def calculate_roc(current_price: float, past_price: float) -> float:
-        """Calculate Rate of Change"""
-        if past_price <= 0:
-            return 0.0
-        return (current_price - past_price) / past_price
-    
-    @staticmethod
-    def detect_bollinger_squeeze(prices: np.ndarray, window: int = 20) -> bool:
-        """Detect Bollinger Band squeeze"""
-        if len(prices) < window:
-            return False
-        
-        recent_prices = prices[-window:]
-        valid_prices = recent_prices[~np.isnan(recent_prices)]
-        
-        if len(valid_prices) < window:
-            return False
-        
-        std_dev = np.std(valid_prices)
-        mean_price = np.mean(valid_prices)
-        
-        # Squeeze when standard deviation is below 2% of mean
-        return (std_dev / mean_price) < 0.02 if mean_price > 0 else False
-    
-    @staticmethod
-    def detect_keltner_breakout(prices: np.ndarray, atr_values: np.ndarray, ema_period: int = 20) -> int:
-        """Detect Keltner Channel breakout"""
-        if len(prices) < ema_period or len(atr_values) == 0:
-            return 0
-        
-        recent_prices = prices[-ema_period:]
-        valid_prices = recent_prices[~np.isnan(recent_prices)]
-        
-        if len(valid_prices) == 0:
-            return 0
-        
-        ema = np.mean(valid_prices)
-        current_atr = atr_values[-1] if not np.isnan(atr_values[-1]) else 0
-        
-        current_price = prices[-1]
-        upper_channel = ema + 2 * current_atr
-        lower_channel = ema - 2 * current_atr
-        
-        if current_price > upper_channel:
-            return 1  # Bullish breakout
-        elif current_price < lower_channel:
-            return -1  # Bearish breakout
-        
-        return 0
-    
-    @staticmethod
-    def calculate_macd_signal(fast_ema: float, slow_ema: float, signal_ema: Optional[float]) -> Tuple[float, float, int]:
-        """Calculate MACD line, signal line, and signal"""
-        macd_line = fast_ema - slow_ema
-        
-        if signal_ema is None:
-            signal_line = macd_line
-        else:
-            # 9-period EMA of MACD line
-            signal_line = AdvancedAnalyticsEngine.calculate_ema(macd_line, signal_ema, 9)
-        
-        # Signal generation
-        histogram = macd_line - signal_line
-        if histogram > 0 and signal_ema is not None and (fast_ema - slow_ema) > signal_ema:
-            signal = 1  # Bullish
-        elif histogram < 0 and signal_ema is not None and (fast_ema - slow_ema) < signal_ema:
-            signal = -1  # Bearish
-        else:
-            signal = 0  # Neutral
-        
-        return macd_line, signal_line, signal
-
-class HighPerformanceTracker:
-    """Main high-performance tracker class"""
+class RobustRedisManager:
+    """Robust Redis manager with proper error handling"""
     
     def __init__(self):
-        self.configuration = None
-        self.streamer = None
+        self.redis_client = None
+        self.redis_connected = False
+        self._setup_redis()
+    
+    def _setup_redis(self):
+        """Setup Redis with robust connection handling"""
+        try:
+            self.redis_client = redis.Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                db=REDIS_DB,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5,
+                retry_on_timeout=True,
+                health_check_interval=30
+            )
+            
+            # Test connection
+            self.redis_client.ping()
+            self.redis_connected = True
+            logging.info(f"✅ Redis connected: {REDIS_HOST}:{REDIS_PORT} DB:{REDIS_DB}")
+            
+        except Exception as e:
+            logging.warning(f"⚠️ Redis connection failed: {e}")
+            self.redis_client = None
+            self.redis_connected = False
+    
+    def create_timeseries_keys(self, instruments: List[str], symbol_mapping: Dict[str, str]):
+        """Create TimeSeries keys with error handling"""
+        if not self.redis_connected:
+            return
+        
+        metrics = [
+            'ltp', 'mid_price', 'spread', 'spread_bps',
+            'vwap_30s', 'vwap_60s', 'vwap_300s',
+            'order_imbalance', 'total_depth', 'tick_return',
+            'volatility_5min', 'trend_strength'
+        ]
+        
+        try:
+            for instrument_key in instruments:
+                instrument_name = symbol_mapping[instrument_key].replace(' ', '_').upper()
+                
+                for metric in metrics:
+                    key = f"ts:{metric}:{instrument_name}"
+                    try:
+                        self.redis_client.execute_command(
+                            'TS.CREATE', key, 
+                            'RETENTION', 86400000,  # 24 hours
+                            'ON_DUPLICATE', 'LAST'
+                        )
+                    except redis.ResponseError as e:
+                        if "key already exists" not in str(e).lower():
+                            logging.warning(f"TimeSeries create warning for {key}: {e}")
+            
+            logging.info("✅ TimeSeries keys initialized")
+            
+        except Exception as e:
+            logging.error(f"❌ TimeSeries setup failed: {e}")
+    
+    def store_metrics_safe(self, metrics: RealTimeMetrics, symbol_mapping: Dict[str, str]):
+        """Store metrics with robust error handling and validation"""
+        if not self.redis_connected:
+            return
+        
+        try:
+            # Validate metrics first
+            if not metrics.validate_values():
+                logging.warning(f"Skipping invalid metrics for {metrics.instrument}")
+                return
+            
+            instrument_name = symbol_mapping[metrics.instrument].replace(' ', '_').upper()
+            timestamp_ms = int(metrics.timestamp * 1000)
+            
+            # Prepare validated data
+            metric_data = {
+                'ltp': metrics.ltp,
+                'mid_price': metrics.mid_price,
+                'spread': metrics.spread,
+                'spread_bps': metrics.spread_bps,
+                'vwap_30s': metrics.vwap_30s,
+                'vwap_60s': metrics.vwap_60s,
+                'vwap_300s': metrics.vwap_300s,
+                'order_imbalance': metrics.order_imbalance,
+                'total_depth': float(metrics.total_depth),
+                'tick_return': metrics.tick_return,
+                'volatility_5min': metrics.volatility_5min,
+                'trend_strength': metrics.trend_strength
+            }
+            
+            # Store each metric individually to handle errors better
+            for metric_name, value in metric_data.items():
+                try:
+                    # Final validation
+                    if np.isfinite(value) and not np.isnan(value):
+                        key = f"ts:{metric_name}:{instrument_name}"
+                        self.redis_client.execute_command('TS.ADD', key, timestamp_ms, float(value))
+                    else:
+                        logging.debug(f"Skipping invalid value {metric_name}={value} for {instrument_name}")
+                        
+                except Exception as e:
+                    logging.error(f"Error storing {metric_name} for {instrument_name}: {e}")
+            
+        except Exception as e:
+            logging.error(f"❌ Error storing metrics: {e}")
+
+class LowLevelWebSocketClient:
+    """Low-level WebSocket client for maximum performance"""
+    
+    def __init__(self):
+        self.access_token = None
         self.instruments = []
         self.symbol_mapping = {}
-        
-        # Analytics per instrument
-        self.analytics = {}
-        self.redis_manager = None
-        
-        # Performance monitoring
-        self.tick_count = 0
-        self.outlier_count = 0
-        self.last_analytics_time = defaultdict(float)
-        self.analytics_interval = 1.0  # seconds
-        
-        # Shutdown handling
+        self.buffers = {}
+        self.redis_manager = RobustRedisManager()
         self.shutdown_requested = False
-        signal.signal(signal.SIGTERM, self._signal_handler)
-        signal.signal(signal.SIGINT, self._signal_handler)
         
-        # Initialize components
+        # Performance counters
+        self.tick_count = 0
+        self.metrics_count = 0
+        self.error_count = 0
+        self.last_display_time = defaultdict(float)
+        self.display_interval = 2.0
+        
+        # Setup
         self._setup_logging()
         self._load_configuration()
-        self._setup_redis()
-        self._initialize_analytics()
-    
-    def _signal_handler(self, signum, frame):
-        """Handle shutdown signals gracefully"""
-        logging.info(f"📡 Received signal {signum}, initiating graceful shutdown...")
-        self.shutdown_requested = True
+        self._setup_shutdown_handlers()
+        self._initialize_buffers()
     
     def _setup_logging(self):
-        """Setup structured JSON logging"""
+        """Setup high-performance logging"""
         os.makedirs(LOG_DIR, exist_ok=True)
+        
         ist = pytz.timezone('Asia/Kolkata')
         timestamp = datetime.now(ist).strftime("%Y%m%d_%H%M%S")
-        log_filename = f"{LOG_DIR}/market_analytics_{timestamp}.json"
+        log_filename = f"{LOG_DIR}/lowlevel_analytics_{timestamp}.log"
         
-        # Custom JSON formatter
-        class JSONFormatter(logging.Formatter):
-            def format(self, record):
-                log_data = {
-                    'timestamp': self.formatTime(record),
-                    'level': record.levelname,
-                    'message': record.getMessage(),
-                    'module': record.module,
-                    'function': record.funcName,
-                    'line': record.lineno
-                }
-                if hasattr(record, 'instrument'):
-                    log_data['instrument'] = record.instrument
-                if hasattr(record, 'latency_ms'):
-                    log_data['latency_ms'] = record.latency_ms
-                return json.dumps(log_data)
-        
-        # File handler with JSON format
-        file_handler = logging.FileHandler(log_filename)
-        file_handler.setFormatter(JSONFormatter())
-        
-        # Console handler with simple format
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(message)s'
-        ))
-        
+        # Configure logging for performance
         logging.basicConfig(
             level=logging.INFO,
-            handlers=[file_handler, console_handler]
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(log_filename),  # Fixed: removed buffering parameter
+                logging.StreamHandler()
+            ]
         )
         
-        logging.info("🚀 High-Performance Market Analytics Engine Starting...")
+        logging.info("🚀 Low-Level High-Performance Analytics Engine")
+        logging.info("📡 Using direct WebSocket + NumPy + Numba + Redis")
+    
+    def _setup_shutdown_handlers(self):
+        """Setup shutdown handlers"""
+        def signal_handler(signum, frame):
+            logging.info(f"📡 Shutdown signal {signum}")
+            self.shutdown_requested = True
+        
+        signal.signal(signal.SIGTERM, signal_handler)
+        signal.signal(signal.SIGINT, signal_handler)
     
     def _load_configuration(self):
-        """Load configuration from files"""
+        """Load configuration"""
         try:
             # Load credentials
             with open(CREDENTIALS_PATH, 'r') as f:
                 creds = json.load(f)
             
-            self.access_token = creds['access_token']
-            self.configuration = upstox_client.Configuration()
-            self.configuration.access_token = self.access_token
+            self.access_token = creds.get('access_token')
+            if not self.access_token:
+                raise ValueError("No access_token found")
+            
+            # Test token with direct HTTP request
+            self._validate_token()
             
             # Load symbols
             with open(SYMBOLS_PATH, 'r') as f:
@@ -493,534 +500,344 @@ class HighPerformanceTracker:
                 self.instruments.append(instrument_key)
                 self.symbol_mapping[instrument_key] = name
             
-            logging.info(f"✅ Configuration loaded: {len(self.instruments)} instruments")
+            logging.info(f"✅ Loaded {len(self.instruments)} instruments")
             
         except Exception as e:
-            logging.error(f"❌ Configuration loading failed: {e}")
+            logging.error(f"❌ Configuration failed: {e}")
             raise
     
-    def _setup_redis(self):
-        """Setup Redis connection with bulk operations"""
+    def _validate_token(self):
+        """Validate token with direct HTTP request"""
         try:
-            self.redis_client = redis.Redis(
-                host=REDIS_HOST, 
-                port=REDIS_PORT, 
-                db=REDIS_DB, 
-                decode_responses=True
-            )
-            self.redis_client.ping()
-            
-            # Bulk create time series keys
-            pipe = self.redis_client.pipeline()
-            metrics = [
-                'ltp', 'mid_price', 'spread', 'spread_bps', 'volume',
-                'vwap_1m', 'vwap_5m', 'vwap_15m', 'vwma_10', 'vwma_30',
-                'true_range', 'atr_14', 'parkinson_vol', 'roc_1m', 'roc_5m',
-                'ema_9', 'ema_21', 'imbalance', 'liquidity_score'
-            ]
-            
-            for instrument_key in self.instruments:
-                instrument_name = self.symbol_mapping[instrument_key].replace(' ', '_').upper()
-                for metric in metrics:
-                    key = f"ts:{metric}:{instrument_name}"
-                    pipe.execute_command('TS.CREATE', key, 'RETENTION', 86400000, 'ON_DUPLICATE', 'LAST')
-            
-            pipe.execute()
-            logging.info("✅ Redis TimeSeries initialized with bulk operations")
-            
-        except Exception as e:
-            logging.warning(f"⚠️ Redis setup failed: {e}")
-            self.redis_client = None
-    
-    def _initialize_analytics(self):
-        """Initialize analytics engines for each instrument"""
-        for instrument_key in self.instruments:
-            self.analytics[instrument_key] = InstrumentAnalytics(instrument_key, BUFFER_SIZE)
-        
-        logging.info(f"✅ Analytics engines initialized for {len(self.instruments)} instruments")
-    
-    def _calculate_comprehensive_metrics(self, instrument_key: str) -> Optional[MultiTimeframeMetrics]:
-        """Calculate comprehensive multi-timeframe metrics"""
-        try:
-            analytics = self.analytics[instrument_key]
-            
-            with analytics.lock:
-                # Get recent data
-                price_timestamps, prices = analytics.price_buffer.get_all_valid()
-                volume_timestamps, volumes = analytics.volume_buffer.get_all_valid()
-                bid_timestamps, bids = analytics.bid_buffer.get_all_valid()
-                ask_timestamps, asks = analytics.ask_buffer.get_all_valid()
-                bid_qty_timestamps, bid_qtys = analytics.bid_qty_buffer.get_all_valid()
-                ask_qty_timestamps, ask_qtys = analytics.ask_qty_buffer.get_all_valid()
-                
-                if len(prices) == 0:
-                    return None
-                
-                current_time = time.time()
-                current_price = prices[-1]
-                current_bid = bids[-1] if len(bids) > 0 else 0
-                current_ask = asks[-1] if len(asks) > 0 else 0
-                current_bid_qty = int(bid_qtys[-1]) if len(bid_qtys) > 0 else 0
-                current_ask_qty = int(ask_qtys[-1]) if len(ask_qtys) > 0 else 0
-                
-                # Basic price metrics
-                mid_price = (current_bid + current_ask) / 2 if current_bid > 0 and current_ask > 0 else current_price
-                spread = current_ask - current_bid if current_ask > 0 and current_bid > 0 else 0
-                spread_bps = (spread / mid_price * 10000) if mid_price > 0 else 0
-                
-                # Multi-timeframe VWAP (1m = 60 ticks, 5m = 300 ticks, 15m = 900 ticks)
-                vwap_1m = calculate_vwap_numba(prices, volumes, 60)
-                vwap_5m = calculate_vwap_numba(prices, volumes, 300)
-                vwap_15m = calculate_vwap_numba(prices, volumes, 900)
-                
-                # Volume-weighted moving averages
-                vwma_10 = calculate_vwap_numba(prices, volumes, 10)
-                vwma_30 = calculate_vwap_numba(prices, volumes, 30)
-                
-                # True Range and ATR
-                prev_close = analytics.prev_close if analytics.prev_close > 0 else current_price
-                true_range = calculate_true_range(current_price, current_price, prev_close)  # Simplified for tick data
-                
-                if analytics.atr_state is None:
-                    analytics.atr_state = true_range
-                else:
-                    analytics.atr_state = AdvancedAnalyticsEngine.calculate_atr(true_range, analytics.atr_state)
-                
-                analytics.prev_close = current_price
-                
-                # Parkinson volatility (using price as both high and low for tick data)
-                parkinson_vol = calculate_parkinson_volatility(prices, prices, min(60, len(prices)))
-                
-                # Rate of Change
-                roc_1m = 0.0
-                roc_5m = 0.0
-                if len(prices) >= 60:
-                    roc_1m = AdvancedAnalyticsEngine.calculate_roc(current_price, prices[-60])
-                if len(prices) >= 300:
-                    roc_5m = AdvancedAnalyticsEngine.calculate_roc(current_price, prices[-300])
-                
-                # EMAs
-                analytics.ema_9_state = AdvancedAnalyticsEngine.calculate_ema(
-                    current_price, analytics.ema_9_state, 9
-                )
-                analytics.ema_21_state = AdvancedAnalyticsEngine.calculate_ema(
-                    current_price, analytics.ema_21_state, 21
-                )
-                
-                # Order book imbalance
-                total_qty = current_bid_qty + current_ask_qty
-                imbalance = (current_bid_qty - current_ask_qty) / total_qty if total_qty > 0 else 0
-                
-                # Liquidity score
-                liquidity_score = 0.0
-                if mid_price > 0:
-                    spread_penalty = max(0, 100 - spread_bps * 10)
-                    depth_score = min(100, total_qty / 1000 * 100)
-                    liquidity_score = spread_penalty * 0.6 + depth_score * 0.4
-                
-                # Pattern detection
-                bb_squeeze = AdvancedAnalyticsEngine.detect_bollinger_squeeze(prices)
-                
-                # Simplified ATR array for Keltner channels
-                atr_array = np.array([analytics.atr_state] * min(20, len(prices)))
-                keltner_breakout = AdvancedAnalyticsEngine.detect_keltner_breakout(prices, atr_array)
-                
-                # MACD calculation
-                if analytics.macd_ema_12 is None:
-                    analytics.macd_ema_12 = current_price
-                    analytics.macd_ema_26 = current_price
-                else:
-                    analytics.macd_ema_12 = AdvancedAnalyticsEngine.calculate_ema(
-                        current_price, analytics.macd_ema_12, 12
-                    )
-                    analytics.macd_ema_26 = AdvancedAnalyticsEngine.calculate_ema(
-                        current_price, analytics.macd_ema_26, 26
-                    )
-                
-                macd_line, signal_line, macd_signal = AdvancedAnalyticsEngine.calculate_macd_signal(
-                    analytics.macd_ema_12, analytics.macd_ema_26, analytics.macd_signal_ema
-                )
-                analytics.macd_signal_ema = signal_line
-                
-                # VWAP alignment across timeframes
-                vwap_alignment = 0
-                if vwap_1m > 0 and vwap_5m > 0 and vwap_15m > 0:
-                    if current_price > vwap_1m and current_price > vwap_5m and current_price > vwap_15m:
-                        vwap_alignment = 1  # All bullish
-                    elif current_price < vwap_1m and current_price < vwap_5m and current_price < vwap_15m:
-                        vwap_alignment = -1  # All bearish
-                
-                return MultiTimeframeMetrics(
-                    timestamp=current_time,
-                    instrument=instrument_key,
-                    ltp=current_price,
-                    mid_price=mid_price,
-                    spread=spread,
-                    spread_bps=spread_bps,
-                    vwap_1m=vwap_1m,
-                    vwap_5m=vwap_5m,
-                    vwap_15m=vwap_15m,
-                    vwma_10=vwma_10,
-                    vwma_30=vwma_30,
-                    true_range=true_range,
-                    atr_14=analytics.atr_state,
-                    parkinson_vol=parkinson_vol,
-                    roc_1m=roc_1m,
-                    roc_5m=roc_5m,
-                    ema_9=analytics.ema_9_state,
-                    ema_21=analytics.ema_21_state,
-                    imbalance=imbalance,
-                    liquidity_score=liquidity_score,
-                    bb_squeeze=bb_squeeze,
-                    keltner_breakout=keltner_breakout,
-                    macd_signal=macd_signal,
-                    vwap_alignment=vwap_alignment
-                )
-                
-        except Exception as e:
-            logging.error(f"❌ Error calculating metrics for {instrument_key}: {e}")
-            return None
-    
-    def _store_metrics_bulk(self, metrics: MultiTimeframeMetrics):
-        """Store metrics to Redis using bulk operations"""
-        if not self.redis_client:
-            return
-        
-        try:
-            instrument_name = self.symbol_mapping[metrics.instrument].replace(' ', '_').upper()
-            timestamp_ms = int(metrics.timestamp * 1000)
-            
-            # Prepare bulk data
-            pipe = self.redis_client.pipeline()
-            
-            metric_data = {
-                'ltp': metrics.ltp,
-                'mid_price': metrics.mid_price,
-                'spread': metrics.spread,
-                'spread_bps': metrics.spread_bps,
-                'vwap_1m': metrics.vwap_1m,
-                'vwap_5m': metrics.vwap_5m,
-                'vwap_15m': metrics.vwap_15m,
-                'vwma_10': metrics.vwma_10,
-                'vwma_30': metrics.vwma_30,
-                'true_range': metrics.true_range,
-                'atr_14': metrics.atr_14,
-                'parkinson_vol': metrics.parkinson_vol,
-                'roc_1m': metrics.roc_1m,
-                'roc_5m': metrics.roc_5m,
-                'ema_9': metrics.ema_9,
-                'ema_21': metrics.ema_21,
-                'imbalance': metrics.imbalance,
-                'liquidity_score': metrics.liquidity_score
+            headers = {
+                'Authorization': f'Bearer {self.access_token}',
+                'Accept': 'application/json'
             }
             
-            for metric_name, value in metric_data.items():
-                if not np.isnan(value) and not np.isinf(value):
-                    key = f"ts:{metric_name}:{instrument_name}"
-                    pipe.execute_command('TS.ADD', key, timestamp_ms, value)
+            response = requests.get(
+                'https://api.upstox.com/v2/user/profile',
+                headers=headers,
+                timeout=10
+            )
             
-            pipe.execute()
-            
-        except Exception as e:
-            logging.error(f"❌ Error storing metrics to Redis: {e}")
-    
-    def _display_comprehensive_analytics(self, metrics: MultiTimeframeMetrics):
-        """Display comprehensive analytics with advanced patterns"""
-        try:
-            instrument_name = self.symbol_mapping[metrics.instrument]
-            timestamp = datetime.fromtimestamp(metrics.timestamp).strftime("%H:%M:%S")
-            
-            # Collect signals
-            signals = []
-            if metrics.vwap_alignment == 1:
-                signals.append("🚀 VWAP_BULL")
-            elif metrics.vwap_alignment == -1:
-                signals.append("🔻 VWAP_BEAR")
-            
-            if metrics.bb_squeeze:
-                signals.append("🔥 BB_SQUEEZE")
-            
-            if metrics.keltner_breakout == 1:
-                signals.append("📈 KELT_BULL")
-            elif metrics.keltner_breakout == -1:
-                signals.append("📉 KELT_BEAR")
-            
-            if metrics.macd_signal == 1:
-                signals.append("💚 MACD_BULL")
-            elif metrics.macd_signal == -1:
-                signals.append("❤️ MACD_BEAR")
-            
-            signal_str = " | ".join(signals) if signals else "😴 NEUTRAL"
-            
-            # Special display for TCS
-            if "TCS" in instrument_name.upper() or "TATA CONSULTANCY" in instrument_name.upper():
-                print("\n" + "="*100)
-                print(f"🎯 {instrument_name} ({metrics.instrument}) - {timestamp}")
-                print("="*100)
-                print(f"💰 LTP:           ₹{metrics.ltp:.2f} | Mid: ₹{metrics.mid_price:.2f}")
-                print(f"📊 Spread:        ₹{metrics.spread:.2f} ({metrics.spread_bps:.1f} bps)")
-                print(f"📈 VWAP:          1m=₹{metrics.vwap_1m:.2f} | 5m=₹{metrics.vwap_5m:.2f} | 15m=₹{metrics.vwap_15m:.2f}")
-                print(f"📊 VWMA:          10=₹{metrics.vwma_10:.2f} | 30=₹{metrics.vwma_30:.2f}")
-                print(f"📈 EMA:           9=₹{metrics.ema_9:.2f} | 21=₹{metrics.ema_21:.2f}")
-                print(f"📊 Volatility:    ATR=₹{metrics.atr_14:.2f} | Parkinson={metrics.parkinson_vol:.4f}")
-                print(f"🚀 Momentum:      ROC_1m={metrics.roc_1m:.4f} | ROC_5m={metrics.roc_5m:.4f}")
-                print(f"⚖️  Order Book:    Imbalance={metrics.imbalance:.3f} | Liquidity={metrics.liquidity_score:.1f}/100")
-                print(f"🎯 SIGNALS:       {signal_str}")
-                print("="*100)
-                
+            if response.status_code == 200:
+                profile = response.json()
+                user_name = profile.get('data', {}).get('user_name', 'Unknown')
+                logging.info(f"✅ Token valid - {user_name}")
             else:
-                # Compact display for other stocks
-                print(f"📊 {instrument_name}: LTP=₹{metrics.ltp:.2f} | "
-                      f"VWAP_1m=₹{metrics.vwap_1m:.2f} | ATR=₹{metrics.atr_14:.2f} | "
-                      f"Liq={metrics.liquidity_score:.0f} | {signal_str}")
+                raise ValueError(f"Token validation failed: {response.status_code}")
                 
         except Exception as e:
-            logging.error(f"❌ Error displaying analytics: {e}")
+            logging.error(f"❌ Token validation failed: {e}")
+            raise
     
-    def on_message(self, message):
-        """Process incoming market data with high-performance analytics"""
-        start_time = time.time()
+    def _initialize_buffers(self):
+        """Initialize high-performance buffers"""
+        for instrument_key in self.instruments:
+            self.buffers[instrument_key] = HighPerformanceBuffer(ROLLING_WINDOW_SIZE)
         
+        # Setup Redis
+        self.redis_manager.create_timeseries_keys(self.instruments, self.symbol_mapping)
+        
+        logging.info(f"✅ Initialized {len(self.buffers)} high-performance buffers")
+    
+    async def connect_and_stream(self):
+        """Main async streaming function"""
         try:
-            if self.shutdown_requested:
-                return
+            # Get WebSocket URL
+            ws_url = await self._get_websocket_url()
             
+            logging.info(f"🔗 Connecting to: {ws_url}")
+            
+            async with websockets.connect(
+                ws_url,
+                ping_interval=20,
+                ping_timeout=10,
+                close_timeout=10
+            ) as websocket:
+                
+                logging.info("✅ WebSocket connected")
+                
+                # Subscribe to instruments
+                await self._subscribe_to_instruments(websocket)
+                
+                # Main message loop
+                async for message in websocket:
+                    if self.shutdown_requested:
+                        break
+                    
+                    try:
+                        await self._process_message(message)
+                    except Exception as e:
+                        self.error_count += 1
+                        logging.error(f"❌ Message processing error: {e}")
+                        
+                        if self.error_count > 100:
+                            logging.error("Too many errors, shutting down")
+                            break
+                
+        except Exception as e:
+            logging.error(f"❌ WebSocket connection failed: {e}")
+            raise
+    
+    async def _get_websocket_url(self) -> str:
+        """Get WebSocket URL from Upstox API"""
+        try:
+            headers = {
+                'Authorization': f'Bearer {self.access_token}',
+                'Accept': 'application/json'
+            }
+            
+            response = requests.get(
+                'https://api.upstox.com/v2/feed/market-data-feed/authorize',
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                ws_url = data.get('data', {}).get('authorizedRedirectUri', '')
+                if ws_url:
+                    return ws_url
+            
+            raise ValueError(f"Failed to get WebSocket URL: {response.status_code}")
+            
+        except Exception as e:
+            logging.error(f"❌ Error getting WebSocket URL: {e}")
+            raise
+    
+    async def _subscribe_to_instruments(self, websocket):
+        """Subscribe to instruments"""
+        try:
+            subscription_message = {
+                "guid": "someguid",
+                "method": "sub",
+                "data": {
+                    "mode": "full",
+                    "instrumentKeys": self.instruments
+                }
+            }
+            
+            await websocket.send(json.dumps(subscription_message))
+            logging.info(f"✅ Subscribed to {len(self.instruments)} instruments")
+            
+        except Exception as e:
+            logging.error(f"❌ Subscription failed: {e}")
+            raise
+    
+    async def _process_message(self, message):
+        """Process incoming message with high performance"""
+        try:
             self.tick_count += 1
             
-            # Parse message
-            if isinstance(message, dict):
-                message_data = message
-            elif hasattr(message, 'to_dict'):
-                message_data = message.to_dict()
-            else:
-                return
+            # Parse JSON
+            data = json.loads(message)
             
-            # Process feeds
-            feeds = message_data.get("feeds", {})
-            
-            for instrument_key, feed_data in feeds.items():
-                if instrument_key not in self.instruments:
-                    continue
-                
-                # Extract tick data
-                tick = self._extract_tick_data(instrument_key, feed_data)
-                if not tick:
-                    continue
-                
-                # Add to analytics with outlier filtering
-                analytics = self.analytics[instrument_key]
-                if not analytics.add_tick(tick):
-                    self.outlier_count += 1
-                    continue
-                
-                # Calculate comprehensive metrics (throttled)
-                current_time = time.time()
-                if current_time - self.last_analytics_time[instrument_key] >= self.analytics_interval:
-                    metrics = self._calculate_comprehensive_metrics(instrument_key)
-                    if metrics:
-                        # Store to Redis
-                        self._store_metrics_bulk(metrics)
-                        
-                        # Display analytics
-                        self._display_comprehensive_analytics(metrics)
-                        
-                        self.last_analytics_time[instrument_key] = current_time
-            
-            # Performance monitoring
-            processing_time = (time.time() - start_time) * 1000
-            if processing_time > 10:  # Log if processing takes > 10ms
-                extra = {'latency_ms': processing_time}
-                logging.warning(f"⚠️ High processing latency: {processing_time:.2f}ms", extra=extra)
+            # Handle different message types
+            if data.get("type") == "live_feed":
+                feeds = data.get("feeds", {})
+                await self._process_feeds(feeds)
+            elif "feeds" in data:
+                await self._process_feeds(data["feeds"])
             
             # Progress logging
             if self.tick_count % 1000 == 0:
-                outlier_rate = (self.outlier_count / self.tick_count) * 100
-                logging.info(f"📊 Processed {self.tick_count:,} ticks, {self.outlier_count} outliers ({outlier_rate:.2f}%)")
+                logging.info(f"📊 {self.tick_count:,} ticks, {self.metrics_count:,} metrics, {self.error_count} errors")
                 
         except Exception as e:
-            logging.error(f"❌ Message processing error: {e}")
+            logging.error(f"❌ Message parsing error: {e}")
+    
+    async def _process_feeds(self, feeds):
+        """Process feeds with high performance"""
+        for instrument_key, feed_data in feeds.items():
+            if instrument_key not in self.instruments:
+                continue
+            
+            try:
+                tick = self._extract_tick_data(instrument_key, feed_data)
+                if tick:
+                    buffer = self.buffers[instrument_key]
+                    if buffer.add_tick(tick):
+                        # Calculate metrics
+                        metrics = buffer.calculate_metrics(instrument_key)
+                        if metrics:
+                            self.metrics_count += 1
+                            
+                            # Store to Redis (non-blocking)
+                            self.redis_manager.store_metrics_safe(metrics, self.symbol_mapping)
+                            
+                            # Display (throttled)
+                            self._display_metrics(metrics)
+                            
+            except Exception as e:
+                logging.error(f"❌ Error processing {instrument_key}: {e}")
     
     def _extract_tick_data(self, instrument_key: str, feed_data: dict) -> Optional[TickData]:
-        """Extract tick data from feed"""
+        """Extract tick data efficiently"""
         try:
-            # Extract LTP
-            ltpc = feed_data.get("ltpc", {})
-            ltp = ltpc.get("ltp", 0.0)
-            
-            # Extract bid/ask
-            market_level = feed_data.get("market_level", {})
-            bid_ask_quotes = market_level.get("bid_ask_quote", [])
-            
-            bid_price = 0.0
-            ask_price = 0.0
+            ltp = 0.0
+            bid = 0.0
+            ask = 0.0
             bid_qty = 0
             ask_qty = 0
+            volume = 0
             
-            if bid_ask_quotes:
-                best_bid_ask = bid_ask_quotes[0]
-                bid_price = best_bid_ask.get("bid_p", 0.0)
-                ask_price = best_bid_ask.get("ask_p", 0.0)
-                bid_qty = best_bid_ask.get("bid_q", 0)
-                ask_qty = best_bid_ask.get("ask_q", 0)
+            # Handle different feed structures
+            if 'fullFeed' in feed_data:
+                full_feed = feed_data['fullFeed']
+                
+                # Price data
+                market_ff = full_feed.get('marketFF', {})
+                ltpc = market_ff.get('ltpc', {})
+                ltp = float(ltpc.get('ltp', 0.0))
+                
+                # Order book
+                market_level = full_feed.get('marketLevel', {})
+                bid_ask_quotes = market_level.get('bidAskQuote', [])
+                if bid_ask_quotes:
+                    best_quote = bid_ask_quotes[0]
+                    bid = float(best_quote.get('bidP', 0.0))
+                    ask = float(best_quote.get('askP', 0.0))
+                    bid_qty = int(best_quote.get('bidQ', 0))
+                    ask_qty = int(best_quote.get('askQ', 0))
+                
+                volume = int(market_ff.get('vtt', 0))
+                
+            elif 'ltpc' in feed_data:
+                ltpc = feed_data['ltpc']
+                ltp = float(ltpc.get('ltp', 0.0))
             
-            # Extract volume
-            market_ff = feed_data.get("market_ff", {})
-            volume = market_ff.get("vtt", 0)
+            if ltp > 0:
+                return TickData(
+                    timestamp=time.time(),
+                    ltp=ltp,
+                    bid=bid,
+                    ask=ask,
+                    bid_qty=bid_qty,
+                    ask_qty=ask_qty,
+                    volume=volume
+                )
             
-            return TickData(
-                timestamp=time.time(),
-                ltp=float(ltp) if ltp else 0.0,
-                bid=float(bid_price) if bid_price else 0.0,
-                ask=float(ask_price) if ask_price else 0.0,
-                bid_qty=int(bid_qty) if bid_qty else 0,
-                ask_qty=int(ask_qty) if ask_qty else 0,
-                volume=int(volume) if volume else 0
-            )
+            return None
             
         except Exception as e:
-            logging.error(f"❌ Error extracting tick data for {instrument_key}: {e}")
+            logging.error(f"❌ Error extracting tick: {e}")
             return None
     
-    def on_open(self):
-        """Handle connection open"""
-        logging.info("✅ WebSocket connection opened")
+    def _display_metrics(self, metrics: RealTimeMetrics):
+        """Display metrics with throttling"""
+        current_time = time.time()
         
-        try:
-            logging.info(f"📡 Subscribing to {len(self.instruments)} instruments...")
-            self.streamer.subscribe(self.instruments, "full")
-            logging.info("✅ Subscription successful")
-            
-            for i, instrument in enumerate(self.instruments, 1):
-                name = self.symbol_mapping[instrument]
-                logging.info(f"   {i:2d}. {name} ({instrument})")
-                
-        except Exception as e:
-            logging.error(f"❌ Subscription failed: {e}")
-    
-    def on_error(self, error):
-        """Handle errors"""
-        logging.error(f"❌ WebSocket error: {error}")
-    
-    def on_close(self):
-        """Handle connection close"""
-        logging.info("🔌 WebSocket connection closed")
-    
-    def start_streaming(self):
-        """Start the market data stream"""
-        try:
-            logging.info("🚀 Initializing High-Performance Market Data Streamer...")
-            
-            self.streamer = upstox_client.MarketDataStreamerV3(
-                upstox_client.ApiClient(self.configuration),
-                instrumentKeys=[],
-                mode="full"
-            )
-            
-            # Set event handlers
-            self.streamer.on("open", self.on_open)
-            self.streamer.on("message", self.on_message)
-            self.streamer.on("error", self.on_error)
-            self.streamer.on("close", self.on_close)
-            
-            # Connect
-            logging.info("🔗 Connecting to Upstox WebSocket...")
-            self.streamer.connect()
-            
-        except Exception as e:
-            logging.error(f"❌ Failed to start streaming: {e}")
-            raise
-    
-    def stop_streaming(self):
-        """Stop streaming with graceful data persistence"""
-        try:
-            if self.streamer:
-                self.streamer.disconnect()
-            
-            # Flush remaining analytics to Redis
-            logging.info("💾 Flushing final analytics to Redis...")
-            for instrument_key in self.instruments:
-                metrics = self._calculate_comprehensive_metrics(instrument_key)
-                if metrics:
-                    self._store_metrics_bulk(metrics)
-            
-            logging.info("🛑 Streaming stopped gracefully")
-            
-        except Exception as e:
-            logging.error(f"❌ Error during shutdown: {e}")
-    
-    def show_performance_summary(self):
-        """Show comprehensive performance summary"""
-        print("\n" + "="*100)
-        print("📊 HIGH-PERFORMANCE ANALYTICS SUMMARY")
-        print("="*100)
-        print(f"📨 Total ticks processed: {self.tick_count:,}")
-        print(f"🚫 Outliers filtered: {self.outlier_count:,} ({(self.outlier_count/max(1,self.tick_count)*100):.2f}%)")
-        print(f"📡 Instruments tracked: {len(self.instruments)}")
+        if current_time - self.last_display_time[metrics.instrument] < self.display_interval:
+            return
         
-        # Show per-instrument statistics
-        for instrument_key in self.instruments:
-            analytics = self.analytics[instrument_key]
-            name = self.symbol_mapping[instrument_key]
-            valid_count = analytics.price_buffer.count
-            outliers = analytics.outlier_count
-            buffer_util = (valid_count / BUFFER_SIZE) * 100
-            
-            print(f"   📈 {name}: {valid_count:,} valid ticks, {outliers} outliers, "
-                  f"buffer {buffer_util:.1f}% utilized")
+        self.last_display_time[metrics.instrument] = current_time
         
-        # System status
-        if self.redis_client:
-            print("✅ Redis TimeSeries: Operational - data persisted")
+        instrument_name = self.symbol_mapping[metrics.instrument]
+        timestamp = datetime.fromtimestamp(metrics.timestamp).strftime("%H:%M:%S")
+        
+        # Generate signals
+        signals = []
+        if metrics.vwap_ma_signal == 1:
+            signals.append("🔥 BULL")
+        elif metrics.vwap_ma_signal == -1:
+            signals.append("🧊 BEAR")
+        
+        if metrics.liquidity_flag:
+            signals.append("💧 LIQ")
+        
+        if metrics.volatility_flag:
+            signals.append("⚡ VOL")
+        
+        signal_str = " | ".join(signals) if signals else "😴 QUIET"
+        
+        # TCS special display
+        if "TCS" in instrument_name.upper() or "TATA CONSULTANCY" in instrument_name.upper():
+            print("\n" + "="*90)
+            print(f"🎯 {instrument_name} - {timestamp}")
+            print("="*90)
+            print(f"💰 LTP: ₹{metrics.ltp:.2f} | Mid: ₹{metrics.mid_price:.2f} | Spread: ₹{metrics.spread:.2f} ({metrics.spread_bps:.1f} bps)")
+            print(f"📊 VWAP: 30s=₹{metrics.vwap_30s:.2f} | 60s=₹{metrics.vwap_60s:.2f} | 5m=₹{metrics.vwap_300s:.2f}")
+            print(f"📈 Return: {metrics.tick_return:.4f} | Vol: {metrics.volatility_5min:.4f} | Trend: {metrics.trend_strength:.4f}")
+            print(f"⚖️  Imbalance: {metrics.order_imbalance:.3f} | Depth: {metrics.total_depth:,}")
+            print(f"🎯 SIGNALS: {signal_str}")
+            print("="*90)
         else:
-            print("❌ Redis TimeSeries: Unavailable")
+            print(f"📊 {instrument_name}: LTP=₹{metrics.ltp:.2f} | "
+                  f"VWAP60=₹{metrics.vwap_60s:.2f} | Ret={metrics.tick_return:.4f} | "
+                  f"Imb={metrics.order_imbalance:.2f} | {signal_str}")
+    
+    def show_summary(self):
+        """Show session summary"""
+        print("\n" + "="*100)
+        print("📊 LOW-LEVEL HIGH-PERFORMANCE ANALYTICS SUMMARY")
+        print("="*100)
+        print(f"📨 Ticks processed: {self.tick_count:,}")
+        print(f"🧮 Metrics calculated: {self.metrics_count:,}")
+        print(f"❌ Errors: {self.error_count}")
+        print(f"📡 Instruments: {len(self.instruments)}")
+        print(f"🗃️  Buffer size: {ROLLING_WINDOW_SIZE} per instrument")
         
-        print("✅ All analytics computed with multi-timeframe confirmation")
-        print("✅ Advanced pattern detection enabled")
-        print("✅ Outlier filtering and data validation active")
+        print(f"\n📊 BUFFER STATUS:")
+        for instrument_key, buffer in self.buffers.items():
+            name = self.symbol_mapping[instrument_key]
+            utilization = (buffer.count / ROLLING_WINDOW_SIZE) * 100
+            print(f"   📈 {name}: {buffer.count:,} ticks ({utilization:.1f}%)")
+        
+        redis_status = "✅ Connected" if self.redis_manager.redis_connected else "❌ Disconnected"
+        print(f"\n🗃️  Redis TimeSeries: {redis_status}")
+        
+        print("\n🚀 PERFORMANCE FEATURES:")
+        print("   ✅ Direct WebSocket connection (no SDK overhead)")
+        print("   ✅ NumPy circular buffers for speed")
+        print("   ✅ Numba JIT compilation for calculations")
+        print("   ✅ Robust Redis error handling")
+        print("   ✅ Validated data storage")
+        print("   ✅ Async processing pipeline")
         print("="*100)
 
-def main():
-    """Main execution function"""
-    tracker = HighPerformanceTracker()
+async def main():
+    """Main async function"""
+    
+    # Check required files
+    required_files = [CREDENTIALS_PATH, SYMBOLS_PATH]
+    for file_path in required_files:
+        if not os.path.exists(file_path):
+            print(f"❌ Required file missing: {file_path}")
+            return
+    
+    client = LowLevelWebSocketClient()
     
     try:
-        print("🚀 Starting High-Performance Market Analytics Engine")
-        print("💡 Features: Multi-timeframe VWAP, ATR, Pattern Detection, Outlier Filtering")
-        print(f"📡 Tracking {len(tracker.instruments)} instruments with {BUFFER_SIZE}-tick rolling windows")
-        print(f"📊 Advanced indicators: Bollinger Squeeze, Keltner Channels, MACD, Parkinson Volatility")
-        print("⏹️  Press Ctrl+C for graceful shutdown\n")
+        print("🚀 Low-Level High-Performance Market Analytics")
+        print("📡 Direct WebSocket + NumPy + Numba + Redis TimeSeries")
+        print("🎯 600-row rolling window with validated metrics")
+        print("⏹️  Press Ctrl+C for graceful shutdown")
+        print("🔥 HIGH-PERFORMANCE STREAMING:")
+        print("-" * 80)
         
-        tracker.start_streaming()
+        await client.connect_and_stream()
         
-        # Keep the connection alive
-        while not tracker.shutdown_requested:
-            time.sleep(0.1)  # Reduced sleep for better responsiveness
-            
     except KeyboardInterrupt:
-        print("\n👋 Graceful shutdown initiated...")
+        print("\n👋 Graceful shutdown...")
     except Exception as e:
         logging.error(f"❌ Fatal error: {e}")
+        print(f"\n💥 Error: {e}")
     finally:
-        tracker.stop_streaming()
-        tracker.show_performance_summary()
+        client.show_summary()
 
 if __name__ == "__main__":
-    # Check required packages
-    required_packages = ['upstox_client', 'numpy', 'redis', 'numba']
-    missing_packages = []
-    
-    for package in required_packages:
-        try:
-            __import__(package)
-        except ImportError:
-            missing_packages.append(package)
-    
-    if missing_packages:
-        print("❌ Missing required packages:")
-        for package in missing_packages:
-            print(f"   📦 {package}")
-        print("\n🔧 Install with:")
-        print(f"pip install {' '.join(missing_packages)}")
+    # Check dependencies
+    try:
+        import websockets
+        import numpy
+        import redis
+        import numba
+        print("✅ All low-level libraries ready")
+    except ImportError as e:
+        print(f"❌ Missing library: {e}")
+        print("🔧 Install: pip install websockets numpy redis numba requests")
         exit(1)
     
-    main()
+    # Run async main
+    asyncio.run(main())

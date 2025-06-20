@@ -1,0 +1,8 @@
+2025-06-20 12:41:56 IST - INFO - PROGRAM_START: Upstox Authentication Client started
+2025-06-20 12:41:56 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-19 22:00:00+00:00
+2025-06-20 12:41:56 IST - INFO - AUTH_ATTEMPT: Starting new authentication flow
+2025-06-20 12:59:06 IST - INFO - AUTH_SUCCESS: Authentication successful, token expires at 2025-06-20 22:00:00+00:00
+2025-06-20 12:59:06 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-20 22:00:00+00:00
+2025-06-20 12:59:06 IST - INFO - CONNECTION_SUCCESS: Connected as User: Akash Ani (ID: 3WCWMD)
+2025-06-20 12:59:06 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-20 22:00:00+00:00
+2025-06-20 12:59:06 IST - INFO - PROGRAM_SUCCESS: Authentication and connection test completed successfully

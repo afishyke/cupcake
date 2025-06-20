@@ -1,0 +1,275 @@
+2025-06-20 13:32:31,655 - INFO - Technical Indicators TimeSeries logging to: /home/abhishek/projects/CUPCAKE/logs/live_technical_indicators_ts_20250620_133231_IST.log
+2025-06-20 13:32:31,659 - INFO - Connected to Redis DB0 (OHLCV source)
+2025-06-20 13:32:31,661 - INFO - Connected to Redis DB2 (Technical Indicators)
+2025-06-20 13:32:31,661 - INFO - ✅ Flushed Redis DB2 (Technical Indicators TimeSeries) - Starting fresh session
+2025-06-20 13:32:31,661 - INFO - ✅ TA-Lib initialized successfully
+2025-06-20 13:32:31,661 - INFO - Loaded 15 symbols from /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-20 13:32:31,661 - INFO - 🚀 Live Technical Indicator TimeSeries System initialized
+2025-06-20 13:32:31,661 - INFO - 🔄 Starting initial technical indicator calculation...
+2025-06-20 13:32:31,662 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:32:31,662 - INFO - 📊 Processing 14 symbols
+2025-06-20 13:32:34,425 - INFO - 🔄 Starting continuous technical indicator TimeSeries monitoring...
+2025-06-20 13:32:34,425 - INFO - 📊 Monitoring cycle 1
+2025-06-20 13:32:34,425 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:32:34,426 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:32:34,679 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:32:34,945 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:32:35,198 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:32:35,444 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:32:35,710 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:32:35,964 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:32:36,232 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:32:36,501 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:32:36,776 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:32:37,055 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:32:37,342 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:32:37,615 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:32:37,896 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:32:38,171 - INFO - ✅ Updated indicators for 14 symbols in 3.75s
+2025-06-20 13:33:04,428 - INFO - 📊 Monitoring cycle 2
+2025-06-20 13:33:04,431 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:33:34,429 - INFO - 📊 Monitoring cycle 3
+2025-06-20 13:33:34,429 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:33:34,430 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:33:34,707 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:33:34,976 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:33:35,227 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:33:35,502 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:33:35,757 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:33:36,018 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:33:36,296 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:33:36,588 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:33:36,866 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:33:37,137 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:33:37,385 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:33:37,656 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:33:37,952 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:33:38,226 - INFO - ✅ Updated indicators for 14 symbols in 3.80s
+2025-06-20 13:34:04,429 - INFO - 📊 Monitoring cycle 4
+2025-06-20 13:34:04,430 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:34:34,430 - INFO - 📊 Monitoring cycle 5
+2025-06-20 13:34:34,430 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:34:34,431 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:34:34,697 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:34:34,961 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:34:35,222 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:34:35,479 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:34:35,786 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:34:36,070 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:34:36,338 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:34:36,639 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:34:36,911 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:34:37,171 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:34:37,466 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:34:37,740 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:34:38,022 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:34:38,310 - INFO - ✅ Updated indicators for 14 symbols in 3.88s
+2025-06-20 13:35:04,430 - INFO - 📊 Monitoring cycle 6
+2025-06-20 13:35:04,431 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:35:34,431 - INFO - 📊 Monitoring cycle 7
+2025-06-20 13:35:34,432 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:35:34,433 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:35:34,716 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:35:34,999 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:35:35,266 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:35:35,550 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:35:35,825 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:35:36,069 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:35:36,348 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:35:36,658 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:35:36,906 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:35:37,176 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:35:37,460 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:35:37,729 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:35:38,016 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:35:38,275 - INFO - ✅ Updated indicators for 14 symbols in 3.84s
+2025-06-20 13:36:04,431 - INFO - 📊 Monitoring cycle 8
+2025-06-20 13:36:04,431 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:36:34,432 - INFO - 📊 Monitoring cycle 9
+2025-06-20 13:36:34,434 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:36:34,434 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:36:34,722 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:36:34,976 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:36:35,240 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:36:35,510 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:36:35,784 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:36:36,049 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:36:36,294 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:36:36,547 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:36:36,841 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:36:37,220 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:36:37,513 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:36:37,765 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:36:38,047 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:36:38,336 - INFO - ✅ Updated indicators for 14 symbols in 3.90s
+2025-06-20 13:37:04,432 - INFO - 📊 Monitoring cycle 10
+2025-06-20 13:37:04,433 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:37:34,433 - INFO - 📊 Monitoring cycle 11
+2025-06-20 13:37:34,434 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:37:34,436 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:37:34,718 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:37:35,009 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:37:35,284 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:37:35,575 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:37:35,828 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:37:36,113 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:37:36,397 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:37:36,675 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:37:36,953 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:37:37,245 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:37:37,516 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:37:37,792 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:37:38,074 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:37:38,350 - INFO - ✅ Updated indicators for 14 symbols in 3.92s
+2025-06-20 13:38:04,433 - INFO - 📊 Monitoring cycle 12
+2025-06-20 13:38:04,434 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:38:34,434 - INFO - 📊 Monitoring cycle 13
+2025-06-20 13:38:34,435 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:38:34,435 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:38:34,693 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:38:34,964 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:38:35,232 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:38:35,512 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:38:35,793 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:38:36,086 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:38:36,372 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:38:36,732 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:38:36,993 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:38:37,270 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:38:37,526 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:38:37,921 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:38:38,319 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:38:38,639 - INFO - ✅ Updated indicators for 14 symbols in 4.21s
+2025-06-20 13:39:04,434 - INFO - 📊 Monitoring cycle 14
+2025-06-20 13:39:04,435 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:39:34,435 - INFO - 📊 Monitoring cycle 15
+2025-06-20 13:39:34,435 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:39:34,436 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:39:34,733 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:39:34,991 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:39:35,312 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:39:35,588 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:39:35,849 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:39:36,152 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:39:36,435 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:39:36,692 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:39:36,961 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:39:37,224 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:39:37,506 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:39:37,773 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:39:38,057 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:39:38,333 - INFO - ✅ Updated indicators for 14 symbols in 3.90s
+2025-06-20 13:40:04,435 - INFO - 📊 Monitoring cycle 16
+2025-06-20 13:40:04,435 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:40:34,436 - INFO - 📊 Monitoring cycle 17
+2025-06-20 13:40:34,438 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:40:34,439 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:40:34,718 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:40:34,991 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:40:35,269 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:40:35,554 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:40:35,826 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:40:36,105 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:40:36,372 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:40:36,648 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:40:36,893 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:40:37,186 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:40:37,461 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:40:37,729 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:40:38,009 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:40:38,287 - INFO - ✅ Updated indicators for 14 symbols in 3.85s
+2025-06-20 13:41:04,436 - INFO - 📊 Monitoring cycle 18
+2025-06-20 13:41:04,438 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:41:34,437 - INFO - 📊 Monitoring cycle 19
+2025-06-20 13:41:34,438 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:41:34,440 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:41:34,728 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:41:35,003 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:41:35,284 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:41:35,541 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:41:35,814 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:41:36,083 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:41:36,356 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:41:36,628 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:41:36,909 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:41:37,177 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:41:37,454 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:41:37,752 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:41:38,029 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:41:38,312 - INFO - ✅ Updated indicators for 14 symbols in 3.87s
+2025-06-20 13:42:04,437 - INFO - 📊 Monitoring cycle 20
+2025-06-20 13:42:04,439 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:42:34,438 - INFO - 📊 Monitoring cycle 21
+2025-06-20 13:42:34,439 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:42:34,440 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:42:34,736 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:42:34,997 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:42:35,260 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:42:35,581 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:42:35,823 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:42:36,095 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:42:36,368 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:42:36,641 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:42:36,922 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:42:37,199 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:42:37,539 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:42:37,786 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:42:38,060 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:42:38,301 - INFO - ✅ Updated indicators for 14 symbols in 3.86s
+2025-06-20 13:43:04,438 - INFO - 📊 Monitoring cycle 22
+2025-06-20 13:43:04,439 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:43:34,439 - INFO - 📊 Monitoring cycle 23
+2025-06-20 13:43:34,439 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:43:34,440 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:43:34,723 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:43:34,991 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:43:35,251 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:43:35,509 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:43:35,758 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:43:36,088 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:43:36,329 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:43:36,574 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:43:36,821 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:43:37,069 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:43:37,312 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:43:37,575 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:43:37,825 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:43:38,073 - INFO - ✅ Updated indicators for 14 symbols in 3.63s
+2025-06-20 13:44:04,439 - INFO - 📊 Monitoring cycle 24
+2025-06-20 13:44:04,440 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:44:34,442 - INFO - 📊 Monitoring cycle 25
+2025-06-20 13:44:34,442 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:44:34,446 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:44:34,771 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:44:35,058 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:44:35,339 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:44:35,648 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:44:35,932 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:44:36,260 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:44:36,586 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:44:36,863 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:44:37,181 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:44:37,457 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:44:37,740 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:44:37,990 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:44:38,265 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:44:38,550 - INFO - ✅ Updated indicators for 14 symbols in 4.11s
+2025-06-20 13:45:04,443 - INFO - 📊 Monitoring cycle 26
+2025-06-20 13:45:04,444 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:45:34,444 - INFO - 📊 Monitoring cycle 27
+2025-06-20 13:45:34,445 - INFO - Found 14 symbols in Redis DB0
+2025-06-20 13:45:34,446 - INFO - 🆕 New data detected for Asian_Paints
+2025-06-20 13:45:34,734 - INFO - 🆕 New data detected for Bharti_Airtel
+2025-06-20 13:45:35,012 - INFO - 🆕 New data detected for HCL_Technologies
+2025-06-20 13:45:35,297 - INFO - 🆕 New data detected for HDFC_Bank
+2025-06-20 13:45:35,582 - INFO - 🆕 New data detected for Hindustan_Unilever
+2025-06-20 13:45:35,859 - INFO - 🆕 New data detected for ICICI_Bank
+2025-06-20 13:45:36,154 - INFO - 🆕 New data detected for ITC
+2025-06-20 13:45:36,431 - INFO - 🆕 New data detected for Infosys
+2025-06-20 13:45:36,719 - INFO - 🆕 New data detected for Kotak_Mahindra_Bank
+2025-06-20 13:45:36,991 - INFO - 🆕 New data detected for Larsen_and_Toubro
+2025-06-20 13:45:37,265 - INFO - 🆕 New data detected for Maruti_Suzuki
+2025-06-20 13:45:37,512 - INFO - 🆕 New data detected for Reliance_Industries
+2025-06-20 13:45:37,805 - INFO - 🆕 New data detected for State_Bank_of_India
+2025-06-20 13:45:38,094 - INFO - 🆕 New data detected for Tata_Consultancy_Services
+2025-06-20 13:45:38,349 - INFO - ✅ Updated indicators for 14 symbols in 3.91s

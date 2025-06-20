@@ -8,6 +8,7 @@ as the historical data fetcher, ensuring seamless data continuity.
 
 KEY FEATURES:
 - Fetches previous minute candle when entering a new minute
+- Automatic gap filling for seamless historical-to-live transition
 - Uses same Redis TimeSeries format as historical fetcher
 - Handles multiple symbols efficiently with concurrent processing
 - Comprehensive error handling and retry mechanisms
@@ -366,7 +367,7 @@ class RedisTimeSeriesLiveManager:
             logger.error(f"Failed to update live metadata for {symbol_name}: {e}")
 
 class EnhancedLiveDataFetcher:
-    """Main live data fetcher class with comprehensive functionality"""
+    """Main live data fetcher class with comprehensive functionality and gap filling"""
     
     def __init__(self, credentials_path: str, symbols_path: str):
         self.credentials_path = credentials_path
@@ -436,6 +437,86 @@ class EnhancedLiveDataFetcher:
         """Handle shutdown signals gracefully"""
         logger.info(f"Received signal {signum}, initiating graceful shutdown...")
         SHUTDOWN_FLAG.set()
+    
+    def fill_transition_gaps(self, lookback_minutes: int = 5) -> bool:
+        """
+        Fill any gaps between historical data and live data start
+        Checks last few minutes and fills missing candles
+        """
+        logger.info(f"🔍 CHECKING FOR TRANSITION GAPS (last {lookback_minutes} minutes)...")
+        
+        current_time = datetime.now(self.ist_timezone)
+        gaps_filled = 0
+        gaps_detected = 0
+        
+        # Check each symbol for gaps
+        for symbol in self.symbols:
+            try:
+                # Get the latest timestamp for this symbol from Redis
+                symbol_clean_name = symbol.name.replace(' ', '_').replace('&', 'and')
+                key = f"stock:{symbol_clean_name}:close"
+                
+                # Get latest stored timestamp
+                try:
+                    result = self.redis_manager.redis_client.execute_command('TS.GET', key)
+                    if result and len(result) >= 2:
+                        latest_timestamp_ms = result[0]
+                        latest_timestamp = datetime.fromtimestamp(latest_timestamp_ms / 1000, tz=self.ist_timezone)
+                    else:
+                        # No data found, skip gap filling for this symbol
+                        logger.debug(f"No existing data found for {symbol.name}, skipping gap check")
+                        continue
+                except Exception as e:
+                    logger.debug(f"Could not get latest timestamp for {symbol.name}: {e}")
+                    continue
+                
+                # Check for missing minutes in the lookback period
+                for i in range(1, lookback_minutes + 1):
+                    check_time = current_time.replace(second=0, microsecond=0) - timedelta(minutes=i)
+                    
+                    # Skip if this timestamp is older than our latest data
+                    if check_time <= latest_timestamp:
+                        continue
+                    
+                    # Skip weekends and non-trading hours
+                    if not self.market_timer.is_market_hours(check_time):
+                        continue
+                    
+                    # We found a potential gap
+                    gaps_detected += 1
+                    self.live_stats['gaps_detected'] += 1
+                    
+                    # Try to fetch this missing minute
+                    logger.info(f"🔧 Attempting to fill gap for {symbol.name} at {check_time.strftime('%H:%M:%S')}")
+                    
+                    candle = self.upstox_api.get_previous_minute_candle(symbol.instrument_key, check_time)
+                    if candle:
+                        success = self.redis_manager.add_candle_to_timeseries(symbol.name, candle)
+                        if success:
+                            gaps_filled += 1
+                            self.live_stats['gaps_filled'] += 1
+                            logger.info(f"✅ Filled gap for {symbol.name} at {check_time.strftime('%H:%M:%S')}")
+                        else:
+                            logger.warning(f"⚠️ Failed to store gap data for {symbol.name} at {check_time.strftime('%H:%M:%S')}")
+                    else:
+                        logger.debug(f"No data available for {symbol.name} at {check_time.strftime('%H:%M:%S')}")
+                    
+                    # Small delay between requests
+                    time_module.sleep(0.05)
+                    
+            except Exception as e:
+                logger.warning(f"Error checking gaps for {symbol.name}: {e}")
+                continue
+        
+        # Report results
+        if gaps_detected > 0:
+            logger.info(f"📊 Gap analysis complete: {gaps_detected} gaps detected, {gaps_filled} filled")
+            print(f"🔧 Transition gaps: {gaps_filled}/{gaps_detected} gaps filled successfully")
+        else:
+            logger.info("✅ No transition gaps detected - data continuity is perfect!")
+            print("✅ No transition gaps found - seamless data continuity")
+        
+        return gaps_filled > 0
     
     def fetch_symbol_candle(self, symbol: Symbol, target_timestamp: datetime) -> bool:
         """Fetch and store candle for a single symbol"""
@@ -536,13 +617,27 @@ class EnhancedLiveDataFetcher:
         return results['successful'] > 0
     
     def run_continuous(self, fetch_interval_minutes: int = 1):
-        """Run continuous live data fetching"""
+        """Run continuous live data fetching with transition gap filling"""
         logger.info("=== STARTING CONTINUOUS LIVE DATA FETCHING ===")
         logger.info(f"Fetch interval: {fetch_interval_minutes} minute(s)")
         logger.info(f"Total symbols: {len(self.symbols)}")
         logger.info(f"Market timer active: {self.market_timer.is_market_hours()}")
         logger.info("Press Ctrl+C to stop...")
         logger.info("=" * 60)
+        
+        # STEP 1: Fill any transition gaps before starting continuous fetching
+        logger.info("🔍 STEP 1: Checking for historical-to-live transition gaps...")
+        print("🔍 STEP 1: Checking for historical-to-live transition gaps...")
+        try:
+            self.fill_transition_gaps(lookback_minutes=5)
+        except Exception as e:
+            logger.warning(f"Gap filling failed: {e}, continuing with normal operation...")
+            print(f"⚠️ Gap filling encountered an error: {e}")
+            print("Continuing with normal live data fetching...")
+        
+        # STEP 2: Start continuous fetching
+        logger.info("🚀 STEP 2: Starting continuous live fetching...")
+        print("🚀 STEP 2: Starting continuous live fetching...")
         
         while not SHUTDOWN_FLAG.is_set():
             try:
@@ -612,6 +707,12 @@ class EnhancedLiveDataFetcher:
         print(f"Total candles added: {self.live_stats['total_candles_added']}")
         print(f"Success rate: {(self.live_stats['successful_symbols']/(max(1, self.live_stats['successful_symbols'] + self.live_stats['failed_symbols']))*100):.1f}%")
         
+        # Gap filling stats
+        if self.live_stats['gaps_detected'] > 0:
+            print(f"Transition gaps detected: {self.live_stats['gaps_detected']}")
+            print(f"Transition gaps filled: {self.live_stats['gaps_filled']}")
+            print(f"Gap filling success: {(self.live_stats['gaps_filled']/max(1, self.live_stats['gaps_detected'])*100):.1f}%")
+        
         print(f"\nAPI Performance:")
         print(f"  Total API requests: {api_stats['total_requests']}")
         print(f"  Successful requests: {api_stats['successful_requests']}")
@@ -635,6 +736,15 @@ class EnhancedLiveDataFetcher:
         print(f"Fetch cycles completed: {self.live_stats['fetch_cycles']}")
         print(f"Total candles added: {self.live_stats['total_candles_added']}")
         print(f"Average candles per cycle: {self.live_stats['total_candles_added']/max(1, self.live_stats['fetch_cycles']):.1f}")
+        
+        # Final gap filling report
+        if self.live_stats['gaps_detected'] > 0:
+            print(f"Transition gaps detected: {self.live_stats['gaps_detected']}")
+            print(f"Transition gaps filled: {self.live_stats['gaps_filled']}")
+            print(f"Data continuity maintained: {(self.live_stats['gaps_filled']/max(1, self.live_stats['gaps_detected'])*100):.1f}%")
+        else:
+            print("No transition gaps detected - perfect data continuity!")
+        
         print(f"Log file: {LOG_FILENAME}")
         print("="*80)
 
@@ -650,7 +760,7 @@ def main():
         # Initialize live data fetcher
         fetcher = EnhancedLiveDataFetcher(credentials_path, symbols_path)
         
-        # Run continuous fetching
+        # Run continuous fetching with automatic gap filling
         fetcher.run_continuous()
         
         return {'success': True}

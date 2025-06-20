@@ -1,0 +1,525 @@
+2025-06-20 13:20:34,517 - INFO - 🚀 Upstox V3 Streaming Client Starting...
+2025-06-20 13:20:34,517 - INFO - 📡 Using MarketDataStreamerV3 (Production V3 WebSocket)
+2025-06-20 13:20:34,518 - INFO - 📁 Logging to: /home/abhishek/projects/CUPCAKE/logs/upstox_v3_stream_20250620_132034.log
+2025-06-20 13:20:34,518 - INFO - 📁 Loading credentials: /home/abhishek/projects/CUPCAKE/authentication/credentials.json
+2025-06-20 13:20:34,518 - INFO - ✅ Access token loaded (User: Akash Ani)
+2025-06-20 13:20:34,725 - INFO - ✅ Token validated - Akash Ani (akashabhi1724@gmail.com)
+2025-06-20 13:20:34,727 - INFO - 📁 Loading symbols: /home/abhishek/projects/CUPCAKE/scripts/symbols.json
+2025-06-20 13:20:34,727 - INFO - ✅ Loaded 15 instruments for streaming
+2025-06-20 13:20:34,728 - INFO - 🚀 Initializing V3 Market Data Streamer...
+2025-06-20 13:20:34,729 - INFO - 🔗 Connecting to V3 WebSocket endpoint...
+2025-06-20 13:20:35,040 - INFO - Websocket connected
+2025-06-20 13:20:35,040 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:35,040 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,040 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,074 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:35,330 - INFO - Websocket connected
+2025-06-20 13:20:35,330 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:35,331 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,331 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,359 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:35,576 - INFO - Websocket connected
+2025-06-20 13:20:35,576 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:35,577 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,577 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,610 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:35,813 - INFO - Websocket connected
+2025-06-20 13:20:35,814 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:35,814 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,814 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:35,847 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:36,109 - INFO - Websocket connected
+2025-06-20 13:20:36,109 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:36,109 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,109 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,142 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:36,342 - INFO - Websocket connected
+2025-06-20 13:20:36,343 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:36,346 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,346 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,376 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:36,586 - INFO - Websocket connected
+2025-06-20 13:20:36,586 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:36,586 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,587 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,620 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:36,821 - INFO - Websocket connected
+2025-06-20 13:20:36,821 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:36,821 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,821 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:36,853 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:37,065 - INFO - Websocket connected
+2025-06-20 13:20:37,065 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:37,066 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,066 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,101 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:37,303 - INFO - Websocket connected
+2025-06-20 13:20:37,304 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:37,304 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,304 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,337 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:37,551 - INFO - Websocket connected
+2025-06-20 13:20:37,551 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:37,551 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,551 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,587 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:37,802 - INFO - Websocket connected
+2025-06-20 13:20:37,802 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:37,802 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,803 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:37,838 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:38,053 - INFO - Websocket connected
+2025-06-20 13:20:38,053 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:38,053 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,053 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,085 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:38,283 - INFO - Websocket connected
+2025-06-20 13:20:38,283 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:38,283 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,283 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,316 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:38,520 - INFO - Websocket connected
+2025-06-20 13:20:38,520 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:38,520 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,520 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,552 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:38,759 - INFO - Websocket connected
+2025-06-20 13:20:38,759 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:38,759 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,759 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:38,793 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:39,134 - INFO - Websocket connected
+2025-06-20 13:20:39,134 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:39,135 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,135 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,168 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:39,472 - INFO - Websocket connected
+2025-06-20 13:20:39,472 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:39,472 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,472 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,507 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:39,717 - INFO - Websocket connected
+2025-06-20 13:20:39,717 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:39,717 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,717 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,749 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:39,967 - INFO - Websocket connected
+2025-06-20 13:20:39,968 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:39,968 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:39,968 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,002 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:40,214 - INFO - Websocket connected
+2025-06-20 13:20:40,214 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:40,214 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,214 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,249 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:40,453 - INFO - Websocket connected
+2025-06-20 13:20:40,453 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:40,453 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,453 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,484 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:40,706 - INFO - Websocket connected
+2025-06-20 13:20:40,706 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:40,706 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,706 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:40,738 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:41,089 - INFO - Websocket connected
+2025-06-20 13:20:41,090 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:41,090 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,090 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,126 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:41,338 - INFO - Websocket connected
+2025-06-20 13:20:41,339 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:41,339 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,339 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,373 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:41,568 - INFO - Websocket connected
+2025-06-20 13:20:41,568 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:41,568 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,568 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,600 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:41,815 - INFO - Websocket connected
+2025-06-20 13:20:41,816 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:41,816 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,816 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:41,848 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:42,066 - INFO - Websocket connected
+2025-06-20 13:20:42,066 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:42,066 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,066 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,100 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:42,312 - INFO - Websocket connected
+2025-06-20 13:20:42,312 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:42,312 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,312 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,346 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:42,552 - INFO - Websocket connected
+2025-06-20 13:20:42,553 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:42,553 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,553 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,584 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:42,817 - INFO - Websocket connected
+2025-06-20 13:20:42,818 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:42,818 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,818 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:42,851 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:43,075 - INFO - Websocket connected
+2025-06-20 13:20:43,075 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:43,075 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,075 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,111 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:43,407 - INFO - Websocket connected
+2025-06-20 13:20:43,407 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:43,408 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,408 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,443 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:43,754 - INFO - Websocket connected
+2025-06-20 13:20:43,755 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:43,755 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,755 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:43,784 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:44,007 - INFO - Websocket connected
+2025-06-20 13:20:44,008 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:44,008 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,008 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,038 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:44,238 - INFO - Websocket connected
+2025-06-20 13:20:44,238 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:44,238 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,239 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,269 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:44,481 - INFO - Websocket connected
+2025-06-20 13:20:44,481 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:44,481 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,482 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,515 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:44,735 - INFO - Websocket connected
+2025-06-20 13:20:44,735 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:44,735 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,735 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,768 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:44,976 - INFO - Websocket connected
+2025-06-20 13:20:44,976 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:44,976 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:44,977 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,017 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:45,230 - INFO - Websocket connected
+2025-06-20 13:20:45,231 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:45,231 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,231 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,262 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:45,471 - INFO - Websocket connected
+2025-06-20 13:20:45,472 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:45,472 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,472 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,506 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:45,707 - INFO - Websocket connected
+2025-06-20 13:20:45,707 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:45,708 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,708 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,739 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:45,945 - INFO - Websocket connected
+2025-06-20 13:20:45,946 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:45,946 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,946 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:45,975 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:46,184 - INFO - Websocket connected
+2025-06-20 13:20:46,185 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:46,185 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,185 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,220 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:46,441 - INFO - Websocket connected
+2025-06-20 13:20:46,441 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:46,442 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,442 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,475 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:46,712 - INFO - Websocket connected
+2025-06-20 13:20:46,712 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:46,712 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,712 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,746 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:46,963 - INFO - Websocket connected
+2025-06-20 13:20:46,964 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:46,964 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,964 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:46,999 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:47,224 - INFO - Websocket connected
+2025-06-20 13:20:47,224 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:47,224 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,224 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,259 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:47,459 - INFO - Websocket connected
+2025-06-20 13:20:47,459 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:47,459 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,459 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,491 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:47,694 - INFO - Websocket connected
+2025-06-20 13:20:47,694 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:47,695 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,695 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,725 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:47,933 - INFO - Websocket connected
+2025-06-20 13:20:47,933 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:47,933 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,934 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:47,965 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:48,169 - INFO - Websocket connected
+2025-06-20 13:20:48,170 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:48,170 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,170 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,206 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:48,413 - INFO - Websocket connected
+2025-06-20 13:20:48,413 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:48,413 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,413 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,447 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:48,666 - INFO - Websocket connected
+2025-06-20 13:20:48,666 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:48,666 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,666 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,702 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:48,912 - INFO - Websocket connected
+2025-06-20 13:20:48,912 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:48,912 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,913 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:48,946 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:49,171 - INFO - Websocket connected
+2025-06-20 13:20:49,172 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:49,172 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,172 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,207 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:49,430 - INFO - Websocket connected
+2025-06-20 13:20:49,431 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:49,431 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,431 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,464 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:49,693 - INFO - Websocket connected
+2025-06-20 13:20:49,694 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:49,694 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,694 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,729 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:49,921 - INFO - Websocket connected
+2025-06-20 13:20:49,922 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:49,922 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,922 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:49,953 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:50,173 - INFO - Websocket connected
+2025-06-20 13:20:50,174 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:50,174 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,174 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,207 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:50,416 - INFO - Websocket connected
+2025-06-20 13:20:50,417 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:50,417 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,417 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,451 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:50,652 - INFO - Websocket connected
+2025-06-20 13:20:50,652 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:50,653 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,653 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,683 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:50,898 - INFO - Websocket connected
+2025-06-20 13:20:50,899 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:50,899 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,899 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:50,933 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:51,153 - INFO - Websocket connected
+2025-06-20 13:20:51,153 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:51,154 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,154 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,187 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:51,458 - INFO - Websocket connected
+2025-06-20 13:20:51,459 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:51,459 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,459 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,492 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:51,708 - INFO - Websocket connected
+2025-06-20 13:20:51,709 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:51,709 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,709 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,746 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:51,957 - INFO - Websocket connected
+2025-06-20 13:20:51,958 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:51,958 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,958 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:51,989 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:52,196 - INFO - Websocket connected
+2025-06-20 13:20:52,196 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:52,196 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,196 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,226 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:52,427 - INFO - Websocket connected
+2025-06-20 13:20:52,427 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:52,428 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,428 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,461 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:52,687 - INFO - Websocket connected
+2025-06-20 13:20:52,687 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:52,687 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,688 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,723 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:52,937 - INFO - Websocket connected
+2025-06-20 13:20:52,937 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:52,937 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,937 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:52,972 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:53,210 - INFO - Websocket connected
+2025-06-20 13:20:53,210 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:53,210 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,211 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,245 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:53,476 - INFO - Websocket connected
+2025-06-20 13:20:53,477 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:53,477 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,477 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,512 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:53,738 - INFO - Websocket connected
+2025-06-20 13:20:53,738 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:53,739 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,739 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,773 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:53,976 - INFO - Websocket connected
+2025-06-20 13:20:53,977 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:53,977 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:53,978 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,009 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:54,243 - INFO - Websocket connected
+2025-06-20 13:20:54,244 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:54,244 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,244 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,279 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:54,494 - INFO - Websocket connected
+2025-06-20 13:20:54,495 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:54,495 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,495 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,531 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:54,765 - INFO - Websocket connected
+2025-06-20 13:20:54,766 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:54,766 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,766 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,800 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:54,996 - INFO - Websocket connected
+2025-06-20 13:20:54,997 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:54,997 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:54,997 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,026 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:55,260 - INFO - Websocket connected
+2025-06-20 13:20:55,261 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:55,261 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,261 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,295 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:55,501 - INFO - Websocket connected
+2025-06-20 13:20:55,501 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:55,501 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,501 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,533 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:55,752 - INFO - Websocket connected
+2025-06-20 13:20:55,752 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:55,752 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,752 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:55,784 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:56,004 - INFO - Websocket connected
+2025-06-20 13:20:56,004 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:56,005 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,005 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,040 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:56,238 - INFO - Websocket connected
+2025-06-20 13:20:56,238 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:56,239 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,239 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,268 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:56,515 - INFO - Websocket connected
+2025-06-20 13:20:56,516 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:56,516 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,516 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,548 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:56,761 - INFO - Websocket connected
+2025-06-20 13:20:56,761 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:56,761 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,762 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:56,797 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:57,002 - INFO - Websocket connected
+2025-06-20 13:20:57,002 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:57,003 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,003 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,035 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:57,248 - INFO - Websocket connected
+2025-06-20 13:20:57,249 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:57,249 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,249 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,285 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:57,487 - INFO - Websocket connected
+2025-06-20 13:20:57,488 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:57,489 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,489 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,521 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:57,746 - INFO - Websocket connected
+2025-06-20 13:20:57,746 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:57,746 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,746 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:57,779 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:58,014 - INFO - Websocket connected
+2025-06-20 13:20:58,015 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:58,015 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,015 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,051 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:58,284 - INFO - Websocket connected
+2025-06-20 13:20:58,285 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:58,288 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,288 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,320 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:58,527 - INFO - Websocket connected
+2025-06-20 13:20:58,527 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:58,527 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,527 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,562 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:58,781 - INFO - Websocket connected
+2025-06-20 13:20:58,782 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:58,782 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,782 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:58,817 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:59,032 - INFO - Websocket connected
+2025-06-20 13:20:59,032 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:59,033 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,033 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,063 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:59,282 - INFO - Websocket connected
+2025-06-20 13:20:59,282 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:59,282 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,282 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,315 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:59,548 - INFO - Websocket connected
+2025-06-20 13:20:59,548 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:59,548 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,548 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,580 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:20:59,786 - INFO - Websocket connected
+2025-06-20 13:20:59,786 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:20:59,786 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,786 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:20:59,818 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:21:00,011 - INFO - Websocket connected
+2025-06-20 13:21:00,011 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:21:00,011 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,012 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,045 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:21:00,255 - INFO - Websocket connected
+2025-06-20 13:21:00,256 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:21:00,256 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,256 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,293 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:21:00,493 - INFO - Websocket connected
+2025-06-20 13:21:00,494 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:21:00,494 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,494 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,525 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:21:00,729 - INFO - Websocket connected
+2025-06-20 13:21:00,729 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:21:00,729 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,729 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,762 - INFO - 🔌 V3 WebSocket closed (Code: None)
+2025-06-20 13:21:00,970 - INFO - Websocket connected
+2025-06-20 13:21:00,970 - ERROR - error from callback <bound method MarketDataStreamerV3.handle_open of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_open() missing 1 required positional argument: 'ws'
+2025-06-20 13:21:00,970 - ERROR - error from callback <bound method Streamer.handle_error of <upstox_client.feeder.market_data_streamer_v3.MarketDataStreamerV3 object at 0x707484fd91e0>>: UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:00,970 - INFO - tearing down on exception UpstoxV3StreamingClient.on_error() missing 1 required positional argument: 'error'
+2025-06-20 13:21:01,004 - INFO - 🔌 V3 WebSocket closed (Code: None)
