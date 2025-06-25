@@ -1,5 +1,5 @@
 # Enhanced Technical Indicators with Trajectory-Based Signal Generation
-# Updated to work with TrajectorySignalGenerator for actionable signals
+# Fixed circular dependency issues
 
 import redis
 import numpy as np
@@ -10,9 +10,6 @@ from typing import Dict, List, Tuple, Optional
 import json
 import logging
 from collections import defaultdict
-
-# Import the enhanced signal generator
-from enhanced_signal_generator import TrajectorySignalGenerator, ActionableSignal
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -27,11 +24,26 @@ class EnhancedTechnicalIndicators:
         )
         self.ist_timezone = pytz.timezone('Asia/Kolkata')
         
-        # Initialize trajectory signal generator
-        self.trajectory_generator = TrajectorySignalGenerator(redis_host, redis_port, redis_db)
+        # Initialize trajectory signal generator - Import only when needed to avoid circular dependency
+        self.trajectory_generator = None
         
         # Store recent indicator calculations for trend analysis
         self.indicator_history = defaultdict(lambda: [])
+        
+    def _get_trajectory_generator(self):
+        """Lazy initialization of trajectory generator to avoid circular imports"""
+        if self.trajectory_generator is None:
+            try:
+                from enhanced_signal_generator import TrajectorySignalGenerator
+                self.trajectory_generator = TrajectorySignalGenerator(
+                    redis_host=self.redis_client.connection_pool.connection_kwargs['host'],
+                    redis_port=self.redis_client.connection_pool.connection_kwargs['port'],
+                    redis_db=self.redis_client.connection_pool.connection_kwargs['db']
+                )
+            except ImportError as e:
+                logger.warning(f"Could not import TrajectorySignalGenerator: {e}")
+                self.trajectory_generator = None
+        return self.trajectory_generator
         
     def get_ohlcv_data(self, symbol: str, periods: int = 250) -> pd.DataFrame:
         """Get OHLCV data from Redis TimeSeries for a symbol"""
@@ -366,7 +378,7 @@ class EnhancedTechnicalIndicators:
             logger.error(f"Error generating basic signals: {e}")
             return signals
     
-    def generate_actionable_signals(self, symbol: str, market_data: Dict, orderbook_analysis: Dict = None) -> List[ActionableSignal]:
+    def generate_actionable_signals(self, symbol: str, market_data: Dict, orderbook_analysis: Dict = None):
         """Generate actionable signals using trajectory analysis"""
         try:
             # Calculate technical indicators
@@ -375,12 +387,17 @@ class EnhancedTechnicalIndicators:
             if not technical_indicators:
                 return []
             
-            # Generate actionable signals using trajectory generator
-            actionable_signals = self.trajectory_generator.generate_actionable_signals(
-                symbol, market_data, technical_indicators, orderbook_analysis or {}
-            )
-            
-            return actionable_signals
+            # Try to get trajectory generator and use it if available
+            trajectory_generator = self._get_trajectory_generator()
+            if trajectory_generator:
+                actionable_signals = trajectory_generator.generate_actionable_signals(
+                    symbol, market_data, technical_indicators, orderbook_analysis or {}
+                )
+                return actionable_signals
+            else:
+                # Fallback to basic signals
+                logger.warning(f"Trajectory generator not available for {symbol}, using basic signals")
+                return []
             
         except Exception as e:
             logger.error(f"Error generating actionable signals for {symbol}: {e}")
@@ -389,12 +406,17 @@ class EnhancedTechnicalIndicators:
     def get_signal_analytics(self, symbol: str) -> Dict:
         """Get analytics about signal generation for a symbol"""
         try:
+            # Get trajectory generator
+            trajectory_generator = self._get_trajectory_generator()
+            if not trajectory_generator:
+                return {'error': 'Trajectory generator not available'}
+            
             # Get recent signals from trajectory generator
             signals = self.generate_actionable_signals(symbol, {'ltp': 0})  # Dummy data for analytics
             
             # Get trajectory analysis
-            price_trajectory = self.trajectory_generator.analyze_price_trajectory(symbol)
-            momentum_trajectory = self.trajectory_generator.analyze_momentum_trajectory(symbol)
+            price_trajectory = trajectory_generator.analyze_price_trajectory(symbol)
+            momentum_trajectory = trajectory_generator.analyze_momentum_trajectory(symbol)
             
             return {
                 'symbol': symbol,
@@ -407,9 +429,9 @@ class EnhancedTechnicalIndicators:
             
         except Exception as e:
             logger.error(f"Error getting signal analytics for {symbol}: {e}")
-            return {}
+            return {'error': str(e)}
     
-    def bulk_generate_actionable_signals(self, market_data_dict: Dict, orderbook_data_dict: Dict = None) -> Dict[str, List[ActionableSignal]]:
+    def bulk_generate_actionable_signals(self, market_data_dict: Dict, orderbook_data_dict: Dict = None):
         """Generate actionable signals for multiple symbols"""
         results = {}
         
@@ -450,12 +472,4 @@ if __name__ == "__main__":
     
     print(f"Generated {len(signals)} actionable signals for RELIANCE")
     for signal in signals:
-        print(f"\nSignal: {signal.signal_type}")
-        print(f"Strength: {signal.strength}")
-        print(f"Confidence: {signal.confidence:.2f}")
-        print(f"Entry: ₹{signal.entry_price:.2f}")
-        print(f"Target: ₹{signal.target_price:.2f}")
-        print(f"Stop Loss: ₹{signal.stop_loss:.2f}")
-        print(f"Risk/Reward: {signal.risk_reward_ratio:.2f}")
-        print(f"Time Horizon: {signal.time_horizon}")
-        print(f"Reasons: {', '.join(signal.reasons)}")
+        print(f"\nSignal: {signal}")

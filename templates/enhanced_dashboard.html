@@ -6,6 +6,8 @@
     <title>Cupcake Trading Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/2.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -66,6 +68,46 @@
         .tab-inactive:hover {
             background-color: #4b5563;
         }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .timeframe-btn {
+            padding: 8px 16px;
+            border: 1px solid #4b5563;
+            background-color: #374151;
+            color: #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .timeframe-btn:hover {
+            background-color: #4b5563;
+        }
+        .timeframe-btn.active {
+            background-color: #1e40af;
+            border-color: #1e40af;
+            color: white;
+        }
+        .stat-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .loading-spinner {
+            border: 2px solid #374151;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-300">
@@ -95,6 +137,9 @@
                 </button>
                 <button onclick="showTab('signals')" id="tab-signals" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
                     Trading Signals
+                </button>
+                <button onclick="showTab('charts')" id="tab-charts" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    Charts
                 </button>
                 <button onclick="showTab('simulator')" id="tab-simulator" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
                     Strategy Simulator
@@ -199,6 +244,143 @@
 
                 <p class="text-xs text-slate-500 mt-4 text-right">Last updated: <span id="actionable-screener-last-updated">N/A</span></p>
             </section>
+        </div>
+
+        <!-- Charts Tab -->
+        <div id="content-charts" class="tab-content hidden">
+            <!-- Chart Controls -->
+            <div class="bg-slate-800 p-4 rounded-lg shadow-lg mb-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Symbol Selection -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-slate-300">Symbol:</label>
+                        <select id="chart-symbol-select" class="bg-slate-700 border border-slate-600 text-white rounded px-3 py-2 min-w-48">
+                            <option value="">Select Symbol...</option>
+                        </select>
+                    </div>
+
+                    <!-- Timeframe Selection -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-slate-300">Timeframe:</label>
+                        <div class="flex space-x-1">
+                            <button onclick="setTimeframe('1h')" id="tf-1h" class="timeframe-btn active">1H</button>
+                            <button onclick="setTimeframe('4h')" id="tf-4h" class="timeframe-btn">4H</button>
+                            <button onclick="setTimeframe('1d')" id="tf-1d" class="timeframe-btn">1D</button>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button onclick="refreshChart()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium">
+                        <span id="refresh-icon">🔄</span> Refresh
+                    </button>
+
+                    <!-- Market Status -->
+                    <div id="market-status-indicator" class="flex items-center space-x-2 ml-auto">
+                        <div class="h-3 w-3 rounded-full bg-gray-500"></div>
+                        <span class="text-sm text-slate-400">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                <!-- Main Chart -->
+                <div class="xl:col-span-3">
+                    <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 id="chart-title" class="text-2xl font-bold text-white">Select a Symbol</h2>
+                            <div id="chart-loading" class="loading-spinner hidden"></div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Statistics -->
+                <div class="xl:col-span-1">
+                    <div class="space-y-4">
+                        <!-- Current Price Stats -->
+                        <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-3">Price Statistics</h3>
+                            <div class="space-y-3">
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Current Price</span>
+                                        <span id="current-price" class="font-bold text-white">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Change %</span>
+                                        <span id="price-change-pct" class="font-bold">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">24H High</span>
+                                        <span id="high-24h" class="font-bold text-green-400">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">24H Low</span>
+                                        <span id="low-24h" class="font-bold text-red-400">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Volume</span>
+                                        <span id="volume-24h" class="font-bold text-blue-400">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Data Info -->
+                        <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-3">Chart Info</h3>
+                            <div class="space-y-2">
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Data Points</span>
+                                        <span id="data-points" class="font-bold text-white">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Period Start</span>
+                                        <span id="period-start" class="text-xs text-slate-300">--</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-slate-400">Period End</span>
+                                        <span id="period-end" class="text-xs text-slate-300">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trading Actions -->
+                        <div class="bg-slate-800 p-4 rounded-lg shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-3">Quick Actions</h3>
+                            <div class="space-y-2">
+                                <button onclick="simulateFromChart('BUY')" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-medium">
+                                    Simulate Buy
+                                </button>
+                                <button onclick="simulateFromChart('SELL')" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded font-medium">
+                                    Simulate Sell
+                                </button>
+                                <button onclick="addToWatchlist()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded font-medium">
+                                    Add to Watchlist
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Strategy Simulator Tab -->
@@ -422,6 +604,12 @@
         let selectedTradeType = 'BUY';
         let currentMarketData = {};
 
+        // Global variables for charts
+        let priceChart = null;
+        let selectedSymbol = '';
+        let selectedTimeframe = '1h';
+        let availableSymbols = [];
+
         // Tab management
         function showTab(tabName) {
             // Hide all tab contents
@@ -439,7 +627,289 @@
             
             document.getElementById(`tab-${tabName}`).className = 
                 document.getElementById(`tab-${tabName}`).className.replace('tab-inactive', 'tab-active');
+
+            // Load specific tab data
+            if (tabName === 'charts') {
+                loadChartsTab();
+            }
         }
+
+        // Charts functionality
+        function loadChartsTab() {
+            loadAvailableSymbols();
+            updateMarketStatus();
+            if (!priceChart) {
+                initializeChart();
+            }
+        }
+
+        function loadAvailableSymbols() {
+            fetch('/api/chart/symbols')
+                .then(response => response.json())
+                .then(symbols => {
+                    availableSymbols = symbols;
+                    const dropdown = document.getElementById('chart-symbol-select');
+                    dropdown.innerHTML = '<option value="">Select Symbol...</option>';
+                    
+                    symbols.forEach(symbol => {
+                        const option = document.createElement('option');
+                        option.value = symbol.symbol;
+                        option.textContent = `${symbol.symbol} (₹${symbol.latest_price.toFixed(2)})`;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(err => console.error('Error loading symbols:', err));
+        }
+
+        function updateMarketStatus() {
+            fetch('/api/market/status')
+                .then(response => response.json())
+                .then(status => {
+                    const indicator = document.getElementById('market-status-indicator');
+                    const dot = indicator.querySelector('div');
+                    const text = indicator.querySelector('span');
+                    
+                    if (status.is_open) {
+                        dot.className = 'h-3 w-3 rounded-full bg-green-500';
+                        text.textContent = 'Market Open';
+                        text.className = 'text-sm text-green-400';
+                    } else {
+                        dot.className = 'h-3 w-3 rounded-full bg-red-500';
+                        text.textContent = 'Market Closed';
+                        text.className = 'text-sm text-red-400';
+                    }
+                })
+                .catch(err => console.error('Error loading market status:', err));
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            priceChart = new Chart(ctx, {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: 'Price',
+                        data: [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'hour'
+                            },
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)'
+                            },
+                            ticks: {
+                                color: 'rgb(156, 163, 175)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)'
+                            },
+                            ticks: {
+                                color: 'rgb(156, 163, 175)',
+                                callback: function(value) {
+                                    return '₹' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function onSymbolChange() {
+            const symbolDropdown = document.getElementById('chart-symbol-select');
+            selectedSymbol = symbolDropdown.value;
+            
+            if (selectedSymbol) {
+                loadChartData();
+            } else {
+                clearChart();
+            }
+        }
+
+        function setTimeframe(timeframe) {
+            selectedTimeframe = timeframe;
+            
+            // Update button states
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`tf-${timeframe}`).classList.add('active');
+            
+            // Update chart if symbol is selected
+            if (selectedSymbol) {
+                loadChartData();
+            }
+        }
+
+        function loadChartData() {
+            if (!selectedSymbol) return;
+            
+            // Show loading
+            document.getElementById('chart-loading').classList.remove('hidden');
+            document.getElementById('chart-title').textContent = `Loading ${selectedSymbol}...`;
+            
+            fetch(`/api/chart/data/${selectedSymbol}?timeframe=${selectedTimeframe}&limit=100`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    updateChart(data);
+                    updateChartStatistics(data.stats);
+                    updateChartInfo(data);
+                    
+                    document.getElementById('chart-title').textContent = selectedSymbol;
+                })
+                .catch(err => {
+                    console.error('Error loading chart data:', err);
+                    document.getElementById('chart-title').textContent = `Error loading ${selectedSymbol}`;
+                    clearChart();
+                })
+                .finally(() => {
+                    document.getElementById('chart-loading').classList.add('hidden');
+                });
+        }
+
+        function updateChart(data) {
+            if (!priceChart) return;
+            
+            // Convert candlestick data to line chart for now
+            const chartData = data.candles.map(candle => ({
+                x: new Date(candle.x),
+                y: candle.c
+            }));
+            
+            priceChart.data.datasets[0].data = chartData;
+            priceChart.data.datasets[0].label = selectedSymbol;
+            
+            // Update time unit based on timeframe
+            const timeUnit = selectedTimeframe === '1d' ? 'day' : 'hour';
+            priceChart.options.scales.x.time.unit = timeUnit;
+            
+            priceChart.update();
+        }
+
+        function updateChartStatistics(stats) {
+            document.getElementById('current-price').textContent = `₹${stats.latest_price.toFixed(2)}`;
+            
+            const changeElement = document.getElementById('price-change-pct');
+            changeElement.textContent = `${stats.price_change_pct >= 0 ? '+' : ''}${stats.price_change_pct.toFixed(2)}%`;
+            changeElement.className = stats.price_change_pct >= 0 ? 'font-bold positive' : 'font-bold negative';
+            
+            document.getElementById('high-24h').textContent = `₹${stats.high_24h.toFixed(2)}`;
+            document.getElementById('low-24h').textContent = `₹${stats.low_24h.toFixed(2)}`;
+            document.getElementById('volume-24h').textContent = stats.volume_24h.toLocaleString();
+        }
+
+        function updateChartInfo(data) {
+            document.getElementById('data-points').textContent = data.stats.data_points;
+            
+            if (data.data_range.start && data.data_range.end) {
+                const startDate = new Date(data.data_range.start);
+                const endDate = new Date(data.data_range.end);
+                
+                document.getElementById('period-start').textContent = startDate.toLocaleDateString();
+                document.getElementById('period-end').textContent = endDate.toLocaleDateString();
+            }
+        }
+
+        function clearChart() {
+            if (priceChart) {
+                priceChart.data.datasets[0].data = [];
+                priceChart.update();
+            }
+            
+            // Clear statistics
+            document.getElementById('current-price').textContent = '--';
+            document.getElementById('price-change-pct').textContent = '--';
+            document.getElementById('high-24h').textContent = '--';
+            document.getElementById('low-24h').textContent = '--';
+            document.getElementById('volume-24h').textContent = '--';
+            document.getElementById('data-points').textContent = '--';
+            document.getElementById('period-start').textContent = '--';
+            document.getElementById('period-end').textContent = '--';
+        }
+
+        function refreshChart() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+            
+            if (selectedSymbol) {
+                loadChartData();
+            }
+            
+            setTimeout(() => {
+                refreshIcon.style.animation = '';
+            }, 1000);
+        }
+
+        function simulateFromChart(action) {
+            if (!selectedSymbol) {
+                alert('Please select a symbol first');
+                return;
+            }
+            
+            // Switch to simulator tab and pre-fill form
+            showTab('simulator');
+            
+            // Find the symbol in the market data and pre-fill simulator
+            for (const [key, data] of Object.entries(currentMarketData)) {
+                if (data.name === selectedSymbol) {
+                    document.getElementById('simulator-symbol').value = key;
+                    setTradeType(action);
+                    updateOrderValue();
+                    break;
+                }
+            }
+        }
+
+        function addToWatchlist() {
+            if (!selectedSymbol) {
+                alert('Please select a symbol first');
+                return;
+            }
+            
+            // Add to local storage watchlist
+            let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+            if (!watchlist.includes(selectedSymbol)) {
+                watchlist.push(selectedSymbol);
+                localStorage.setItem('watchlist', JSON.stringify(watchlist));
+                alert(`${selectedSymbol} added to watchlist`);
+            } else {
+                alert(`${selectedSymbol} is already in watchlist`);
+            }
+        }
+
+        // Event listeners for charts
+        document.getElementById('chart-symbol-select').addEventListener('change', onSymbolChange);
 
         // Simulator functions
         function populateSymbolDropdown() {

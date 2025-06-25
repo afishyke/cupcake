@@ -1,5 +1,5 @@
 # Enhanced Live Market Data Processor with Actionable Signal Generation
-# Updated to use TrajectorySignalGenerator for confirmed trading signals
+# Fixed import issues and circular dependencies
 
 import os
 import asyncio
@@ -19,18 +19,27 @@ import statistics
 import redis
 import numpy as np
 
-# Import enhanced modules
+# Import modules with proper error handling
 try:
-    from enhanced_signal_generator import TrajectorySignalGenerator, ActionableSignal, SignalStrength
-    from updated_technical_indicators import EnhancedTechnicalIndicators
+    from technical_indicators import EnhancedTechnicalIndicators
     from orderbook_analyzer import OrderBookAnalyzer
+    print("✓ Successfully imported technical indicators and orderbook analyzer")
 except ImportError as e:
-    print(f"Import error: {e}")
-    # Fallback to basic modules
-    from technical_indicators import TechnicalIndicators as EnhancedTechnicalIndicators
-    from orderbook_analyzer import OrderBookAnalyzer
-    ActionableSignal = None
-    SignalStrength = None
+    print(f"⚠ Import error for enhanced modules: {e}")
+    # Create dummy classes as fallback
+    class EnhancedTechnicalIndicators:
+        def __init__(self, *args, **kwargs):
+            print("⚠ Using dummy EnhancedTechnicalIndicators")
+        def generate_actionable_signals(self, *args, **kwargs):
+            return []
+        def get_signal_analytics(self, *args, **kwargs):
+            return {}
+    
+    class OrderBookAnalyzer:
+        def __init__(self, *args, **kwargs):
+            print("⚠ Using dummy OrderBookAnalyzer")
+        def comprehensive_orderbook_analysis(self, *args, **kwargs):
+            return {}
 
 import MarketDataFeedV3_pb2 as pb
 
@@ -51,7 +60,13 @@ tech_indicators = EnhancedTechnicalIndicators()
 orderbook_analyzer = OrderBookAnalyzer()
 
 # Redis client for data storage
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+try:
+    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_client.ping()  # Test connection
+    print("✓ Redis connection successful")
+except redis.RedisError as e:
+    print(f"⚠ Redis connection failed: {e}")
+    redis_client = None
 
 # Symbol mapping and data structures
 symbol_mapping = {}
@@ -133,37 +148,56 @@ def debug_log(message, level="INFO"):
     print(f"[{timestamp}] {level}: {message}")
 
     try:
-        socketio.emit('debug_log', {
-            'timestamp': timestamp,
-            'level': level,
-            'message': message
-        })
-    except:
-        pass
+        if socketio:
+            socketio.emit('debug_log', {
+                'timestamp': timestamp,
+                'level': level,
+                'message': message
+            })
+    except Exception as e:
+        pass  # Ignore SocketIO errors
 
 def get_access_token():
-    with open(JSON_PATH, 'r') as f:
-        data = json.load(f)
-    return data['access_token']
+    """Get access token from credentials file"""
+    try:
+        with open(JSON_PATH, 'r') as f:
+            data = json.load(f)
+        return data['access_token']
+    except FileNotFoundError:
+        debug_log(f"Credentials file not found: {JSON_PATH}", "ERROR")
+        return None
+    except Exception as e:
+        debug_log(f"Error reading credentials: {e}", "ERROR")
+        return None
 
 def load_symbols():
     """Load symbols from symbols.json file."""
-    with open(SYMBOLS_PATH, 'r') as f:
-        data = json.load(f)
+    try:
+        with open(SYMBOLS_PATH, 'r') as f:
+            data = json.load(f)
 
-    instrument_keys = []
-    for symbol in data['symbols']:
-        instrument_key = symbol['instrument_key']
-        instrument_keys.append(instrument_key)
-        symbol_mapping[instrument_key] = symbol['name']
-        ohlcv_data[instrument_key]['name'] = symbol['name']
-        market_data[instrument_key]['name'] = symbol['name']
+        instrument_keys = []
+        for symbol in data['symbols']:
+            instrument_key = symbol['instrument_key']
+            instrument_keys.append(instrument_key)
+            symbol_mapping[instrument_key] = symbol['name']
+            ohlcv_data[instrument_key]['name'] = symbol['name']
+            market_data[instrument_key]['name'] = symbol['name']
 
-    debug_log(f"Loaded {len(instrument_keys)} symbols for enhanced analysis")
-    return instrument_keys
+        debug_log(f"Loaded {len(instrument_keys)} symbols for enhanced analysis")
+        return instrument_keys
+    except FileNotFoundError:
+        debug_log(f"Symbols file not found: {SYMBOLS_PATH}", "ERROR")
+        return []
+    except Exception as e:
+        debug_log(f"Error loading symbols: {e}", "ERROR")
+        return []
 
 def save_minute_ohlcv_to_redis(instrument_key, ohlcv_record):
     """Save completed minute OHLCV data to Redis TimeSeries"""
+    if not redis_client:
+        return
+        
     try:
         symbol_name = symbol_mapping.get(instrument_key, instrument_key)
         symbol_clean = symbol_name.replace(' ', '_').replace('&', 'and')
@@ -224,51 +258,58 @@ def generate_actionable_signals(symbol_name, instrument_key, current_market_data
         if actionable_signals:
             debug_stats['actionable_signals_generated'] += len(actionable_signals)
             
+            # Convert signals to dictionary format for JSON serialization
+            serialized_signals = []
+            for signal in actionable_signals:
+                if hasattr(signal, 'trajectory_confirmed'):  # Check if it's an ActionableSignal object
+                    serialized_signals.append({
+                        'signal_type': signal.signal_type,
+                        'strength': signal.strength.name if hasattr(signal.strength, 'name') else str(signal.strength),
+                        'confidence': signal.confidence,
+                        'entry_price': signal.entry_price,
+                        'target_price': signal.target_price,
+                        'stop_loss': signal.stop_loss,
+                        'trajectory_confirmed': signal.trajectory_confirmed,
+                        'time_horizon': signal.time_horizon,
+                        'reasons': signal.reasons,
+                        'risk_reward_ratio': signal.risk_reward_ratio,
+                        'timestamp': signal.timestamp.isoformat()
+                    })
+                else:
+                    # Handle dictionary format
+                    serialized_signals.append(signal)
+            
             # Count trajectory confirmations
-            confirmed_signals = [s for s in actionable_signals if s.trajectory_confirmed]
+            confirmed_signals = [s for s in serialized_signals if s.get('trajectory_confirmed', False)]
             if confirmed_signals:
                 debug_stats['trajectory_confirmations'] += len(confirmed_signals)
             
             # Update market data with actionable signals
-            market_data[instrument_key]['actionable_signals'] = [
-                {
-                    'signal_type': signal.signal_type,
-                    'strength': signal.strength.name,
-                    'confidence': signal.confidence,
-                    'entry_price': signal.entry_price,
-                    'target_price': signal.target_price,
-                    'stop_loss': signal.stop_loss,
-                    'trajectory_confirmed': signal.trajectory_confirmed,
-                    'time_horizon': signal.time_horizon,
-                    'reasons': signal.reasons,
-                    'risk_reward_ratio': signal.risk_reward_ratio,
-                    'timestamp': signal.timestamp.isoformat()
-                }
-                for signal in actionable_signals
-            ]
+            market_data[instrument_key]['actionable_signals'] = serialized_signals
             
             # Update signal summary
-            best_signal = max(actionable_signals, key=lambda x: x.confidence)
-            market_data[instrument_key]['signal_summary'] = {
-                'best_signal_type': best_signal.signal_type,
-                'best_confidence': best_signal.confidence,
-                'trajectory_confirmed': best_signal.trajectory_confirmed,
-                'total_signals': len(actionable_signals)
-            }
-            
-            market_data[instrument_key]['signal_confidence'] = best_signal.confidence
-            market_data[instrument_key]['recommended_action'] = best_signal.signal_type
-            market_data[instrument_key]['risk_reward_ratio'] = best_signal.risk_reward_ratio
-            market_data[instrument_key]['target_price'] = best_signal.target_price
-            market_data[instrument_key]['stop_loss'] = best_signal.stop_loss
-            
-            # Update trajectory status
-            if any(s.trajectory_confirmed for s in actionable_signals):
-                market_data[instrument_key]['trajectory_status'] = 'CONFIRMED'
-            else:
-                market_data[instrument_key]['trajectory_status'] = 'DEVELOPING'
+            if serialized_signals:
+                best_signal = max(serialized_signals, key=lambda x: x.get('confidence', 0))
+                market_data[instrument_key]['signal_summary'] = {
+                    'best_signal_type': best_signal.get('signal_type'),
+                    'best_confidence': best_signal.get('confidence', 0),
+                    'trajectory_confirmed': best_signal.get('trajectory_confirmed', False),
+                    'total_signals': len(serialized_signals)
+                }
                 
-            return actionable_signals
+                market_data[instrument_key]['signal_confidence'] = best_signal.get('confidence', 0)
+                market_data[instrument_key]['recommended_action'] = best_signal.get('signal_type', 'WAIT')
+                market_data[instrument_key]['risk_reward_ratio'] = best_signal.get('risk_reward_ratio', 0)
+                market_data[instrument_key]['target_price'] = best_signal.get('target_price')
+                market_data[instrument_key]['stop_loss'] = best_signal.get('stop_loss')
+                
+                # Update trajectory status
+                if any(s.get('trajectory_confirmed', False) for s in serialized_signals):
+                    market_data[instrument_key]['trajectory_status'] = 'CONFIRMED'
+                else:
+                    market_data[instrument_key]['trajectory_status'] = 'DEVELOPING'
+                    
+            return serialized_signals
         else:
             market_data[instrument_key]['trajectory_status'] = 'BUILDING'
             market_data[instrument_key]['recommended_action'] = 'WAIT'
@@ -300,46 +341,46 @@ def update_enhanced_stock_screener():
                     'symbol': symbol_name,
                     'instrument_key': instrument_key,
                     'price': data['ltp'],
-                    'signal_type': signal_data['signal_type'],
-                    'strength': signal_data['strength'],
-                    'confidence': signal_data['confidence'],
-                    'trajectory_confirmed': signal_data['trajectory_confirmed'],
-                    'time_horizon': signal_data['time_horizon'],
-                    'entry_price': signal_data['entry_price'],
-                    'target_price': signal_data['target_price'],
-                    'stop_loss': signal_data['stop_loss'],
-                    'risk_reward_ratio': signal_data['risk_reward_ratio'],
-                    'reasons': signal_data['reasons'][:3],  # Top 3 reasons
+                    'signal_type': signal_data.get('signal_type'),
+                    'strength': signal_data.get('strength'),
+                    'confidence': signal_data.get('confidence', 0),
+                    'trajectory_confirmed': signal_data.get('trajectory_confirmed', False),
+                    'time_horizon': signal_data.get('time_horizon'),
+                    'entry_price': signal_data.get('entry_price'),
+                    'target_price': signal_data.get('target_price'),
+                    'stop_loss': signal_data.get('stop_loss'),
+                    'risk_reward_ratio': signal_data.get('risk_reward_ratio', 0),
+                    'reasons': signal_data.get('reasons', [])[:3],  # Top 3 reasons
                     'spread_pct': data.get('spread_pct', 0),
                     'last_update': datetime.now(IST).isoformat()
                 }
                 
                 # Categorize signals
-                if signal_data['trajectory_confirmed']:
+                if signal_data.get('trajectory_confirmed', False):
                     trajectory_confirmed.append(signal_info)
                     
-                    if signal_data['signal_type'] == 'BUY' and signal_data['confidence'] > 0.75:
+                    if signal_data.get('signal_type') == 'BUY' and signal_data.get('confidence', 0) > 0.75:
                         high_confidence_buys.append(signal_info)
-                    elif signal_data['signal_type'] == 'SELL' and signal_data['confidence'] > 0.75:
+                    elif signal_data.get('signal_type') == 'SELL' and signal_data.get('confidence', 0) > 0.75:
                         high_confidence_sells.append(signal_info)
                         
-                elif signal_data['confidence'] > 0.6:
+                elif signal_data.get('confidence', 0) > 0.6:
                     emerging_opportunities.append(signal_info)
                 
                 # Risk warnings for low risk-reward ratios
-                if signal_data['risk_reward_ratio'] < 1.5:
+                if signal_data.get('risk_reward_ratio', 0) < 1.5:
                     risk_warnings.append({
                         'symbol': symbol_name,
-                        'warning': f"Low risk/reward ratio: {signal_data['risk_reward_ratio']:.2f}",
-                        'signal_type': signal_data['signal_type'],
-                        'confidence': signal_data['confidence']
+                        'warning': f"Low risk/reward ratio: {signal_data.get('risk_reward_ratio', 0):.2f}",
+                        'signal_type': signal_data.get('signal_type'),
+                        'confidence': signal_data.get('confidence', 0)
                     })
 
         # Sort by confidence and limit results
-        high_confidence_buys.sort(key=lambda x: x['confidence'], reverse=True)
-        high_confidence_sells.sort(key=lambda x: x['confidence'], reverse=True)
-        trajectory_confirmed.sort(key=lambda x: x['confidence'], reverse=True)
-        emerging_opportunities.sort(key=lambda x: x['confidence'], reverse=True)
+        high_confidence_buys.sort(key=lambda x: x.get('confidence', 0), reverse=True)
+        high_confidence_sells.sort(key=lambda x: x.get('confidence', 0), reverse=True)
+        trajectory_confirmed.sort(key=lambda x: x.get('confidence', 0), reverse=True)
+        emerging_opportunities.sort(key=lambda x: x.get('confidence', 0), reverse=True)
 
         # Update screener results
         actionable_screener_results.update({
@@ -352,7 +393,8 @@ def update_enhanced_stock_screener():
         })
 
         # Emit to dashboard
-        socketio.emit('actionable_screener_update', actionable_screener_results)
+        if socketio:
+            socketio.emit('actionable_screener_update', actionable_screener_results)
 
         debug_log(f"📊 Enhanced screener updated: {len(high_confidence_buys)} high-conf buys, "
                  f"{len(high_confidence_sells)} high-conf sells, {len(trajectory_confirmed)} confirmed", "SCREENER")
@@ -454,7 +496,7 @@ def emit_enhanced_real_time_data():
                 # Get best actionable signal if available
                 best_signal = None
                 if data.get('actionable_signals'):
-                    signals_with_conf = [(s, s['confidence']) for s in data['actionable_signals']]
+                    signals_with_conf = [(s, s.get('confidence', 0)) for s in data['actionable_signals']]
                     if signals_with_conf:
                         best_signal = max(signals_with_conf, key=lambda x: x[1])[0]
 
@@ -476,19 +518,19 @@ def emit_enhanced_real_time_data():
                     
                     # Signal details
                     'best_signal': {
-                        'type': best_signal['signal_type'] if best_signal else None,
-                        'strength': best_signal['strength'] if best_signal else None,
-                        'confidence': best_signal['confidence'] if best_signal else 0,
-                        'trajectory_confirmed': best_signal['trajectory_confirmed'] if best_signal else False,
-                        'time_horizon': best_signal['time_horizon'] if best_signal else None,
-                        'reasons': best_signal['reasons'][:2] if best_signal else []  # Top 2 reasons
+                        'type': best_signal.get('signal_type') if best_signal else None,
+                        'strength': best_signal.get('strength') if best_signal else None,
+                        'confidence': best_signal.get('confidence', 0) if best_signal else 0,
+                        'trajectory_confirmed': best_signal.get('trajectory_confirmed', False) if best_signal else False,
+                        'time_horizon': best_signal.get('time_horizon') if best_signal else None,
+                        'reasons': best_signal.get('reasons', [])[:2] if best_signal else []  # Top 2 reasons
                     },
                     
                     'total_signals': len(data.get('actionable_signals', [])),
                     'last_update': data['last_update'].strftime('%H:%M:%S.%f')[:-3] if data['last_update'] else None
                 }
 
-        if dashboard_data:
+        if dashboard_data and socketio:
             socketio.emit('enhanced_market_update', dashboard_data)
 
     except Exception as e:
@@ -559,7 +601,7 @@ def process_bid_ask_data(instrument_key, market_ff, exchange_time):
     except Exception as e:
         debug_log(f"Error processing bid/ask data for {instrument_key}: {e}", "ERROR")
 
-# All the other functions remain the same (wait_for_next_minute, start_minute_collection, etc.)
+# Keep all the other functions as they were (wait_for_next_minute, start_minute_collection, etc.)
 def wait_for_next_minute():
     """Calculate wait time for next minute boundary"""
     now_ist = datetime.now(IST)
@@ -600,7 +642,8 @@ def finalize_current_minute(triggering_tick_time):
 
     # Emit OHLCV update to dashboard
     ohlcv_summary = prepare_ohlcv_summary()
-    socketio.emit('ohlcv_update', ohlcv_summary)
+    if socketio:
+        socketio.emit('ohlcv_update', ohlcv_summary)
 
     # Reset for next minute
     reset_ohlcv_data()
@@ -639,13 +682,22 @@ def reset_ohlcv_data():
 def get_market_data_feed_authorize_v3():
     """Get authorization for market data feed."""
     access_token = get_access_token()
+    if not access_token:
+        return None
+        
     headers = {
         'Accept': 'application/json',
         'Authorization': f'Bearer {access_token}'
     }
     url = 'https://api.upstox.com/v3/feed/market-data-feed/authorize'
-    api_response = requests.get(url=url, headers=headers)
-    return api_response.json()
+    
+    try:
+        api_response = requests.get(url=url, headers=headers)
+        api_response.raise_for_status()
+        return api_response.json()
+    except requests.RequestException as e:
+        debug_log(f"Error getting market data feed authorization: {e}", "ERROR")
+        return None
 
 def decode_protobuf(buffer):
     """Decode protobuf message."""
@@ -656,7 +708,11 @@ def decode_protobuf(buffer):
 # Enhanced Flask routes
 @app.route('/')
 def dashboard():
-    return render_template('enhanced_dashboard.html')
+    try:
+        return render_template('enhanced_dashboard.html')
+    except Exception as e:
+        debug_log(f"Error rendering dashboard: {e}", "ERROR")
+        return "Dashboard template not found", 404
 
 @app.route('/api/market_data')
 def api_market_data():
@@ -671,8 +727,11 @@ def api_actionable_screener():
 @app.route('/api/signal_analytics/<symbol>')
 def api_signal_analytics(symbol):
     """API endpoint for signal analytics of a specific symbol."""
-    analytics = tech_indicators.get_signal_analytics(symbol)
-    return jsonify(analytics)
+    try:
+        analytics = tech_indicators.get_signal_analytics(symbol)
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/api/enhanced_debug_stats')
 def api_enhanced_debug_stats():
@@ -710,7 +769,7 @@ async def fetch_enhanced_market_data():
 
     response = get_market_data_feed_authorize_v3()
 
-    if "data" not in response or "authorized_redirect_uri" not in response["data"]:
+    if not response or "data" not in response or "authorized_redirect_uri" not in response["data"]:
         debug_log(f"Invalid API response: {response}", "ERROR")
         return
 
@@ -719,61 +778,68 @@ async def fetch_enhanced_market_data():
         debug_log(f"Starting WebSocket {buffer_time:.1f} seconds early...")
         await asyncio.sleep(wait_seconds - buffer_time)
 
-    async with websockets.connect(response["data"]["authorized_redirect_uri"], ssl=ssl_context) as websocket:
-        debug_log('Enhanced WebSocket connection established for actionable signals', "SUCCESS")
+    try:
+        async with websockets.connect(response["data"]["authorized_redirect_uri"], ssl=ssl_context) as websocket:
+            debug_log('Enhanced WebSocket connection established for actionable signals', "SUCCESS")
 
-        await asyncio.sleep(0.5)
+            await asyncio.sleep(0.5)
 
-        data = {
-            "guid": "ACTIONABLE_TRADER",
-            "method": "sub",
-            "data": {
-                "mode": "full",
-                "instrumentKeys": instrument_keys
+            data = {
+                "guid": "ACTIONABLE_TRADER",
+                "method": "sub",
+                "data": {
+                    "mode": "full",
+                    "instrumentKeys": instrument_keys
+                }
             }
-        }
 
-        binary_data = json.dumps(data).encode('utf-8')
-        await websocket.send(binary_data)
+            binary_data = json.dumps(data).encode('utf-8')
+            await websocket.send(binary_data)
 
-        debug_log(f"Subscribed to {len(instrument_keys)} symbols for actionable signal analysis", "SUCCESS")
-        debug_log("🌐 Enhanced dashboard with actionable signals available at: http://localhost:5000")
+            debug_log(f"Subscribed to {len(instrument_keys)} symbols for actionable signal analysis", "SUCCESS")
+            debug_log("🌐 Enhanced dashboard with actionable signals available at: http://localhost:5000")
 
-        remaining_wait = (next_minute - datetime.now(IST)).total_seconds()
-        if remaining_wait > 0:
-            await asyncio.sleep(remaining_wait)
+            remaining_wait = (next_minute - datetime.now(IST)).total_seconds()
+            if remaining_wait > 0:
+                await asyncio.sleep(remaining_wait)
 
-        start_minute_collection(next_minute)
+            start_minute_collection(next_minute)
 
-        while True:
-            try:
-                message = await websocket.recv()
-                debug_stats['total_messages'] += 1
-                debug_stats['last_message_time'] = datetime.now(IST)
+            while True:
+                try:
+                    message = await websocket.recv()
+                    debug_stats['total_messages'] += 1
+                    debug_stats['last_message_time'] = datetime.now(IST)
 
-                if debug_stats['total_messages'] % 200 == 1:
-                    debug_log(f"📨 Processed message #{debug_stats['total_messages']} | "
-                             f"Signals: {debug_stats['actionable_signals_generated']} | "
-                             f"Confirmed: {debug_stats['trajectory_confirmations']}", "STATS")
+                    if debug_stats['total_messages'] % 200 == 1:
+                        debug_log(f"📨 Processed message #{debug_stats['total_messages']} | "
+                                 f"Signals: {debug_stats['actionable_signals_generated']} | "
+                                 f"Confirmed: {debug_stats['trajectory_confirmations']}", "STATS")
 
-                decoded_data = decode_protobuf(message)
-                data_dict = MessageToDict(decoded_data)
+                    decoded_data = decode_protobuf(message)
+                    data_dict = MessageToDict(decoded_data)
 
-                if 'feeds' in data_dict:
-                    for instrument_key, feed_data in data_dict['feeds'].items():
-                        if instrument_key in symbol_mapping:
-                            process_tick_with_enhanced_analysis(instrument_key, feed_data)
+                    if 'feeds' in data_dict:
+                        for instrument_key, feed_data in data_dict['feeds'].items():
+                            if instrument_key in symbol_mapping:
+                                process_tick_with_enhanced_analysis(instrument_key, feed_data)
 
-                if not collecting_data and current_minute_end is not None:
-                    start_minute_collection(current_minute_end)
+                    if not collecting_data and current_minute_end is not None:
+                        start_minute_collection(current_minute_end)
 
-            except Exception as e:
-                debug_log(f"❌ Error processing enhanced message: {e}", "ERROR")
-                continue
+                except Exception as e:
+                    debug_log(f"❌ Error processing enhanced message: {e}", "ERROR")
+                    continue
+                    
+    except Exception as e:
+        debug_log(f"❌ WebSocket connection error: {e}", "ERROR")
 
 def run_flask_app():
     """Run Flask app in a separate thread."""
-    socketio.run(app, debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+    try:
+        socketio.run(app, debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+    except Exception as e:
+        debug_log(f"Error running Flask app: {e}", "ERROR")
 
 if __name__ == "__main__":
     try:
