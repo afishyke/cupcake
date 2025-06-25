@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cupcake Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .neutral { color: #64748b; }
+        .blinking {
+            animation: blinker 1.5s linear infinite;
+        }
+        .pulse-green {
+            animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .pulse-red {
+            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0.3; }
+        }
+        @keyframes pulse-green {
+            0%, 100% { background-color: rgb(34 197 94 / 0.1); }
+            50% { background-color: rgb(34 197 94 / 0.3); }
+        }
+        @keyframes pulse-red {
+            0%, 100% { background-color: rgb(239 68 68 / 0.1); }
+            50% { background-color: rgb(239 68 68 / 0.3); }
+        }
+        .signal-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .signal-card.buy { border-left-color: #22c55e; }
+        .signal-card.sell { border-left-color: #ef4444; }
+        .signal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .strength-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .strength-weak { background-color: #64748b; }
+        .strength-moderate { background-color: #f59e0b; }
+        .strength-strong { background-color: #22c55e; }
+        .strength-very-strong { background-color: #16a34a; }
+        .tab-active {
+            background-color: #1e40af;
+            color: white;
+        }
+        .tab-inactive {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+        .tab-inactive:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300">
+
+    <div class="container mx-auto p-4 space-y-6">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center bg-slate-800 p-4 rounded-lg shadow-lg">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Cupcake Trading Platform</h1>
+                <p class="text-slate-400">Professional Trading Dashboard with Strategy Testing</p>
+            </div>
+            <div class="text-right">
+                <p class="text-lg font-medium text-white" id="current-time"></p>
+                <div id="connection-status" class="flex items-center justify-end space-x-2 mt-1">
+                     <div class="h-3 w-3 rounded-full bg-red-500 blinking"></div>
+                     <span class="text-sm text-red-400">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-slate-800 p-1 rounded-lg">
+            <div class="flex space-x-1">
+                <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-active px-4 py-2 rounded-md font-medium transition-colors">
+                    Dashboard
+                </button>
+                <button onclick="showTab('signals')" id="tab-signals" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    Trading Signals
+                </button>
+                <button onclick="showTab('simulator')" id="tab-simulator" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    Strategy Simulator
+                </button>
+                <button onclick="showTab('portfolio')" id="tab-portfolio" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    Portfolio
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="content-dashboard" class="tab-content">
+            <!-- Signal Analytics Summary -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Active Signals</h3>
+                        <span id="total-signals" class="text-2xl font-bold text-white">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Trajectory Confirmed</h3>
+                        <span id="confirmed-signals" class="text-2xl font-bold text-green-400">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">High Confidence</h3>
+                        <span id="high-confidence-signals" class="text-2xl font-bold text-blue-400">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Avg Risk/Reward</h3>
+                        <span id="avg-risk-reward" class="text-2xl font-bold text-yellow-400">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Market Data -->
+            <section id="live-market-data" class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                 <h2 class="text-2xl font-bold text-white mb-4">Live Market Watch</h2>
+                 <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-700">
+                        <thead class="bg-slate-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Symbol</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">LTP</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Signal</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Confidence</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">Target</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">Stop Loss</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">R/R</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="market-data-body" class="bg-slate-800 divide-y divide-slate-700">
+                            <tr><td colspan="9" class="text-center py-4 text-slate-500">Loading market data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Trading Signals Tab -->
+        <div id="content-signals" class="tab-content hidden">
+            <section class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold text-white mb-4">Actionable Trading Signals</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- High Confidence Buy Signals -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-green-400 mb-3 flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                            High Confidence Buys
+                        </h3>
+                        <div id="high-confidence-buys" class="space-y-3 max-h-96 overflow-y-auto">
+                            <p class="text-slate-500">Analyzing market for buy opportunities...</p>
+                        </div>
+                    </div>
+
+                    <!-- High Confidence Sell Signals -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-red-400 mb-3 flex items-center">
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                            High Confidence Sells
+                        </h3>
+                        <div id="high-confidence-sells" class="space-y-3 max-h-96 overflow-y-auto">
+                            <p class="text-slate-500">Analyzing market for sell opportunities...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-blue-400 mb-3">Trajectory Confirmed Signals</h3>
+                    <div id="trajectory-confirmed-signals" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-64 overflow-y-auto">
+                        <p class="text-slate-500 col-span-full">Waiting for trajectory confirmations...</p>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500 mt-4 text-right">Last updated: <span id="actionable-screener-last-updated">N/A</span></p>
+            </section>
+        </div>
+
+        <!-- Strategy Simulator Tab -->
+        <div id="content-simulator" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Trading Panel -->
+                <div class="lg:col-span-1">
+                    <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold text-white mb-4">Strategy Simulator</h2>
+                        
+                        <!-- Symbol Selection -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Select Symbol</label>
+                            <select id="simulator-symbol" class="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2">
+                                <option value="">Choose a symbol...</option>
+                            </select>
+                        </div>
+
+                        <!-- Current Price Display -->
+                        <div class="mb-4 p-3 bg-slate-700 rounded">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Current Price</span>
+                                <span id="simulator-current-price" class="text-white font-bold text-lg">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Trade Type -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Trade Type</label>
+                            <div class="flex space-x-2">
+                                <button onclick="setTradeType('BUY')" id="trade-type-buy" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-medium">
+                                    Buy
+                                </button>
+                                <button onclick="setTradeType('SELL')" id="trade-type-sell" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded font-medium">
+                                    Sell
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Quantity</label>
+                            <input type="number" id="simulator-quantity" value="10" min="1" class="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2">
+                        </div>
+
+                        <!-- Order Value -->
+                        <div class="mb-4 p-3 bg-slate-700 rounded">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Order Value</span>
+                                <span id="simulator-order-value" class="text-white font-bold">₹0</span>
+                            </div>
+                        </div>
+
+                        <!-- Place Order Button -->
+                        <button onclick="placeSimulatorOrder()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded font-medium">
+                            Place Test Order
+                        </button>
+
+                        <!-- Simulator Balance -->
+                        <div class="mt-6 p-4 bg-slate-700 rounded">
+                            <h3 class="text-lg font-bold text-white mb-2">Test Account</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Available Balance</span>
+                                    <span id="simulator-balance" class="text-white font-bold">₹1,00,000</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Total P&L</span>
+                                    <span id="simulator-total-pnl" class="font-bold">₹0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">P&L %</span>
+                                    <span id="simulator-pnl-percent" class="font-bold">0.00%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulator Positions -->
+                <div class="lg:col-span-2">
+                    <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold text-white mb-4">Test Positions</h2>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-700">
+                                <thead class="bg-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase">Type</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Qty</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Avg Price</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Current Price</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">P&L %</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="simulator-positions-body" class="divide-y divide-slate-700">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-8 text-slate-500">
+                                            No test positions yet. Place your first test order above.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Trade History -->
+                    <div class="bg-slate-800 p-6 rounded-lg shadow-lg mt-6">
+                        <h2 class="text-2xl font-bold text-white mb-4">Test Trade History</h2>
+                        
+                        <div class="overflow-x-auto max-h-64">
+                            <table class="min-w-full divide-y divide-slate-700">
+                                <thead class="bg-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Time</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase">Type</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Qty</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Price</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="simulator-history-body" class="divide-y divide-slate-700">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-slate-500">No test trades yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Tab -->
+        <div id="content-portfolio" class="tab-content hidden">
+            <!-- Portfolio Summary -->
+            <section id="portfolio-summary" class="bg-slate-800 p-6 rounded-lg shadow-lg mb-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Portfolio Summary</h2>
+                <div id="pnl-data-content" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                     <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Total P&L</p>
+                        <p class="text-2xl font-bold text-slate-400">--</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Daily P&L</p>
+                        <p class="text-2xl font-bold text-slate-400">--</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Current Value</p>
+                        <p class="text-2xl font-bold text-slate-400">--</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Total Investment</p>
+                        <p class="text-2xl font-bold text-slate-400">--</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Holdings and Positions -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="holdings-section" class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                     <h2 class="text-2xl font-bold text-white mb-4">Holdings</h2>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-700">
+                             <thead class="bg-slate-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">Qty</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">Avg Price</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">LTP</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdings-body" class="divide-y divide-slate-700">
+                               <tr><td colspan="5" class="text-center py-4 text-slate-500">Loading holdings...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="positions-section" class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                     <h2 class="text-2xl font-bold text-white mb-4">Positions</h2>
+                     <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-700">
+                            <thead class="bg-slate-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">Qty</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">Avg Price</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">LTP</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positions-body" class="divide-y divide-slate-700">
+                                <tr><td colspan="5" class="text-center py-4 text-slate-500">Loading positions...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Risk Warnings -->
+        <section id="risk-warnings" class="bg-red-900/20 border border-red-700 p-4 rounded-lg hidden">
+            <h3 class="text-lg font-semibold text-red-400 mb-2">Risk Warnings</h3>
+            <div id="risk-warnings-content" class="space-y-2"></div>
+        </section>
+    </div>
+
+    <script>
+        const socket = io("http://localhost:5000");
+
+        // Global variables for simulator
+        let simulatorBalance = 10000000; // Starting with ₹1,00,00,000
+        let simulatorPositions = [];
+        let simulatorTradeHistory = [];
+        let selectedTradeType = 'BUY';
+        let currentMarketData = {};
+
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Update tab buttons
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.className = tab.className.replace('tab-active', 'tab-inactive');
+            });
+            
+            document.getElementById(`tab-${tabName}`).className = 
+                document.getElementById(`tab-${tabName}`).className.replace('tab-inactive', 'tab-active');
+        }
+
+        // Simulator functions
+        function populateSymbolDropdown() {
+            const dropdown = document.getElementById('simulator-symbol');
+            for (const symbol in currentMarketData) {
+                const option = document.createElement('option');
+                option.value = symbol;
+                option.textContent = currentMarketData[symbol].name;
+                dropdown.appendChild(option);
+            }
+        }
+
+        function setTradeType(type) {
+            selectedTradeType = type;
+            
+            // Update button styles
+            const buyBtn = document.getElementById('trade-type-buy');
+            const sellBtn = document.getElementById('trade-type-sell');
+            
+            if (type === 'BUY') {
+                buyBtn.className = 'flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-medium';
+                sellBtn.className = 'flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded font-medium';
+            } else {
+                buyBtn.className = 'flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded font-medium';
+                sellBtn.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded font-medium';
+            }
+            
+            updateOrderValue();
+        }
+
+        function updateOrderValue() {
+            const symbolKey = document.getElementById('simulator-symbol').value;
+            const quantity = parseInt(document.getElementById('simulator-quantity').value) || 0;
+            
+            if (symbolKey && currentMarketData[symbolKey]) {
+                const price = currentMarketData[symbolKey].ltp || 0;
+                const orderValue = price * quantity;
+                
+                document.getElementById('simulator-current-price').textContent = formatCurrency(price);
+                document.getElementById('simulator-order-value').textContent = formatCurrency(orderValue);
+            } else {
+                document.getElementById('simulator-current-price').textContent = '--';
+                document.getElementById('simulator-order-value').textContent = '₹0';
+            }
+        }
+
+        function placeSimulatorOrder() {
+            const symbolKey = document.getElementById('simulator-symbol').value;
+            const quantity = parseInt(document.getElementById('simulator-quantity').value) || 0;
+            
+            if (!symbolKey || quantity <= 0) {
+                alert('Please select a symbol and enter valid quantity');
+                return;
+            }
+            
+            if (!currentMarketData[symbolKey]) {
+                alert('Symbol data not available');
+                return;
+            }
+            
+            const price = currentMarketData[symbolKey].ltp;
+            const orderValue = price * quantity;
+            
+            // Check available balance for buy orders
+            if (selectedTradeType === 'BUY' && orderValue > simulatorBalance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            // Check if we have position to sell
+            if (selectedTradeType === 'SELL') {
+                const existingPosition = simulatorPositions.find(p => p.symbol === symbolKey && p.type === 'BUY');
+                if (!existingPosition || existingPosition.quantity < quantity) {
+                    alert('Insufficient quantity to sell');
+                    return;
+                }
+            }
+            
+            // Create trade record
+            const trade = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString(),
+                symbol: symbolKey,
+                symbolName: currentMarketData[symbolKey].name,
+                type: selectedTradeType,
+                quantity: quantity,
+                price: price,
+                value: orderValue
+            };
+            
+            // Update positions
+            updateSimulatorPositions(trade);
+            
+            // Add to trade history
+            simulatorTradeHistory.unshift(trade);
+            if (simulatorTradeHistory.length > 50) {
+                simulatorTradeHistory = simulatorTradeHistory.slice(0, 50);
+            }
+            
+            // Update balance
+            if (selectedTradeType === 'BUY') {
+                simulatorBalance -= orderValue;
+            } else {
+                simulatorBalance += orderValue;
+            }
+            
+            // Update displays
+            updateSimulatorDisplays();
+            
+            // Reset form
+            document.getElementById('simulator-quantity').value = '10';
+            updateOrderValue();
+            
+            // Show success message
+            const message = `${selectedTradeType} order placed: ${quantity} shares of ${currentMarketData[symbolKey].name} at ₹${price.toFixed(2)}`;
+            console.log(message);
+        }
+
+        function updateSimulatorPositions(trade) {
+            const existingIndex = simulatorPositions.findIndex(p => 
+                p.symbol === trade.symbol && p.type === (trade.type === 'BUY' ? 'BUY' : 'SELL')
+            );
+            
+            if (trade.type === 'BUY') {
+                if (existingIndex >= 0) {
+                    // Average down/up the position
+                    const existing = simulatorPositions[existingIndex];
+                    const totalValue = (existing.quantity * existing.avgPrice) + (trade.quantity * trade.price);
+                    const totalQuantity = existing.quantity + trade.quantity;
+                    
+                    existing.quantity = totalQuantity;
+                    existing.avgPrice = totalValue / totalQuantity;
+                } else {
+                    // New buy position
+                    simulatorPositions.push({
+                        symbol: trade.symbol,
+                        symbolName: trade.symbolName,
+                        type: 'BUY',
+                        quantity: trade.quantity,
+                        avgPrice: trade.price
+                    });
+                }
+            } else {
+                // Handle sell order
+                const buyPositionIndex = simulatorPositions.findIndex(p => 
+                    p.symbol === trade.symbol && p.type === 'BUY'
+                );
+                
+                if (buyPositionIndex >= 0) {
+                    simulatorPositions[buyPositionIndex].quantity -= trade.quantity;
+                    
+                    // Remove position if quantity becomes 0
+                    if (simulatorPositions[buyPositionIndex].quantity <= 0) {
+                        simulatorPositions.splice(buyPositionIndex, 1);
+                    }
+                }
+            }
+        }
+
+        function updateSimulatorDisplays() {
+            // Update balance display
+            document.getElementById('simulator-balance').textContent = formatCurrency(simulatorBalance);
+            
+            // Calculate and update P&L
+            let totalPnL = 0;
+            
+            simulatorPositions.forEach(position => {
+                if (currentMarketData[position.symbol]) {
+                    const currentPrice = currentMarketData[position.symbol].ltp;
+                    const positionPnL = (currentPrice - position.avgPrice) * position.quantity;
+                    totalPnL += positionPnL;
+                }
+            });
+            
+            const totalPnLPercent = ((100000 + totalPnL - simulatorBalance) / 100000) * 100;
+            
+            document.getElementById('simulator-total-pnl').textContent = formatPnl(totalPnL);
+            document.getElementById('simulator-total-pnl').className = totalPnL >= 0 ? 'font-bold positive' : 'font-bold negative';
+            
+            document.getElementById('simulator-pnl-percent').textContent = totalPnLPercent.toFixed(2) + '%';
+            document.getElementById('simulator-pnl-percent').className = totalPnL >= 0 ? 'font-bold positive' : 'font-bold negative';
+            
+            // Update positions table
+            updateSimulatorPositionsTable();
+            
+            // Update trade history table
+            updateSimulatorHistoryTable();
+        }
+
+        function updateSimulatorPositionsTable() {
+            const tbody = document.getElementById('simulator-positions-body');
+            
+            if (simulatorPositions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-slate-500">
+                            No test positions yet. Place your first test order above.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = simulatorPositions.map(position => {
+                const currentPrice = currentMarketData[position.symbol]?.ltp || position.avgPrice;
+                const pnl = (currentPrice - position.avgPrice) * position.quantity;
+                const pnlPercent = ((currentPrice - position.avgPrice) / position.avgPrice) * 100;
+                
+                return `
+                    <tr class="hover:bg-slate-700">
+                        <td class="px-4 py-3 font-medium text-white">${position.symbolName}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${position.type === 'BUY' ? 'bg-green-600' : 'bg-red-600'} text-white">
+                                ${position.type}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">${position.quantity}</td>
+                        <td class="px-4 py-3 text-right">${formatCurrency(position.avgPrice)}</td>
+                        <td class="px-4 py-3 text-right">${formatCurrency(currentPrice)}</td>
+                        <td class="px-4 py-3 text-right ${pnl >= 0 ? 'positive' : 'negative'}">${formatCurrency(pnl)}</td>
+                        <td class="px-4 py-3 text-right ${pnl >= 0 ? 'positive' : 'negative'}">${pnlPercent.toFixed(2)}%</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="closeSimulatorPosition('${position.symbol}')" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">
+                                Close
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateSimulatorHistoryTable() {
+            const tbody = document.getElementById('simulator-history-body');
+            
+            if (simulatorTradeHistory.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-slate-500">No test trades yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = simulatorTradeHistory.slice(0, 10).map(trade => `
+                <tr class="hover:bg-slate-700">
+                    <td class="px-4 py-3 text-sm">${trade.time}</td>
+                    <td class="px-4 py-3 font-medium text-white">${trade.symbolName}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${trade.type === 'BUY' ? 'bg-green-600' : 'bg-red-600'} text-white">
+                            ${trade.type}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">${trade.quantity}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(trade.price)}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(trade.value)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function closeSimulatorPosition(symbolKey) {
+            const position = simulatorPositions.find(p => p.symbol === symbolKey);
+            if (!position) return;
+            
+            const currentPrice = currentMarketData[symbolKey]?.ltp || position.avgPrice;
+            
+            // Create closing trade
+            const trade = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString(),
+                symbol: symbolKey,
+                symbolName: position.symbolName,
+                type: 'SELL',
+                quantity: position.quantity,
+                price: currentPrice,
+                value: currentPrice * position.quantity
+            };
+            
+            // Update balance
+            simulatorBalance += trade.value;
+            
+            // Remove position
+            const index = simulatorPositions.findIndex(p => p.symbol === symbolKey);
+            simulatorPositions.splice(index, 1);
+            
+            // Add to trade history
+            simulatorTradeHistory.unshift(trade);
+            
+            // Update displays
+            updateSimulatorDisplays();
+        }
+
+        // Utility functions
+        function formatCurrency(value) {
+            if (typeof value !== 'number') return '--';
+            return `₹${value.toFixed(2)}`;
+        }
+
+        function formatPnl(value) {
+            if (typeof value !== 'number') return `<span class="text-slate-400">--</span>`;
+            const colorClass = value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+            return `<span class="${colorClass}">${formatCurrency(value)}</span>`;
+        }
+        
+        function getActionClass(action, confidence) {
+            if (!action || action === 'WAIT') return 'bg-slate-600 text-slate-300';
+            if (action === 'BUY') {
+                return confidence > 0.7 ? 'bg-green-600 text-white pulse-green' : 'bg-green-700 text-white';
+            }
+            if (action === 'SELL') {
+                return confidence > 0.7 ? 'bg-red-600 text-white pulse-red' : 'bg-red-700 text-white';
+            }
+            return 'bg-slate-600 text-slate-300';
+        }
+
+        function getTrajectoryBadge(status, confirmed) {
+            if (confirmed) return '<span class="bg-green-600 text-white px-2 py-1 rounded-full text-xs">Confirmed</span>';
+            if (status === 'DEVELOPING') return '<span class="bg-yellow-600 text-white px-2 py-1 rounded-full text-xs">Developing</span>';
+            if (status === 'BUILDING') return '<span class="bg-slate-600 text-slate-300 px-2 py-1 rounded-full text-xs">Building</span>';
+            return '<span class="bg-slate-600 text-slate-300 px-2 py-1 rounded-full text-xs">Unknown</span>';
+        }
+
+        function getStrengthIndicator(strength) {
+            const classes = {
+                'WEAK': 'strength-weak',
+                'MODERATE': 'strength-moderate', 
+                'STRONG': 'strength-strong',
+                'VERY_STRONG': 'strength-very-strong'
+            };
+            return `<span class="strength-indicator ${classes[strength] || 'strength-weak'}"></span>${strength || 'N/A'}`;
+        }
+
+        function createSignalCard(signal, type) {
+            const bgClass = type === 'BUY' ? 'bg-green-900/30' : 'bg-red-900/30';
+            const borderClass = type === 'BUY' ? 'border-green-700' : 'border-red-700';
+            const actionClass = type === 'BUY' ? 'bg-green-600' : 'bg-red-600';
+            
+            return `
+                <div class="signal-card ${type.toLowerCase()} ${bgClass} border ${borderClass} p-4 rounded-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-bold text-white text-lg">${signal.symbol}</h4>
+                            <p class="text-sm text-slate-400">${formatCurrency(signal.price)}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-3 py-1 text-sm font-bold text-white ${actionClass} rounded-full">${signal.signal_type}</span>
+                            <p class="text-xs text-slate-400 mt-1">${getStrengthIndicator(signal.strength)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-sm mb-3">
+                        <div>
+                            <p class="text-slate-400">Entry</p>
+                            <p class="text-white font-semibold">${formatCurrency(signal.entry_price)}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400">Target</p>
+                            <p class="text-green-400 font-semibold">${formatCurrency(signal.target_price)}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400">Stop Loss</p>
+                            <p class="text-red-400 font-semibold">${formatCurrency(signal.stop_loss)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">
+                            <span class="text-slate-400">Confidence:</span> 
+                            <span class="text-white font-semibold">${(signal.confidence * 100).toFixed(0)}%</span>
+                        </span>
+                        <span class="text-sm">
+                            <span class="text-slate-400">R/R:</span> 
+                            <span class="text-yellow-400 font-semibold">${signal.risk_reward_ratio.toFixed(1)}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs ${signal.trajectory_confirmed ? 'text-green-400' : 'text-yellow-400'}">
+                            ${signal.trajectory_confirmed ? 'Trajectory Confirmed' : 'Developing'}
+                        </span>
+                        <span class="text-xs text-slate-400">${signal.time_horizon}</span>
+                    </div>
+                    
+                    ${signal.reasons && signal.reasons.length > 0 ? `
+                        <div class="mt-2 pt-2 border-t border-slate-700">
+                            <p class="text-xs text-slate-400">Reasons: ${signal.reasons.join(', ')}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function simulateTradeFromSignal(symbolKey, signalType, price) {
+            // Auto-fill simulator form based on signal
+            document.getElementById('simulator-symbol').value = symbolKey;
+            setTradeType(signalType);
+            updateOrderValue();
+            
+            // Switch to simulator tab
+            showTab('simulator');
+            
+            // Scroll to the simulator section
+            document.getElementById('content-simulator').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Event listeners for simulator
+        document.getElementById('simulator-symbol').addEventListener('change', updateOrderValue);
+        document.getElementById('simulator-quantity').addEventListener('input', updateOrderValue);
+
+        // Socket events
+        socket.on('connect', () => {
+            console.log('Connected to Cupcake server!');
+            document.getElementById('connection-status').innerHTML = `
+                <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                <span class="text-sm text-green-400">Connected</span>`;
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server!');
+            document.getElementById('connection-status').innerHTML = `
+                <div class="h-3 w-3 rounded-full bg-red-500 blinking"></div>
+                <span class="text-sm text-red-400">Disconnected</span>`;
+        });
+        
+        socket.on('actionable_screener_update', (data) => {
+            // Update high confidence buys
+            const buysContent = document.getElementById('high-confidence-buys');
+            buysContent.innerHTML = data.high_confidence_buys.length > 0 ? 
+                data.high_confidence_buys.map(signal => createSignalCard(signal, 'BUY')).join('') :
+                '<p class="text-slate-500">No high confidence buy signals available.</p>';
+            
+            // Update high confidence sells
+            const sellsContent = document.getElementById('high-confidence-sells');
+            sellsContent.innerHTML = data.high_confidence_sells.length > 0 ? 
+                data.high_confidence_sells.map(signal => createSignalCard(signal, 'SELL')).join('') :
+                '<p class="text-slate-500">No high confidence sell signals available.</p>';
+
+            // Update trajectory confirmed signals
+            const confirmedContent = document.getElementById('trajectory-confirmed-signals');
+            confirmedContent.innerHTML = data.trajectory_confirmed_signals.length > 0 ? 
+                data.trajectory_confirmed_signals.map(signal => `
+                    <div class="bg-slate-700 p-3 rounded-lg border border-blue-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="font-bold text-white">${signal.symbol}</h5>
+                            <span class="px-2 py-1 text-xs font-bold text-white ${signal.signal_type === 'BUY' ? 'bg-green-600' : 'bg-red-600'} rounded">${signal.signal_type}</span>
+                        </div>
+                        <div class="text-xs text-slate-400 space-y-1">
+                            <p>Entry: ${formatCurrency(signal.entry_price)} | Target: ${formatCurrency(signal.target_price)}</p>
+                            <p>Confidence: ${(signal.confidence * 100).toFixed(0)}% | R/R: ${signal.risk_reward_ratio.toFixed(1)}</p>
+                        </div>
+                    </div>
+                `).join('') :
+                '<p class="text-slate-500 col-span-full">No trajectory confirmed signals yet.</p>';
+
+            // Update summary stats
+            const totalSignals = (data.high_confidence_buys.length || 0) + (data.high_confidence_sells.length || 0) + (data.emerging_opportunities.length || 0);
+            const confirmedSignals = data.trajectory_confirmed_signals.length || 0;
+            const highConfidence = data.high_confidence_buys.length + data.high_confidence_sells.length;
+            
+            document.getElementById('total-signals').textContent = totalSignals;
+            document.getElementById('confirmed-signals').textContent = confirmedSignals;
+            document.getElementById('high-confidence-signals').textContent = highConfidence;
+
+            // Calculate average risk/reward
+            const allSignals = [...(data.high_confidence_buys || []), ...(data.high_confidence_sells || [])];
+            const avgRR = allSignals.length > 0 ? 
+                allSignals.reduce((sum, s) => sum + s.risk_reward_ratio, 0) / allSignals.length : 0;
+            document.getElementById('avg-risk-reward').textContent = avgRR > 0 ? avgRR.toFixed(1) : '-';
+
+            // Show/hide risk warnings
+            const riskSection = document.getElementById('risk-warnings');
+            const riskContent = document.getElementById('risk-warnings-content');
+            
+            if (data.risk_warnings && data.risk_warnings.length > 0) {
+                riskContent.innerHTML = data.risk_warnings.map(warning => `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-red-400 font-bold">${warning.symbol}:</span>
+                        <span class="text-red-300">${warning.warning}</span>
+                    </div>
+                `).join('');
+                riskSection.classList.remove('hidden');
+            } else {
+                riskSection.classList.add('hidden');
+            }
+
+            document.getElementById('actionable-screener-last-updated').innerText = new Date(data.last_updated).toLocaleTimeString('en-IN');
+        });
+
+        socket.on('portfolio_update', (data) => {
+            const pnlContent = document.getElementById('pnl-data-content');
+            if(data.pnl_data) {
+                pnlContent.innerHTML = `
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Total P&L</p>
+                        <p class="text-2xl font-bold">${formatPnl(data.pnl_data.total_pnl)}</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Daily P&L</p>
+                        <p class="text-2xl font-bold">${formatPnl(data.pnl_data.daily_pnl)}</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Current Value</p>
+                        <p class="text-2xl font-bold">${formatCurrency(data.pnl_data.current_value)}</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <p class="text-sm text-slate-400">Total Investment</p>
+                        <p class="text-2xl font-bold">${formatCurrency(data.pnl_data.total_investment)}</p>
+                    </div>`;
+            }
+
+            const holdingsBody = document.getElementById('holdings-body');
+            const holdings = Object.values(data.holdings || {});
+            holdingsBody.innerHTML = holdings.length > 0 ? holdings.map(h => `
+                <tr class="hover:bg-slate-700">
+                    <td class="px-4 py-3 font-medium text-white">${h.symbol}</td>
+                    <td class="px-4 py-3 text-right">${h.quantity}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(h.average_price)}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(h.last_price)}</td>
+                    <td class="px-4 py-3 text-right">${formatPnl(h.pnl)}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="5" class="text-center py-4 text-slate-500">No holdings found.</td></tr>`;
+
+            const positionsBody = document.getElementById('positions-body');
+            const positions = Object.values(data.positions || {});
+            positionsBody.innerHTML = positions.length > 0 ? positions.map(p => `
+                 <tr class="hover:bg-slate-700">
+                    <td class="px-4 py-3 font-medium text-white">${p.symbol}</td>
+                    <td class="px-4 py-3 text-right">${p.quantity}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(p.average_price)}</td>
+                    <td class="px-4 py-3 text-right">${formatCurrency(p.last_price)}</td>
+                    <td class="px-4 py-3 text-right">${formatPnl(p.pnl)}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="5" class="text-center py-4 text-slate-500">No open positions.</td></tr>`;
+        });
+
+        socket.on('enhanced_market_update', (data) => {
+            // Store current market data for simulator
+            currentMarketData = data;
+            
+            const marketDataBody = document.getElementById('market-data-body');
+            const stocks = Object.values(data || {});
+
+            if(stocks.length > 0) {
+                // Populate symbol dropdown if not already done
+                if (document.getElementById('simulator-symbol').children.length <= 1) {
+                    populateSymbolDropdown();
+                }
+                
+                // Update order value if symbol is selected
+                updateOrderValue();
+                
+                // Update simulator positions with current prices
+                updateSimulatorDisplays();
+                
+                 marketDataBody.innerHTML = stocks.map(stock => `
+                    <tr class="hover:bg-slate-700">
+                        <td class="px-4 py-4 font-medium text-white">${stock.name}</td>
+                        <td class="px-4 py-4 text-right font-semibold text-white">${formatCurrency(stock.ltp)}</td>
+                        <td class="px-4 py-4 text-center">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${getActionClass(stock.recommended_action, stock.signal_confidence)}">
+                                ${stock.recommended_action || 'WAIT'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            <span class="font-bold ${stock.signal_confidence > 0.7 ? 'text-green-400' : stock.signal_confidence > 0.5 ? 'text-yellow-400' : 'text-slate-400'}">
+                                ${stock.signal_confidence ? (stock.signal_confidence * 100).toFixed(0) + '%' : '-'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            ${getTrajectoryBadge(stock.trajectory_status, stock.best_signal?.trajectory_confirmed)}
+                        </td>
+                        <td class="px-4 py-4 text-right font-semibold text-green-400">
+                            ${stock.target_price ? formatCurrency(stock.target_price) : '-'}
+                        </td>
+                        <td class="px-4 py-4 text-right font-semibold text-red-400">
+                            ${stock.stop_loss ? formatCurrency(stock.stop_loss) : '-'}
+                        </td>
+                        <td class="px-4 py-4 text-right font-bold ${stock.risk_reward_ratio > 2 ? 'text-green-400' : stock.risk_reward_ratio > 1 ? 'text-yellow-400' : 'text-red-400'}">
+                            ${stock.risk_reward_ratio ? stock.risk_reward_ratio.toFixed(1) : '-'}
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            ${stock.recommended_action !== 'WAIT' ? `
+                                <button onclick="simulateTradeFromSignal('${Object.keys(data).find(key => data[key] === stock)}', '${stock.recommended_action}', ${stock.ltp})" 
+                                        class="px-2 py-1 text-xs ${stock.recommended_action === 'BUY' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded">
+                                    Test ${stock.recommended_action}
+                                </button>
+                            ` : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        });
+
+    </script>
+</body>
+</html>

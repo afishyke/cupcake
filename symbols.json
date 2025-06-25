@@ -1,0 +1,40 @@
+{
+  "symbols": [
+    {
+      "name": "Maruti Suzuki India Ltd",
+      "instrument_key": "NSE_EQ|INE585B01010"
+    },
+    {
+      "name": "Manappuram Finance Ltd",
+      "instrument_key": "NSE_EQ|INE522D01027"
+    },
+    {
+      "name": "Wonderla Holidays Ltd",
+      "instrument_key": "NSE_EQ|INE066O01014"
+    },
+    {
+      "name": "Jindal Steel & Power Ltd",
+      "instrument_key": "NSE_EQ|INE749A01030"
+    },
+    {
+      "name": "Jindal Worldwide Ltd",
+      "instrument_key": "NSE_EQ|INE247D01039"
+    },
+    {
+      "name": "Raj Television Network Ltd",
+      "instrument_key": "NSE_EQ|INE952H01027"
+    },
+    {
+      "name": "Adani Power Ltd",
+      "instrument_key": "NSE_EQ|INE814H01011"
+    },
+    {
+      "name": "Prakash Pipes Ltd",
+      "instrument_key": "NSE_EQ|INE050001010"
+    },
+    {
+      "name": "Kotak Mahindra Bank Ltd",
+      "instrument_key": "NSE_EQ|INE237A01028"
+    }
+  ]
+}
