@@ -60,6 +60,8 @@ class Config:
     """Simple configuration class for shared settings."""
     REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
     REDIS_PORT = int(os.environ.get('REDIS_PORT', '6379'))
+    APP_HOST = os.environ.get('APP_HOST', 'localhost')
+    APP_PORT = int(os.environ.get('APP_PORT', '5000'))
 
 # --- Main Application Setup with Fixed Paths ---
 # Create templates directory if it doesn't exist
@@ -530,7 +532,7 @@ def api_chart_symbols():
         try:
             # Check if we can get live symbols from the live fetcher
             import requests
-            response = requests.get('http://localhost:5000/api/live/symbols', timeout=2)
+            response = requests.get(f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/symbols', timeout=2)
             if response.status_code == 200:
                 live_symbols = response.json()
                 if live_symbols and not isinstance(live_symbols, dict) or not live_symbols.get('error'):
@@ -666,7 +668,7 @@ def api_chart_data(symbol_name):
         # Method 2: Try live data from enhanced_live_fetcher
         try:
             import requests
-            url = f'http://localhost:5000/api/live/chart_data/{symbol_name}'
+            url = f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/chart_data/{symbol_name}'
             params = {'timeframe': timeframe, 'limit': limit}
             
             response = requests.get(url, params=params, timeout=5)
@@ -782,7 +784,7 @@ def api_chart_test():
         # Test live data service
         try:
             import requests
-            response = requests.get('http://localhost:5000/api/live/symbols', timeout=2)
+            response = requests.get(f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/symbols', timeout=2)
             test_results['services']['live_data'] = {
                 'available': response.status_code == 200,
                 'status_code': response.status_code
@@ -1352,8 +1354,8 @@ if __name__ == '__main__':
         if args.mode in ['full', 'live', 'historical']:
             print("\n[STEP 4] Starting Enhanced Dashboard Web Server...")
             print("==============================================")
-            print(f"🌐 Enhanced Dashboard available at http://localhost:{args.port}")
-            print(f"📊 Historical Data Viewer at http://localhost:{args.port}/historical")
+            print(f"🌐 Enhanced Dashboard available at http://{Config.APP_HOST}:{args.port}")
+            print(f"📊 Historical Data Viewer at http://{Config.APP_HOST}:{args.port}/historical")
             print("📊 Features:")
             print("   • Ultra-Fast Historical Data Fetching")
             print("   • Actionable Trading Signals")

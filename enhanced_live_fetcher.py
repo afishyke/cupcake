@@ -1165,7 +1165,9 @@ async def fetch_enhanced_market_data():
             await websocket.send(binary_data)
 
             debug_log(f"Subscribed to {len(instrument_keys)} symbols for actionable signal analysis", "SUCCESS")
-            debug_log("🌐 Enhanced dashboard with actionable signals available at: http://localhost:5000")
+            app_host = os.environ.get('APP_HOST', 'localhost')
+            app_port = os.environ.get('APP_PORT', '5000')
+            debug_log(f"🌐 Enhanced dashboard with actionable signals available at: http://{app_host}:{app_port}")
 
             remaining_wait = (next_minute - datetime.now(IST)).total_seconds()
             if remaining_wait > 0:
@@ -1205,7 +1207,9 @@ async def fetch_enhanced_market_data():
 def run_flask_app():
     """Run Flask app in a separate thread."""
     try:
-        socketio.run(app, debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+        app_host = os.environ.get('APP_HOST', '0.0.0.0')
+        app_port = int(os.environ.get('APP_PORT', '5000'))
+        socketio.run(app, debug=False, host=app_host, port=app_port, use_reloader=False)
     except Exception as e:
         debug_log(f"Error running Flask app: {e}", "ERROR")
 

@@ -9,8 +9,8 @@ class UpstoxAuthClient:
     """Minimal Upstox client for authentication and token management only"""
     
     def __init__(self,
-                 config_file: str = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"):
-        self.config_file = config_file
+                 config_file: str = None):
+        self.config_file = config_file or os.environ.get('CREDENTIALS_PATH', os.path.join(os.getcwd(), 'credentials.json'))
         self.config = self._load_config()
         self.base_url = "https://api-v2.upstox.com"
         self.session = requests.Session()
@@ -19,7 +19,7 @@ class UpstoxAuthClient:
     
     def _setup_logger(self):
         """Setup logger for authentication events"""
-        log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+        log_dir = os.environ.get('LOG_DIR', os.path.join(os.getcwd(), 'logs'))
         os.makedirs(log_dir, exist_ok=True)
         
         # Create logger
@@ -235,7 +235,7 @@ def create_config_template():
         "access_token": "",
         "token_expires_at": ""
     }
-    config_dir = "/home/abhishek/projects/CUPCAKE/authentication"
+    config_dir = os.environ.get('CONFIG_DIR', os.path.join(os.getcwd(), 'authentication'))
     os.makedirs(config_dir, exist_ok=True)
     config_file = os.path.join(config_dir, "credentials.json")
     
@@ -264,7 +264,7 @@ def main():
         print("❌ Configuration file not found")
         create_config_template()
         # Create a temporary logger for this error
-        log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+        log_dir = os.environ.get('LOG_DIR', os.path.join(os.getcwd(), 'logs'))
         os.makedirs(log_dir, exist_ok=True)
         logger = logging.getLogger('upstox_auth_error')
         handler = logging.FileHandler(os.path.join(log_dir, 'upstox_auth.log'))
@@ -276,7 +276,7 @@ def main():
     except Exception as e:
         print(f"❌ Error: {e}")
         # Create a temporary logger for this error
-        log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+        log_dir = os.environ.get('LOG_DIR', os.path.join(os.getcwd(), 'logs'))
         os.makedirs(log_dir, exist_ok=True)
         logger = logging.getLogger('upstox_auth_error')
         handler = logging.FileHandler(os.path.join(log_dir, 'upstox_auth.log'))

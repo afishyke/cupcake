@@ -613,7 +613,9 @@ if __name__ == "__main__":
     try:
         # Run the Flask-SocketIO server
         # use_reloader=False is important to prevent the tracking threads from starting twice
-        socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+        app_host = os.environ.get('APP_HOST', '0.0.0.0')
+        app_port = int(os.environ.get('APP_PORT', '5000'))
+        socketio.run(app, host=app_host, port=app_port, debug=True, use_reloader=False)
         
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received. Shutting down...")
