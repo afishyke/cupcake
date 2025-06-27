@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from technical_indicators import EnhancedTechnicalIndicators
+from practical_quant_engine import PracticalQuantEngine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -98,6 +99,8 @@ CURRENCY_IMPACT = {
 
 class TrajectorySignalGenerator:
     def __init__(self, redis_host=None, redis_port=None, redis_db=0):
+        # Initialize quantitative engine
+        self.quant_engine = PracticalQuantEngine()
         """Initialize enhanced signal generator with Indian market optimizations"""
         # Use environment variables if not provided
         if redis_host is None:
@@ -480,6 +483,12 @@ class TrajectorySignalGenerator:
                     reasons.append("Orderbook shows buying pressure")
                     confidence_factors.append(0.1)
             
+            # ENHANCED: Add quantitative analysis
+            quant_analysis = self._get_quantitative_analysis(symbol, current_price)
+            if quant_analysis:
+                total_confidence += quant_analysis['confidence_boost']
+                reasons.extend(quant_analysis['reasons'])
+            
             # Check if we have enough confirmation
             total_confidence = sum(confidence_factors)
             
@@ -487,16 +496,12 @@ class TrajectorySignalGenerator:
             min_confidence = 0.6 if market_regime == MarketRegime.RANGING else 0.65
             
             if trajectory_confirmed and total_confidence >= min_confidence and len(reasons) >= 3:
-                # Calculate targets and stop loss with Indian market parameters
-                atr = technical_indicators.get('atr', current_price * 0.02)
+                # ENHANCED: Use statistical stop loss calculation
+                stop_analysis = self._calculate_advanced_stop_loss(symbol)
+                target_analysis = self._calculate_statistical_target(symbol, current_price, momentum_strength)
                 
-                # Adjust target and stop for Indian market volatility
-                volatility_adj = self.calculate_indian_volatility_adjustment(1.0)
-                target_multiplier = 0.03 + (momentum_strength * 0.02) * volatility_adj
-                stop_multiplier = 0.015 * volatility_adj
-                
-                target_price = current_price * (1 + target_multiplier)
-                stop_loss = current_price * (1 - stop_multiplier)
+                target_price = target_analysis['target_price']
+                stop_loss = stop_analysis['stop_loss']
                 risk_reward = (target_price - current_price) / (current_price - stop_loss)
                 
                 # Determine signal strength
@@ -923,6 +928,244 @@ class TrajectorySignalGenerator:
             'best_sell': max(sell_signals, key=lambda x: x.confidence) if sell_signals else None,
             'timestamp': datetime.now(self.ist_timezone).isoformat()
         }
+
+    # ENHANCED QUANTITATIVE METHODS
+    def _get_quantitative_analysis(self, symbol, current_price):
+        """Get advanced quantitative analysis for signal enhancement"""
+        try:
+            # Get historical data for quantitative analysis
+            df = self._get_symbol_dataframe(symbol)
+            if df is None or len(df) < 50:
+                return None
+            
+            # Run comprehensive quantitative analysis
+            quant_score = self.quant_engine.calculate_comprehensive_score(df)
+            
+            confidence_boost = 0
+            reasons = []
+            
+            # Add confidence based on quantitative score
+            if quant_score['final_score'] > 0.7:
+                confidence_boost = 0.15
+                reasons.append(f"Strong quantitative score ({quant_score['final_score']:.2f})")
+            elif quant_score['final_score'] > 0.6:
+                confidence_boost = 0.10
+                reasons.append(f"Good quantitative score ({quant_score['final_score']:.2f})")
+            elif quant_score['final_score'] < 0.3:
+                confidence_boost = -0.20  # Negative boost for poor scores
+                reasons.append(f"Poor quantitative score ({quant_score['final_score']:.2f})")
+            
+            # Add specific quantitative insights
+            components = quant_score['component_scores']
+            
+            if components.get('momentum', 0) > 0.7:
+                confidence_boost += 0.05
+                reasons.append("Strong statistical momentum")
+            
+            if components.get('volatility', 0) > 0.6:
+                confidence_boost += 0.05
+                reasons.append("Favorable volatility regime")
+            
+            if components.get('mean_reversion', 0) > 0.7:
+                reasons.append("High mean reversion probability")
+            
+            return {
+                'confidence_boost': confidence_boost,
+                'reasons': reasons,
+                'quant_score': quant_score['final_score'],
+                'recommendation': quant_score['recommendation']
+            }
+            
+        except Exception as e:
+            logger.warning(f"Quantitative analysis failed for {symbol}: {e}")
+            return None
+    
+    def _calculate_advanced_stop_loss(self, symbol):
+        """Calculate statistically-based stop loss"""
+        try:
+            df = self._get_symbol_dataframe(symbol)
+            if df is None:
+                return {'stop_loss': df['close'].iloc[-1] * 0.97}
+            
+            stop_analysis = self.quant_engine.calculate_statistical_stop_loss(df)
+            
+            return {
+                'stop_loss': stop_analysis['stop_loss'],
+                'stop_loss_pct': stop_analysis['stop_loss_pct'],
+                'method': stop_analysis['method'],
+                'confidence_level': stop_analysis.get('confidence_level', 0.95)
+            }
+            
+        except Exception as e:
+            logger.warning(f"Advanced stop loss calculation failed for {symbol}: {e}")
+            # Fallback to simple calculation
+            return {'stop_loss': current_price * 0.97}
+    
+    def _calculate_statistical_target(self, symbol, current_price, momentum_strength):
+        """Calculate statistically-based target price"""
+        try:
+            df = self._get_symbol_dataframe(symbol)
+            if df is None:
+                return {'target_price': current_price * 1.05}
+            
+            # Support/Resistance analysis
+            sr_analysis = self.quant_engine.calculate_support_resistance_strength(df)
+            
+            # Use resistance as target if available and reasonable
+            if sr_analysis['resistance'] > current_price and sr_analysis['resistance'] < current_price * 1.15:
+                target_price = sr_analysis['resistance'] * 0.98  # Slightly below resistance
+            else:
+                # Use momentum-based target
+                momentum_multiplier = 0.03 + (momentum_strength * 0.02)
+                target_price = current_price * (1 + momentum_multiplier)
+            
+            return {
+                'target_price': target_price,
+                'method': 'statistical_resistance' if sr_analysis['resistance'] > current_price else 'momentum_based',
+                'resistance_level': sr_analysis['resistance'],
+                'resistance_strength': sr_analysis['resistance_strength']
+            }
+            
+        except Exception as e:
+            logger.warning(f"Statistical target calculation failed for {symbol}: {e}")
+            return {'target_price': current_price * 1.05}
+    
+    def _get_symbol_dataframe(self, symbol):
+        """Get historical data as DataFrame for quantitative analysis"""
+        try:
+            # Try to get data from Redis
+            symbol_clean = symbol.replace(' ', '_').replace('&', 'and')
+            
+            # Get recent data points
+            timestamps = []
+            prices = []
+            volumes = []
+            highs = []
+            lows = []
+            
+            # Reconstruct OHLCV data from stored time series
+            # This is a simplified version - you might need to adapt based on your Redis structure
+            for i in range(100):  # Get last 100 data points
+                try:
+                    timestamp = datetime.now() - timedelta(minutes=i)
+                    price_key = f"ts:{symbol_clean}:close"
+                    volume_key = f"ts:{symbol_clean}:volume"
+                    high_key = f"ts:{symbol_clean}:high"
+                    low_key = f"ts:{symbol_clean}:low"
+                    
+                    # This is pseudocode - adapt based on your actual Redis TS structure
+                    price = self.redis_client.ts().get(price_key, timestamp.timestamp() * 1000)
+                    if price:
+                        timestamps.append(timestamp)
+                        prices.append(price[1])
+                        # Similar for volume, high, low
+                except:
+                    continue
+            
+            if len(prices) < 20:
+                return None
+            
+            # Create DataFrame
+            df = pd.DataFrame({
+                'timestamp': timestamps,
+                'close': prices,
+                'volume': volumes,
+                'high': highs,
+                'low': lows,
+                'open': prices  # Simplified - use close as open
+            })
+            
+            df.set_index('timestamp', inplace=True)
+            df.sort_index(inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            logger.warning(f"Could not create DataFrame for {symbol}: {e}")
+            return None
+    
+    def get_enhanced_signal_with_quant_analysis(self, symbol: str, current_market_data: Dict, 
+                                               technical_indicators: Dict, orderbook_analysis: Dict) -> Dict:
+        """Generate enhanced signal with comprehensive quantitative analysis"""
+        try:
+            # Get traditional signals
+            traditional_signals = self.generate_actionable_signals(symbol, current_market_data, technical_indicators, orderbook_analysis)
+            
+            # Get quantitative analysis
+            df = self._get_symbol_dataframe(symbol)
+            if df is not None:
+                quant_analysis = self.quant_engine.calculate_comprehensive_score(df)
+                trading_plan = self.quant_engine.generate_trading_plan(df, portfolio_value=1000000)
+                
+                # Combine traditional and quantitative insights
+                combined_analysis = {
+                    'symbol': symbol,
+                    'traditional_signals': [
+                        {
+                            'type': s.signal_type,
+                            'confidence': s.confidence,
+                            'strength': s.strength.name,
+                            'reasons': s.reasons,
+                            'risk_reward': s.risk_reward_ratio
+                        } for s in traditional_signals
+                    ],
+                    'quantitative_analysis': {
+                        'overall_score': quant_analysis['final_score'],
+                        'recommendation': quant_analysis['recommendation'],
+                        'component_scores': quant_analysis['component_scores'],
+                        'detailed_analysis': {
+                            key: value for key, value in quant_analysis['detailed_analysis'].items()
+                            if key in ['momentum', 'volatility_regime', 'risk_reward_ratio']
+                        }
+                    },
+                    'trading_plan': trading_plan['trading_plan'] if trading_plan['trading_plan'].get('action') in ['BUY', 'STRONG_BUY'] else None,
+                    'market_conditions': trading_plan['market_conditions'],
+                    'final_recommendation': self._combine_recommendations(traditional_signals, quant_analysis),
+                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat()
+                }
+                
+                return combined_analysis
+            else:
+                # Fallback to traditional analysis only
+                return {
+                    'symbol': symbol,
+                    'traditional_signals': [
+                        {
+                            'type': s.signal_type,
+                            'confidence': s.confidence,
+                            'strength': s.strength.name,
+                            'reasons': s.reasons,
+                            'risk_reward': s.risk_reward_ratio
+                        } for s in traditional_signals
+                    ],
+                    'quantitative_analysis': None,
+                    'final_recommendation': traditional_signals[0].signal_type if traditional_signals else 'HOLD',
+                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat()
+                }
+                
+        except Exception as e:
+            logger.error(f"Enhanced signal analysis failed for {symbol}: {e}")
+            return {'symbol': symbol, 'error': str(e)}
+    
+    def _combine_recommendations(self, traditional_signals, quant_analysis):
+        """Combine traditional and quantitative recommendations"""
+        if not traditional_signals:
+            return quant_analysis['recommendation']
+        
+        traditional_rec = traditional_signals[0].signal_type
+        quant_rec = quant_analysis['recommendation']
+        
+        # Agreement matrix
+        if traditional_rec == 'BUY' and quant_rec in ['BUY', 'STRONG_BUY']:
+            return 'STRONG_BUY'
+        elif traditional_rec == 'SELL' and quant_rec in ['SELL', 'STRONG_SELL']:
+            return 'STRONG_SELL'
+        elif traditional_rec in ['BUY', 'SELL'] and quant_rec == 'HOLD':
+            return traditional_rec
+        elif quant_rec in ['STRONG_BUY', 'STRONG_SELL']:
+            return quant_rec
+        else:
+            return 'HOLD'
 
 # Example usage and testing
 if __name__ == "__main__":

@@ -12,6 +12,8 @@ aiohttp          # Used in historical fetcher for async requests
 # Data Handling and Numerical Analysis
 numpy
 pandas
+scipy            # For statistical analysis and optimization
+scikit-learn     # For machine learning models
 pytz             # For timezone handling (IST)
 
 # Upstox API and Protocol Buffers

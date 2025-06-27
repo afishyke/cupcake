@@ -3,11 +3,18 @@ import sys
 import threading
 import asyncio
 import argparse
+import json
+import logging
 import pandas as pd
+import numpy as np
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from datetime import datetime, timedelta
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Fix working directory and path issues
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -806,6 +813,254 @@ def api_chart_test():
         
         return jsonify(test_results)
         
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+# --- Enhanced Quantitative Analysis API Routes ---
+@app.route('/api/quant/analyze/<symbol_name>')
+def api_quantitative_analysis(symbol_name):
+    """Advanced quantitative analysis for a specific symbol"""
+    try:
+        # Get current market data (simplified for demo)
+        current_market_data = {
+            'ltp': 2750.50,  # This should come from live feed
+            'ltq': 125,
+            'best_bid': 2750.25,
+            'best_ask': 2750.75
+        }
+        
+        # Get technical indicators (simplified for demo)
+        technical_indicators = {
+            'rsi': 45,
+            'macd': {'macd': 0.5, 'signal': 0.3},
+            'sma': {'sma_5': 2751.2, 'sma_20': 2748.8},
+            'volume': {'volume_ratio': 1.3},
+            'adx': 22
+        }
+        
+        # Initialize enhanced signal generator with quantitative engine
+        try:
+            from enhanced_signal_generator import TrajectorySignalGenerator
+            signal_generator = TrajectorySignalGenerator()
+            
+            # Get enhanced analysis
+            enhanced_analysis = signal_generator.get_enhanced_signal_with_quant_analysis(
+                symbol_name, current_market_data, technical_indicators, {}
+            )
+            
+            return jsonify(enhanced_analysis)
+            
+        except ImportError as e:
+            return jsonify({'error': f'Enhanced signal generator not available: {e}'})
+            
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/api/quant/batch_analyze', methods=['POST'])
+def api_batch_quantitative_analysis():
+    """Batch quantitative analysis for multiple symbols"""
+    try:
+        data = request.get_json()
+        symbols = data.get('symbols', [])
+        
+        if not symbols:
+            return jsonify({'error': 'No symbols provided'})
+        
+        try:
+            from enhanced_signal_generator import TrajectorySignalGenerator
+            signal_generator = TrajectorySignalGenerator()
+            
+            results = {}
+            
+            for symbol in symbols[:10]:  # Limit to 10 symbols to prevent overload
+                try:
+                    # Simplified market data - in production, get from live feed
+                    current_market_data = {
+                        'ltp': 100.0,  # Placeholder
+                        'ltq': 100,
+                        'best_bid': 99.95,
+                        'best_ask': 100.05
+                    }
+                    
+                    technical_indicators = {
+                        'rsi': 50,
+                        'macd': {'macd': 0.0, 'signal': 0.0},
+                        'sma': {'sma_5': 100.1, 'sma_20': 99.9},
+                        'volume': {'volume_ratio': 1.0},
+                        'adx': 20
+                    }
+                    
+                    analysis = signal_generator.get_enhanced_signal_with_quant_analysis(
+                        symbol, current_market_data, technical_indicators, {}
+                    )
+                    
+                    results[symbol] = analysis
+                    
+                except Exception as e:
+                    results[symbol] = {'error': str(e)}
+            
+            return jsonify({
+                'results': results,
+                'symbols_analyzed': len(results),
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        except ImportError as e:
+            return jsonify({'error': f'Enhanced signal generator not available: {e}'})
+            
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/api/quant/ranking')
+def api_quantitative_ranking():
+    """Get quantitative ranking of all available symbols"""
+    try:
+        if not historical_viewer:
+            return jsonify({'error': 'Historical viewer not available'})
+        
+        # Get available symbols
+        symbols_data = historical_viewer.get_symbols_summary()
+        
+        if not symbols_data:
+            return jsonify({'error': 'No symbols data available'})
+        
+        try:
+            from enhanced_signal_generator import TrajectorySignalGenerator
+            from practical_quant_engine import PracticalQuantEngine
+            
+            signal_generator = TrajectorySignalGenerator()
+            quant_engine = PracticalQuantEngine()
+            
+            rankings = []
+            
+            for symbol_info in symbols_data[:20]:  # Limit to top 20 for performance
+                symbol_name = symbol_info.get('display_name')
+                
+                try:
+                    # Get historical data
+                    symbol_data = historical_viewer.get_symbol_complete_data(symbol_name)
+                    if symbol_data and not symbol_data['dataframe'].empty:
+                        df = symbol_data['dataframe']
+                        
+                        # Run quantitative analysis
+                        quant_score = quant_engine.calculate_comprehensive_score(df)
+                        
+                        # Get advanced metrics
+                        risk_metrics = quant_engine.calculate_advanced_risk_metrics(df)
+                        momentum_analysis = quant_engine.calculate_advanced_momentum_score(df)
+                        vol_regime = quant_engine.calculate_volatility_regime(df)
+                        
+                        rankings.append({
+                            'symbol': symbol_name,
+                            'quant_score': quant_score['final_score'],
+                            'recommendation': quant_score['recommendation'],
+                            'momentum_strength': momentum_analysis['momentum_strength'],
+                            'volatility_regime': vol_regime['regime'],
+                            'sharpe_ratio': risk_metrics['sharpe_ratio'],
+                            'max_drawdown': risk_metrics['max_drawdown'],
+                            'current_price': df['close'].iloc[-1] if len(df) > 0 else 0,
+                            'data_points': len(df)
+                        })
+                        
+                except Exception as e:
+                    print(f"Error analyzing {symbol_name}: {e}")
+                    continue
+            
+            # Sort by quantitative score
+            rankings.sort(key=lambda x: x['quant_score'], reverse=True)
+            
+            return jsonify({
+                'rankings': rankings,
+                'total_symbols': len(rankings),
+                'analysis_timestamp': datetime.now().isoformat(),
+                'methodology': 'Comprehensive quantitative scoring using momentum, volatility, risk metrics, and statistical analysis'
+            })
+            
+        except ImportError as e:
+            return jsonify({'error': f'Quantitative engine not available: {e}'})
+            
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/api/quant/portfolio_optimizer', methods=['POST'])
+def api_portfolio_optimizer():
+    """Portfolio optimization using quantitative methods"""
+    try:
+        data = request.get_json()
+        symbols = data.get('symbols', [])
+        portfolio_value = data.get('portfolio_value', 1000000)
+        risk_tolerance = data.get('risk_tolerance', 0.15)
+        
+        if not symbols:
+            return jsonify({'error': 'No symbols provided'})
+        
+        try:
+            from practical_quant_engine import PracticalQuantEngine
+            quant_engine = PracticalQuantEngine()
+            
+            # Get returns data for optimization
+            returns_data = {}
+            
+            for symbol in symbols:
+                try:
+                    if historical_viewer:
+                        symbol_data = historical_viewer.get_symbol_complete_data(symbol)
+                        if symbol_data and not symbol_data['dataframe'].empty:
+                            df = symbol_data['dataframe']
+                            returns = df['close'].pct_change().dropna()
+                            returns_data[symbol] = returns
+                except:
+                    continue
+            
+            if len(returns_data) < 2:
+                return jsonify({'error': 'Insufficient data for portfolio optimization'})
+            
+            # Align all returns data
+            returns_df = pd.DataFrame(returns_data).fillna(0)
+            
+            # Optimize portfolio
+            optimal_weights = quant_engine.optimize_portfolio_allocation(
+                returns_df, risk_tolerance=risk_tolerance
+            )
+            
+            # Calculate portfolio metrics
+            portfolio_return = sum(optimal_weights[symbol] * returns_df[symbol].mean() * 252 
+                                 for symbol in optimal_weights)
+            portfolio_vol = np.sqrt(252) * np.sqrt(
+                sum(optimal_weights[symbol] * optimal_weights[other] * 
+                    returns_df[symbol].cov(returns_df[other])
+                    for symbol in optimal_weights for other in optimal_weights)
+            )
+            
+            sharpe_ratio = (portfolio_return - 0.07) / portfolio_vol if portfolio_vol > 0 else 0
+            
+            # Position sizing
+            positions = {}
+            for symbol, weight in optimal_weights.items():
+                position_value = portfolio_value * weight
+                positions[symbol] = {
+                    'weight': weight,
+                    'value': position_value,
+                    'percentage': weight * 100
+                }
+            
+            return jsonify({
+                'optimal_portfolio': positions,
+                'portfolio_metrics': {
+                    'expected_annual_return': portfolio_return,
+                    'annual_volatility': portfolio_vol,
+                    'sharpe_ratio': sharpe_ratio,
+                    'portfolio_value': portfolio_value
+                },
+                'optimization_method': 'Modern Portfolio Theory',
+                'risk_tolerance': risk_tolerance,
+                'symbols_count': len(optimal_weights),
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        except ImportError as e:
+            return jsonify({'error': f'Portfolio optimizer not available: {e}'})
+            
     except Exception as e:
         return jsonify({'error': str(e)})
 
