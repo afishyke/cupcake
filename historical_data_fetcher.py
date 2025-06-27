@@ -317,10 +317,10 @@ class HistoricalDataFetcher:
         # Handle both old and new initialization patterns
         if config:
             self.config = config
-            credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+            credentials_path = "/home/abhishek/projects/cupcake/credentials.json"
             symbols_path = os.path.join(os.path.dirname(__file__), "symbols.json")
         
-        self.credentials_path = credentials_path or "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+        self.credentials_path = credentials_path or "/home/abhishek/projects/cupcake/credentials.json"
         self.symbols_path = symbols_path or os.path.join(os.path.dirname(__file__), "symbols.json")
         
         # Initialize the ultra-fast fetcher
@@ -562,7 +562,7 @@ def main():
     print("=" * 60)
     
     # Paths
-    credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+    credentials_path = "/home/abhishek/projects/cupcake/credentials.json"
     symbols_path = os.path.join(SCRIPT_DIR, "symbols.json")
     
     try:

@@ -21,6 +21,7 @@ import numpy as np
 
 # Import modules with proper error handling
 try:
+    from historical_data_fetcher import FastUpstoxAPI, Candle
     from technical_indicators import EnhancedTechnicalIndicators
     from orderbook_analyzer import OrderBookAnalyzer
     print("✓ Successfully imported technical indicators and orderbook analyzer")
@@ -194,7 +195,7 @@ def load_symbols():
         return []
 
 def save_minute_ohlcv_to_redis(instrument_key, ohlcv_record):
-    """Save completed minute OHLCV data to Redis TimeSeries"""
+    """Save completed minute OHLCV data to Redis TimeSeries and update cache"""
     if not redis_client:
         return
         
@@ -238,42 +239,324 @@ def save_minute_ohlcv_to_redis(instrument_key, ohlcv_record):
                 debug_log(f"Error adding {data_type} for {symbol_name}: {e}", "ERROR")
 
         debug_log(f"💾 Saved OHLCV to Redis: {symbol_name} at {ohlcv_record['last_tick_time']}", "REDIS")
+        
+        # Update the rolling window cache in technical indicators
+        tech_indicators.update_cache_with_new_candle(
+            symbol_name, 
+            ohlcv_record['last_tick_time'], 
+            data_points
+        )
+        debug_log(f"Updated rolling window cache for {symbol_name}", "CACHE")
 
     except Exception as e:
         debug_log(f"Error saving to Redis for {instrument_key}: {e}", "ERROR")
 
+# Add these new routes to your enhanced_live_fetcher.py file
+
+# --- Enhanced Flask routes for Chart Support ---
+@app.route('/api/live/symbols')
+def api_live_symbols():
+    """API endpoint for currently tracked live symbols"""
+    try:
+        symbols = []
+        for instrument_key, data in market_data.items():
+            if data['ltp'] is not None:
+                symbols.append({
+                    'symbol': data['name'],
+                    'symbol_clean': data['name'].replace(' ', '_').replace('&', 'and'),
+                    'instrument_key': instrument_key,
+                    'latest_price': data['ltp'],
+                    'data_points': data.get('tick_count', 0),
+                    'return_pct': 0.0,  # Could calculate from first tick
+                    'last_update': data.get('last_update').isoformat() if data.get('last_update') else None
+                })
+        
+        return jsonify(symbols)
+    except Exception as e:
+        debug_log(f"Error in api_live_symbols: {e}", "ERROR")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/live/chart_data/<symbol_name>')
+def api_live_chart_data(symbol_name):
+    """API endpoint for live chart data from Redis TimeSeries"""
+    try:
+        if not redis_client:
+            return jsonify({'error': 'Redis not available'})
+        
+        # Clean symbol name to match Redis keys
+        symbol_clean = symbol_name.replace(' ', '_').replace('&', 'and')
+        
+        # Get query parameters
+        timeframe = request.args.get('timeframe', '1h')
+        limit = min(int(request.args.get('limit', 100)), 500)
+        
+        # Calculate time range
+        end_time = int(time.time() * 1000)
+        
+        # Determine how far back to look based on timeframe and limit
+        if timeframe == '1h':
+            start_time = end_time - (limit * 60 * 60 * 1000)  # Hours back
+        elif timeframe == '4h':
+            start_time = end_time - (limit * 4 * 60 * 60 * 1000)  # 4-hour periods back
+        elif timeframe == '1d':
+            start_time = end_time - (limit * 24 * 60 * 60 * 1000)  # Days back
+        else:
+            start_time = end_time - (limit * 60 * 1000)  # Minutes back (default)
+        
+        # Fetch OHLCV data from Redis
+        candles_data = {}
+        for data_type in ['open', 'high', 'low', 'close', 'volume']:
+            key = f"stock:{symbol_clean}:{data_type}"
+            try:
+                result = redis_client.execute_command('TS.RANGE', key, start_time, end_time)
+                if result:
+                    candles_data[data_type] = result
+            except Exception as e:
+                debug_log(f"Error fetching {data_type} for {symbol_name}: {e}", "ERROR")
+        
+        if not candles_data.get('close'):
+            return jsonify({'error': f'No data found for {symbol_name}'})
+        
+        # Process data into OHLCV format
+        close_data = candles_data['close']
+        candles = []
+        
+        # Group data by timeframe if needed
+        if timeframe in ['1h', '4h', '1d']:
+            candles = aggregate_to_timeframe(candles_data, timeframe)
+        else:
+            # Use minute data as-is
+            for i, (timestamp, close_price) in enumerate(close_data[-limit:]):
+                candle = {
+                    'x': datetime.fromtimestamp(timestamp/1000, tz=IST).isoformat(),
+                    'c': float(close_price)
+                }
+                
+                # Add OHLV if available
+                if candles_data.get('open') and i < len(candles_data['open']):
+                    candle['o'] = float(candles_data['open'][i][1])
+                if candles_data.get('high') and i < len(candles_data['high']):
+                    candle['h'] = float(candles_data['high'][i][1])
+                if candles_data.get('low') and i < len(candles_data['low']):
+                    candle['l'] = float(candles_data['low'][i][1])
+                if candles_data.get('volume') and i < len(candles_data['volume']):
+                    candle['v'] = int(candles_data['volume'][i][1])
+                
+                candles.append(candle)
+        
+        if not candles:
+            return jsonify({'error': f'No processable data for {symbol_name}'})
+        
+        # Calculate statistics
+        latest_price = candles[-1]['c']
+        first_price = candles[0].get('c', latest_price)
+        price_change = latest_price - first_price
+        price_change_pct = (price_change / first_price * 100) if first_price > 0 else 0
+        
+        # Get high/low from candles
+        all_prices = [c['c'] for c in candles]
+        high_24h = max(all_prices)
+        low_24h = min(all_prices)
+        
+        # Calculate volume
+        volume_24h = sum(c.get('v', 0) for c in candles)
+        
+        return jsonify({
+            'symbol': symbol_name,
+            'timeframe': timeframe,
+            'candles': candles,
+            'stats': {
+                'latest_price': latest_price,
+                'price_change': price_change,
+                'price_change_pct': price_change_pct,
+                'volume_24h': volume_24h,
+                'high_24h': high_24h,
+                'low_24h': low_24h,
+                'data_points': len(candles)
+            },
+            'data_range': {
+                'start': candles[0]['x'],
+                'end': candles[-1]['x']
+            },
+            'source': 'live_redis_timeseries'
+        })
+        
+    except Exception as e:
+        debug_log(f"Error in api_live_chart_data for {symbol_name}: {e}", "ERROR")
+        return jsonify({'error': str(e)})
+
+def aggregate_to_timeframe(candles_data, timeframe):
+    """Aggregate minute data to specified timeframe"""
+    try:
+        import pandas as pd
+        from collections import defaultdict
+        
+        # Convert to DataFrame for easier aggregation
+        close_data = candles_data.get('close', [])
+        if not close_data:
+            return []
+        
+        # Create base DataFrame
+        df_data = []
+        for timestamp, close_price in close_data:
+            dt = datetime.fromtimestamp(timestamp/1000, tz=IST)
+            df_data.append({
+                'timestamp': dt,
+                'close': float(close_price),
+                'open': float(close_price),  # Default values
+                'high': float(close_price),
+                'low': float(close_price),
+                'volume': 0
+            })
+        
+        # Add other OHLCV data if available
+        for data_type in ['open', 'high', 'low', 'volume']:
+            if candles_data.get(data_type):
+                for i, (timestamp, value) in enumerate(candles_data[data_type]):
+                    if i < len(df_data):
+                        df_data[i][data_type] = float(value) if data_type != 'volume' else int(value)
+        
+        df = pd.DataFrame(df_data)
+        df.set_index('timestamp', inplace=True)
+        
+        # Resample based on timeframe
+        freq_map = {'1h': '1H', '4h': '4H', '1d': '1D'}
+        freq = freq_map.get(timeframe, '1H')
+        
+        df_resampled = df.resample(freq).agg({
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum'
+        }).dropna()
+        
+        # Convert back to candles format
+        candles = []
+        for timestamp, row in df_resampled.iterrows():
+            candles.append({
+                'x': timestamp.isoformat(),
+                'o': float(row['open']),
+                'h': float(row['high']),
+                'l': float(row['low']),
+                'c': float(row['close']),
+                'v': int(row['volume'])
+            })
+        
+        return candles
+        
+    except Exception as e:
+        debug_log(f"Error aggregating to timeframe {timeframe}: {e}", "ERROR")
+        return []
+
+# Add this route to provide real-time market status
+@app.route('/api/live/market_status')
+def api_live_market_status():
+    """Enhanced market status with live data statistics"""
+    try:
+        # Get basic market status
+        import pytz
+        ist = pytz.timezone('Asia/Kolkata')
+        now = datetime.now(ist)
+        
+        # Market hours: 9:15 AM to 3:30 PM IST, Monday to Friday
+        market_open_time = now.replace(hour=9, minute=15, second=0, microsecond=0)
+        market_close_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
+        
+        is_weekday = now.weekday() < 5
+        is_market_hours = market_open_time <= now <= market_close_time
+        is_market_open = is_weekday and is_market_hours
+        
+        # Calculate live data statistics
+        active_symbols = len([k for k, v in market_data.items() if v['ltp'] is not None])
+        total_ticks = debug_stats['processed_ticks']
+        signals_generated = debug_stats['actionable_signals_generated']
+        
+        # Time until market open/close
+        if is_market_open:
+            time_until_close = market_close_time - now
+            status_message = f"Market closes in {time_until_close}"
+        elif is_weekday and now < market_open_time:
+            time_until_open = market_open_time - now
+            status_message = f"Market opens in {time_until_open}"
+        else:
+            status_message = "Market closed"
+        
+        return jsonify({
+            'is_open': is_market_open,
+            'current_time': now.isoformat(),
+            'market_open': market_open_time.isoformat(),
+            'market_close': market_close_time.isoformat(),
+            'status_message': status_message,
+            'is_weekend': not is_weekday,
+            'live_stats': {
+                'active_symbols': active_symbols,
+                'total_ticks_processed': total_ticks,
+                'signals_generated': signals_generated,
+                'last_update': debug_stats.get('last_message_time').isoformat() if debug_stats.get('last_message_time') else None
+            }
+        })
+        
+    except Exception as e:
+        debug_log(f"Error in api_live_market_status: {e}", "ERROR")
+        return jsonify({'error': str(e)})
+
+def calculate_position_size(signal_confidence: float, portfolio_risk: float = 0.02) -> float:
+    """Simple Kelly-inspired position sizing"""
+    base_size = portfolio_risk  # 2% portfolio risk
+    confidence_multiplier = min(signal_confidence * 2, 1.0)  # Max 1.0
+    return base_size * confidence_multiplier
+
 def generate_actionable_signals(symbol_name, instrument_key, current_market_data):
     """Generate actionable trading signals with trajectory confirmation"""
     try:
-        # Get orderbook analysis
+        # Existing orderbook analysis...
         orderbook_analysis = orderbook_analyzer.comprehensive_orderbook_analysis(
             symbol_name, current_market_data
         )
         
-        # Generate actionable signals
+        # ADD: Simple market context check
+        recent_signals = market_data[instrument_key].get('actionable_signals', [])
+        if len(recent_signals) >= 3 and any(s.get('confidence', 0) > 0.7 for s in recent_signals):  # If too many recent high-confidence signals, skip
+            debug_log(f"Skipping signal generation for {symbol_name} due to too many recent high-confidence signals.", "INFO")
+            return []
+            
+        # Existing signal generation...
         actionable_signals = tech_indicators.generate_actionable_signals(
             symbol_name, current_market_data, orderbook_analysis
         )
         
-        if actionable_signals:
-            debug_stats['actionable_signals_generated'] += len(actionable_signals)
+        # ADD: Simple quality filter
+        filtered_signals = [s for s in actionable_signals 
+                          if s.get('confidence', 0) > 0.7 and 
+                             s.get('risk_reward_ratio', 0) > 2.0]
+
+        if filtered_signals:
+            debug_stats['actionable_signals_generated'] += len(filtered_signals)
             
             # Convert signals to dictionary format for JSON serialization
             serialized_signals = []
-            for signal in actionable_signals:
+            for signal in filtered_signals:
+                # Calculate position size for each signal
+                signal['position_size_pct'] = calculate_position_size(signal.get('confidence', 0))
+                signal['market_regime'] = tech_indicators.get_market_regime(symbol_name)
+
                 if hasattr(signal, 'trajectory_confirmed'):  # Check if it's an ActionableSignal object
                     serialized_signals.append({
-                        'signal_type': signal.signal_type,
-                        'strength': signal.strength.name if hasattr(signal.strength, 'name') else str(signal.strength),
-                        'confidence': signal.confidence,
-                        'entry_price': signal.entry_price,
-                        'target_price': signal.target_price,
-                        'stop_loss': signal.stop_loss,
-                        'trajectory_confirmed': signal.trajectory_confirmed,
-                        'time_horizon': signal.time_horizon,
-                        'reasons': signal.reasons,
-                        'risk_reward_ratio': signal.risk_reward_ratio,
-                        'timestamp': signal.timestamp.isoformat()
+                        'signal_type': signal.get('signal_type'),
+                        'strength': signal.get('strength').name if hasattr(signal.get('strength'), 'name') else str(signal.get('strength')),
+                        'confidence': signal.get('confidence'),
+                        'entry_price': signal.get('entry_price'),
+                        'target_price': signal.get('target_price'),
+                        'stop_loss': signal.get('stop_loss'),
+                        'trajectory_confirmed': signal.get('trajectory_confirmed'),
+                        'time_horizon': signal.get('time_horizon'),
+                        'reasons': signal.get('reasons'),
+                        'risk_reward_ratio': signal.get('risk_reward_ratio'),
+                        'timestamp': signal.get('timestamp'),
+                        'signal_quality_score': signal.get('signal_quality_score'),
+                        'market_regime': signal.get('market_regime'),
+                        'position_size_pct': signal.get('position_size_pct')
                     })
                 else:
                     # Handle dictionary format
@@ -751,6 +1034,77 @@ def api_enhanced_debug_stats():
         'trajectory_confirmation_rate': f"{(debug_stats['trajectory_confirmations'] / max(debug_stats['actionable_signals_generated'], 1) * 100):.1f}%"
     })
 
+async def backfill_missing_candles(instrument_keys: list, api_client: FastUpstoxAPI):
+    """Checks for data gaps and backfills them before starting live feed."""
+    print("🔍 Checking for any data gaps before starting live feed...")
+    
+    for instrument_key in instrument_keys:
+        try:
+            symbol_name = symbol_mapping.get(instrument_key, instrument_key)
+            symbol_clean = symbol_name.replace(' ', '_').replace('&', 'and')
+            redis_key = f"stock:{symbol_clean}:close"
+
+            if not redis_client or not redis_client.exists(redis_key):
+                print(f"⚪ No historical data for {symbol_name}, skipping gap fill.")
+                continue
+
+            # Get the last timestamp from Redis
+            last_entry = redis_client.execute_command('TS.GET', redis_key)
+            if not last_entry:
+                continue
+                
+            last_ts_ms, _ = last_entry
+            last_ts = datetime.fromtimestamp(last_ts_ms / 1000, tz=IST)
+            
+            # Check if the gap is significant
+            time_gap = datetime.now(IST) - last_ts
+            if time_gap > timedelta(minutes=2):
+                print(f"🟡 Data gap found for {symbol_name}. Last data: {last_ts}. Gap: {time_gap}")
+                
+                # Fetch recent historical data to fill the gap
+                days_to_fetch = max(1, (time_gap.days) + 1)
+                print(f"   Fetching last {days_to_fetch} day(s) of data to fill gap...")
+                
+                historical_candles = await asyncio.to_thread(
+                    api_client.get_historical_data,
+                    instrument_key=instrument_key,
+                    days_back=days_to_fetch
+                )
+                
+                if not historical_candles:
+                    print(f"   ❌ Could not fetch historical data for {symbol_name}.")
+                    continue
+                    
+                # Filter for only the missing candles
+                missing_candles = [
+                    candle for candle in historical_candles if candle.timestamp > last_ts
+                ]
+                
+                if not missing_candles:
+                    print(f"   ✅ No new candles found. Data is up to date.")
+                    continue
+                    
+                print(f"   Found {len(missing_candles)} missing candles. Storing in Redis...")
+                
+                # Store the missing candles
+                symbol_data_map = {symbol_name: missing_candles}
+                
+                # This is a simplified version of the bulk store logic
+                for data_type in ['open', 'high', 'low', 'close', 'volume']:
+                    pipeline = redis_client.pipeline()
+                    for candle in missing_candles:
+                        key = f"stock:{symbol_clean}:{data_type}"
+                        timestamp_ms = int(candle.timestamp.timestamp() * 1000)
+                        value = getattr(candle, data_type)
+                        pipeline.execute_command('TS.ADD', key, timestamp_ms, value)
+                    pipeline.execute()
+                
+                print(f"   ✅ Gap filled for {symbol_name}. Database is now continuous.")
+
+        except Exception as e:
+            print(f"   ❌ Error during gap fill for {instrument_key}: {e}")
+
+
 async def fetch_enhanced_market_data():
     """Enhanced market data fetching with actionable signal analysis"""
     global current_minute_start, current_minute_end, collecting_data
@@ -760,6 +1114,18 @@ async def fetch_enhanced_market_data():
     if not instrument_keys:
         debug_log("No symbols found in symbols.json", "ERROR")
         return
+
+    # --- FIX: Backfill missing data before starting live feed ---
+    try:
+        access_token = get_access_token()
+        if access_token:
+            api_client = FastUpstoxAPI(access_token)
+            await backfill_missing_candles(instrument_keys, api_client)
+        else:
+            print("⚠ Could not get access token, unable to perform gap-fill.")
+    except Exception as e:
+        print(f"❌ Error during pre-run gap-fill: {e}")
+    # --- END FIX ---
 
     wait_seconds, next_minute = wait_for_next_minute()
 

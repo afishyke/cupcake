@@ -13,6 +13,8 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
+from technical_indicators import EnhancedTechnicalIndicators
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -43,7 +45,16 @@ class ActionableSignal:
     reasons: List[str]
     risk_reward_ratio: float
     timestamp: datetime
-    
+    signal_quality_score: float = 0.5
+    market_regime: str = "UNKNOWN"
+    position_size_pct: float = 1.0
+    max_portfolio_exposure: float = 0.05
+
+class MarketRegime(Enum):
+    TRENDING = "TRENDING"
+    RANGING = "RANGING"
+    UNDEFINED = "UNDEFINED"
+
 class TrajectorySignalGenerator:
     def __init__(self, redis_host='localhost', redis_port=6379, redis_db=0):
         """Initialize enhanced signal generator with trajectory confirmation"""
@@ -63,6 +74,12 @@ class TrajectorySignalGenerator:
         self.min_confirmation_periods = 3  # Minimum periods to confirm trend
         self.trend_strength_threshold = 0.6  # Minimum strength for trend confirmation
         self.volume_confirmation_multiplier = 1.2  # Volume should be 20% above average
+        
+        # Configurable RSI thresholds
+        self.rsi_oversold_threshold = 30
+        self.rsi_overbought_threshold = 70
+
+        self.tech_indicators = EnhancedTechnicalIndicators()
         
     def add_market_data(self, symbol: str, market_data: Dict, technical_indicators: Dict):
         """Add new market data point for trajectory analysis"""
@@ -205,6 +222,11 @@ class TrajectorySignalGenerator:
             # Analyze trajectories
             price_trajectory = self.analyze_price_trajectory(symbol)
             momentum_trajectory = self.analyze_momentum_trajectory(symbol)
+
+            # Determine market regime
+            current_adx = technical_indicators.get('adx')
+            market_regime = self.get_market_regime(current_adx)
+            logger.info(f"Market regime for {symbol}: {market_regime.value} (ADX: {current_adx:.2f} if current_adx is not None else 'N/A')")
             
             if price_trajectory.get('status') == 'insufficient_data':
                 return []
@@ -215,7 +237,7 @@ class TrajectorySignalGenerator:
             # Generate BUY signals
             buy_signal = self._evaluate_buy_opportunity(
                 symbol, current_price, price_trajectory, momentum_trajectory, 
-                technical_indicators, orderbook_analysis
+                technical_indicators, orderbook_analysis, market_regime
             )
             if buy_signal:
                 signals.append(buy_signal)
@@ -223,7 +245,7 @@ class TrajectorySignalGenerator:
             # Generate SELL signals
             sell_signal = self._evaluate_sell_opportunity(
                 symbol, current_price, price_trajectory, momentum_trajectory,
-                technical_indicators, orderbook_analysis
+                technical_indicators, orderbook_analysis, market_regime
             )
             if sell_signal:
                 signals.append(sell_signal)
@@ -236,22 +258,42 @@ class TrajectorySignalGenerator:
     
     def _evaluate_buy_opportunity(self, symbol: str, current_price: float, 
                                 price_trajectory: Dict, momentum_trajectory: Dict,
-                                technical_indicators: Dict, orderbook_analysis: Dict) -> Optional[ActionableSignal]:
+                                technical_indicators: Dict, orderbook_analysis: Dict, market_regime: MarketRegime) -> Optional[ActionableSignal]:
         """Evaluate if there's a confirmed buy opportunity"""
         try:
             reasons = []
             confidence_factors = []
+
+            # ADD: Simple regime check at the beginning
+            if market_regime == MarketRegime.RANGING and price_trajectory.get('overall_trajectory') in ['STRONG_BULLISH']:
+                reasons.append("Skipping buy signal: Strong bullish trajectory in ranging market (potential false signal)")
+                return None  # Skip momentum signals in ranging markets
             
             # Check price trajectory confirmation
             trajectory_confirmed = False
-            
-            # Strong bullish trajectory
-            if (price_trajectory.get('overall_trajectory') in ['STRONG_BULLISH', 'BULLISH'] and
-                price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
-                trajectory_confirmed = True
-                reasons.append(f"Confirmed bullish trajectory ({price_trajectory['trend_consistency']:.2f})")
-                confidence_factors.append(0.3)
-            
+
+            # Apply market regime filter
+            if market_regime == MarketRegime.TRENDING:
+                if (price_trajectory.get('overall_trajectory') in ['STRONG_BULLISH', 'BULLISH'] and
+                    price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
+                    trajectory_confirmed = True
+                    reasons.append(f"Confirmed bullish trajectory ({price_trajectory['trend_consistency']:.2f}) in TRENDING market")
+                    confidence_factors.append(0.3)
+            elif market_regime == MarketRegime.RANGING:
+                rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
+                if (rsi_traj.get('direction') == 'RECOVERING' and 
+                    rsi_traj.get('current_level') == 'OVERSOLD_RECOVERY'):
+                    trajectory_confirmed = True
+                    reasons.append("RSI recovering from oversold in RANGING market")
+                    confidence_factors.append(0.3)
+            else: # UNDEFINED or Transitional
+                # Default to existing logic but with lower confidence
+                if (price_trajectory.get('overall_trajectory') in ['STRONG_BULLISH', 'BULLISH'] and
+                    price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
+                    trajectory_confirmed = True
+                    reasons.append(f"Bullish trajectory ({price_trajectory['trend_consistency']:.2f}) in UNDEFINED market")
+                    confidence_factors.append(0.15) # Lower confidence
+
             # Momentum confirmation
             momentum_dir = momentum_trajectory.get('momentum_direction')
             momentum_strength = momentum_trajectory.get('momentum_strength', 0)
@@ -260,12 +302,13 @@ class TrajectorySignalGenerator:
                 reasons.append(f"Strong bullish momentum ({momentum_strength:.2f})")
                 confidence_factors.append(0.25)
             
-            # RSI oversold recovery
-            rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
-            if (rsi_traj.get('direction') == 'RECOVERING' and 
-                rsi_traj.get('current_level') == 'OVERSOLD_RECOVERY'):
-                reasons.append("RSI recovering from oversold")
-                confidence_factors.append(0.2)
+            # RSI oversold recovery (only if not already covered by ranging market logic)
+            if market_regime != MarketRegime.RANGING:
+                rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
+                if (rsi_traj.get('direction') == 'RECOVERING' and 
+                    rsi_traj.get('current_level') == 'OVERSOLD_RECOVERY'):
+                    reasons.append("RSI recovering from oversold")
+                    confidence_factors.append(0.2)
             
             # MACD bullish crossover confirmation
             macd_traj = momentum_trajectory.get('macd_trajectory', {})
@@ -315,6 +358,8 @@ class TrajectorySignalGenerator:
                 else:
                     time_horizon = 'LONG'
                 
+                signal_quality = self.tech_indicators.validate_signal_quality(symbol, 'BUY')
+
                 return ActionableSignal(
                     symbol=symbol,
                     signal_type='BUY',
@@ -327,7 +372,8 @@ class TrajectorySignalGenerator:
                     time_horizon=time_horizon,
                     reasons=reasons,
                     risk_reward_ratio=risk_reward,
-                    timestamp=datetime.now(self.ist_timezone)
+                    timestamp=datetime.now(self.ist_timezone),
+                    signal_quality_score=signal_quality
                 )
             
             return None
@@ -338,21 +384,41 @@ class TrajectorySignalGenerator:
     
     def _evaluate_sell_opportunity(self, symbol: str, current_price: float,
                                  price_trajectory: Dict, momentum_trajectory: Dict,
-                                 technical_indicators: Dict, orderbook_analysis: Dict) -> Optional[ActionableSignal]:
+                                 technical_indicators: Dict, orderbook_analysis: Dict, market_regime: MarketRegime) -> Optional[ActionableSignal]:
         """Evaluate if there's a confirmed sell opportunity"""
         try:
             reasons = []
             confidence_factors = []
+
+            # ADD: Simple regime check at the beginning
+            if market_regime == MarketRegime.RANGING and price_trajectory.get('overall_trajectory') in ['STRONG_BEARISH']:
+                reasons.append("Skipping sell signal: Strong bearish trajectory in ranging market (potential false signal)")
+                return None  # Skip momentum signals in ranging markets
             
             # Check price trajectory confirmation
             trajectory_confirmed = False
-            
-            # Strong bearish trajectory
-            if (price_trajectory.get('overall_trajectory') in ['STRONG_BEARISH', 'BEARISH'] and
-                price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
-                trajectory_confirmed = True
-                reasons.append(f"Confirmed bearish trajectory ({price_trajectory['trend_consistency']:.2f})")
-                confidence_factors.append(0.3)
+
+            # Apply market regime filter
+            if market_regime == MarketRegime.TRENDING:
+                if (price_trajectory.get('overall_trajectory') in ['STRONG_BEARISH', 'BEARISH'] and
+                    price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
+                    trajectory_confirmed = True
+                    reasons.append(f"Confirmed bearish trajectory ({price_trajectory['trend_consistency']:.2f}) in TRENDING market")
+                    confidence_factors.append(0.3)
+            elif market_regime == MarketRegime.RANGING:
+                rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
+                if (rsi_traj.get('direction') == 'DECLINING' and 
+                    rsi_traj.get('current_level') == 'OVERBOUGHT_BREAKDOWN'):
+                    trajectory_confirmed = True
+                    reasons.append("RSI breaking down from overbought in RANGING market")
+                    confidence_factors.append(0.3)
+            else: # UNDEFINED or Transitional
+                # Default to existing logic but with lower confidence
+                if (price_trajectory.get('overall_trajectory') in ['STRONG_BEARISH', 'BEARISH'] and
+                    price_trajectory.get('trend_consistency', 0) > self.trend_strength_threshold):
+                    trajectory_confirmed = True
+                    reasons.append(f"Bearish trajectory ({price_trajectory['trend_consistency']:.2f}) in UNDEFINED market")
+                    confidence_factors.append(0.15) # Lower confidence
             
             # Momentum confirmation
             momentum_dir = momentum_trajectory.get('momentum_direction')
@@ -362,12 +428,13 @@ class TrajectorySignalGenerator:
                 reasons.append(f"Strong bearish momentum ({momentum_strength:.2f})")
                 confidence_factors.append(0.25)
             
-            # RSI overbought breakdown
-            rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
-            if (rsi_traj.get('direction') == 'DECLINING' and 
-                rsi_traj.get('current_level') == 'OVERBOUGHT_BREAKDOWN'):
-                reasons.append("RSI breaking down from overbought")
-                confidence_factors.append(0.2)
+            # RSI overbought breakdown (only if not already covered by ranging market logic)
+            if market_regime != MarketRegime.RANGING:
+                rsi_traj = momentum_trajectory.get('rsi_trajectory', {})
+                if (rsi_traj.get('direction') == 'DECLINING' and 
+                    rsi_traj.get('current_level') == 'OVERBOUGHT_BREAKDOWN'):
+                    reasons.append("RSI breaking down from overbought")
+                    confidence_factors.append(0.2)
             
             # MACD bearish crossover confirmation
             macd_traj = momentum_trajectory.get('macd_trajectory', {})
@@ -416,6 +483,8 @@ class TrajectorySignalGenerator:
                 else:
                     time_horizon = 'LONG'
                 
+                signal_quality = self.tech_indicators.validate_signal_quality(symbol, 'SELL')
+
                 return ActionableSignal(
                     symbol=symbol,
                     signal_type='SELL',
@@ -428,7 +497,8 @@ class TrajectorySignalGenerator:
                     time_horizon=time_horizon,
                     reasons=reasons,
                     risk_reward_ratio=risk_reward,
-                    timestamp=datetime.now(self.ist_timezone)
+                    timestamp=datetime.now(self.ist_timezone),
+                    signal_quality_score=signal_quality
                 )
             
             return None
@@ -517,13 +587,13 @@ class TrajectorySignalGenerator:
         current_level = 'NORMAL'
         if indicator_type == 'rsi' and values:
             current_rsi = values[-1]
-            if current_rsi < 30:
+            if current_rsi < self.rsi_oversold_threshold:
                 current_level = 'OVERSOLD'
-            elif current_rsi > 70:
+            elif current_rsi > self.rsi_overbought_threshold:
                 current_level = 'OVERBOUGHT'
-            elif 30 <= current_rsi <= 40 and trend_strength > 0:
+            elif self.rsi_oversold_threshold <= current_rsi <= (self.rsi_oversold_threshold + 10) and trend_strength > 0:
                 current_level = 'OVERSOLD_RECOVERY'
-            elif 60 <= current_rsi <= 70 and trend_strength < 0:
+            elif (self.rsi_overbought_threshold - 10) <= current_rsi <= self.rsi_overbought_threshold and trend_strength < 0:
                 current_level = 'OVERBOUGHT_BREAKDOWN'
         
         return {
@@ -644,6 +714,18 @@ class TrajectorySignalGenerator:
             score += 0.1 * volume_traj.get('strength', 0)
         
         return max(-1, min(1, score))
+    
+    def get_market_regime(self, adx_value: Optional[float]) -> MarketRegime:
+        """Determine market regime based on ADX value."""
+        if adx_value is None:
+            return MarketRegime.UNDEFINED
+        
+        if adx_value > 25:
+            return MarketRegime.TRENDING
+        elif adx_value < 20:
+            return MarketRegime.RANGING
+        else:
+            return MarketRegime.UNDEFINED # Or a 'TRANSITIONAL' regime
     
     def get_actionable_signals_summary(self, signals: List[ActionableSignal]) -> Dict:
         """Get summary of actionable signals"""

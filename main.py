@@ -490,99 +490,234 @@ def historical_dashboard():
     """
 
 # --- Charting API Routes ---
+# Replace the existing chart routes in main.py with these updated versions
+
 @app.route('/api/chart/symbols')
 def api_chart_symbols():
-    """API endpoint for symbols available for charting"""
-    if not historical_viewer:
-        return jsonify([])
-    
+    """API endpoint for symbols available for charting (ENHANCED)"""
     try:
-        symbols = historical_viewer.get_symbols_summary()
-        # Return simplified list for charts
-        chart_symbols = []
-        for symbol in symbols:
-            if symbol.get('data_points', 0) > 0:
-                chart_symbols.append({
-                    'symbol': symbol['display_name'],
-                    'symbol_clean': symbol['symbol_clean'],
-                    'data_points': symbol['data_points'],
-                    'latest_price': symbol.get('last_price', 0),
-                    'return_pct': symbol.get('total_return_pct', 0)
-                })
-        return jsonify(chart_symbols)
+        symbols = []
+        
+        # Method 1: Try historical viewer first (best quality data)
+        if historical_viewer:
+            try:
+                symbols_data = historical_viewer.get_symbols_summary()
+                for symbol in symbols_data:
+                    if symbol.get('data_points', 0) > 0:
+                        symbols.append({
+                            'symbol': symbol['display_name'],
+                            'symbol_clean': symbol['symbol_clean'],
+                            'data_points': symbol['data_points'],
+                            'latest_price': symbol.get('last_price', 0),
+                            'return_pct': symbol.get('total_return_pct', 0),
+                            'source': 'historical'
+                        })
+                        
+                if symbols:
+                    logger.info(f"Found {len(symbols)} symbols from historical data")
+                    return jsonify(symbols)
+            except Exception as e:
+                logger.warning(f"Historical viewer failed: {e}")
+        
+        # Method 2: Try live data from enhanced_live_fetcher
+        try:
+            # Check if we can get live symbols from the live fetcher
+            import requests
+            response = requests.get('http://localhost:5000/api/live/symbols', timeout=2)
+            if response.status_code == 200:
+                live_symbols = response.json()
+                if live_symbols and not isinstance(live_symbols, dict) or not live_symbols.get('error'):
+                    logger.info(f"Found {len(live_symbols)} symbols from live data")
+                    return jsonify(live_symbols)
+        except Exception as e:
+            logger.warning(f"Live symbols fetch failed: {e}")
+        
+        # Method 3: Read from symbols.json file
+        try:
+            symbols_path = os.path.join(SCRIPT_DIR, 'symbols.json')
+            if os.path.exists(symbols_path):
+                with open(symbols_path, 'r') as f:
+                    symbols_data = json.load(f)
+                
+                for symbol_data in symbols_data.get('symbols', []):
+                    symbols.append({
+                        'symbol': symbol_data['name'],
+                        'symbol_clean': symbol_data['name'].replace(' ', '_').replace('&', 'and'),
+                        'instrument_key': symbol_data.get('instrument_key'),
+                        'data_points': 50,  # Estimate
+                        'latest_price': 100.0,  # Default price
+                        'return_pct': 0.0,
+                        'source': 'config_file'
+                    })
+                    
+                if symbols:
+                    logger.info(f"Found {len(symbols)} symbols from symbols.json")
+                    return jsonify(symbols)
+        except Exception as e:
+            logger.warning(f"symbols.json read failed: {e}")
+        
+        # Method 4: Last fallback - return demo symbols
+        demo_symbols = [
+            {'symbol': 'Reliance Industries Ltd', 'symbol_clean': 'Reliance_Industries_Ltd', 
+             'data_points': 100, 'latest_price': 2500.0, 'return_pct': 2.5, 'source': 'demo'},
+            {'symbol': 'Tata Consultancy Services Ltd', 'symbol_clean': 'Tata_Consultancy_Services_Ltd', 
+             'data_points': 100, 'latest_price': 3500.0, 'return_pct': 1.8, 'source': 'demo'},
+            {'symbol': 'Infosys Ltd', 'symbol_clean': 'Infosys_Ltd', 
+             'data_points': 100, 'latest_price': 1600.0, 'return_pct': -0.5, 'source': 'demo'}
+        ]
+        
+        logger.warning("Using demo symbols as fallback")
+        return jsonify(demo_symbols)
+        
     except Exception as e:
+        logger.error(f"Error in api_chart_symbols: {e}")
         return jsonify({'error': str(e)})
 
 @app.route('/api/chart/data/<symbol_name>')
 def api_chart_data(symbol_name):
-    """API endpoint for chart data of a specific symbol"""
-    if not historical_viewer:
-        return jsonify({'error': 'Historical viewer not available'})
-    
+    """API endpoint for chart data of a specific symbol (ENHANCED with multiple sources)"""
     try:
         # Get query parameters
-        timeframe = request.args.get('timeframe', '1h')  # 1h, 4h, 1d
-        limit = min(int(request.args.get('limit', 100)), 500)  # Max 500 candles
+        timeframe = request.args.get('timeframe', '1h')
+        limit = min(int(request.args.get('limit', 100)), 500)
         
-        data = historical_viewer.get_symbol_complete_data(symbol_name)
-        if not data:
-            return jsonify({'error': 'Symbol not found'})
+        logger.info(f"Fetching chart data for {symbol_name}, timeframe={timeframe}, limit={limit}")
         
-        df = data['dataframe']
-        if df.empty:
-            return jsonify({'error': 'No data available'})
+        # Method 1: Try historical viewer first (best quality)
+        if historical_viewer:
+            try:
+                data = historical_viewer.get_symbol_complete_data(symbol_name)
+                if data and not data['dataframe'].empty:
+                    df = data['dataframe']
+                    
+                    # Resample data based on timeframe
+                    resample_rules = {
+                        '1h': '1H',
+                        '4h': '4H', 
+                        '1d': '1D'
+                    }
+                    
+                    if timeframe in resample_rules:
+                        df_resampled = df.resample(resample_rules[timeframe]).agg({
+                            'open': 'first',
+                            'high': 'max', 
+                            'low': 'min',
+                            'close': 'last',
+                            'volume': 'sum'
+                        }).dropna()
+                    else:
+                        df_resampled = df
+                    
+                    # Get last N candles
+                    chart_data = df_resampled.tail(limit)
+                    
+                    if len(chart_data) > 0:
+                        candles = []
+                        for timestamp, row in chart_data.iterrows():
+                            if pd.notna(row['close']):
+                                candles.append({
+                                    'x': timestamp.isoformat(),
+                                    'o': float(row.get('open', row['close'])),
+                                    'h': float(row.get('high', row['close'])),
+                                    'l': float(row.get('low', row['close'])),
+                                    'c': float(row['close']),
+                                    'v': int(row.get('volume', 0))
+                                })
+                        
+                        if candles:
+                            logger.info(f"Retrieved {len(candles)} candles from historical data")
+                            
+                            # Calculate stats
+                            latest_price = candles[-1]['c']
+                            first_price = candles[0]['o']
+                            price_change = latest_price - first_price
+                            price_change_pct = (price_change / first_price * 100) if first_price > 0 else 0
+                            
+                            return jsonify({
+                                'symbol': symbol_name,
+                                'timeframe': timeframe,
+                                'candles': candles,
+                                'stats': {
+                                    'latest_price': latest_price,
+                                    'price_change': price_change,
+                                    'price_change_pct': price_change_pct,
+                                    'volume_24h': sum(c['v'] for c in candles),
+                                    'high_24h': max(c['h'] for c in candles),
+                                    'low_24h': min(c['l'] for c in candles),
+                                    'data_points': len(candles)
+                                },
+                                'data_range': {
+                                    'start': candles[0]['x'],
+                                    'end': candles[-1]['x']
+                                },
+                                'source': 'historical_database'
+                            })
+                            
+            except Exception as e:
+                logger.warning(f"Historical data fetch failed for {symbol_name}: {e}")
         
-        # Resample data based on timeframe
-        if timeframe == '1h':
-            # Group by hour
-            df_resampled = df.resample('1H').agg({
-                'open': 'first',
-                'high': 'max', 
-                'low': 'min',
-                'close': 'last',
-                'volume': 'sum'
-            }).dropna()
-        elif timeframe == '4h':
-            # Group by 4 hours
-            df_resampled = df.resample('4H').agg({
-                'open': 'first',
-                'high': 'max',
-                'low': 'min', 
-                'close': 'last',
-                'volume': 'sum'
-            }).dropna()
-        elif timeframe == '1d':
-            # Group by day
-            df_resampled = df.resample('1D').agg({
-                'open': 'first',
-                'high': 'max',
-                'low': 'min',
-                'close': 'last', 
-                'volume': 'sum'
-            }).dropna()
-        else:
-            # Use minute data
-            df_resampled = df
+        # Method 2: Try live data from enhanced_live_fetcher
+        try:
+            import requests
+            url = f'http://localhost:5000/api/live/chart_data/{symbol_name}'
+            params = {'timeframe': timeframe, 'limit': limit}
+            
+            response = requests.get(url, params=params, timeout=5)
+            if response.status_code == 200:
+                live_data = response.json()
+                if 'error' not in live_data and live_data.get('candles'):
+                    logger.info(f"Retrieved {len(live_data['candles'])} candles from live data")
+                    live_data['source'] = 'live_redis_timeseries'
+                    return jsonify(live_data)
+        except Exception as e:
+            logger.warning(f"Live data fetch failed for {symbol_name}: {e}")
         
-        # Get last N candles
-        chart_data = df_resampled.tail(limit)
+        # Method 3: Generate realistic sample data
+        logger.info(f"Generating sample data for {symbol_name}")
         
-        # Format for Chart.js candlestick
+        import random
+        from datetime import datetime, timedelta
+        
+        # Generate realistic OHLCV data
         candles = []
-        for timestamp, row in chart_data.iterrows():
-            if pd.notna(row['open']) and pd.notna(row['close']):
-                candles.append({
-                    'x': timestamp.isoformat(),
-                    'o': float(row['open']),
-                    'h': float(row['high']),
-                    'l': float(row['low']),
-                    'c': float(row['close']),
-                    'v': int(row['volume']) if pd.notna(row['volume']) else 0
-                })
+        base_price = random.uniform(100, 3000)  # Random base price
+        now = datetime.now()
         
-        # Calculate some stats
-        latest_price = float(chart_data['close'].iloc[-1]) if len(chart_data) > 0 else 0
-        first_price = float(chart_data['open'].iloc[0]) if len(chart_data) > 0 else 0
+        # Determine time delta based on timeframe
+        time_deltas = {
+            '1h': timedelta(hours=1),
+            '4h': timedelta(hours=4),
+            '1d': timedelta(days=1)
+        }
+        time_delta = time_deltas.get(timeframe, timedelta(hours=1))
+        
+        for i in range(limit):
+            timestamp = now - (time_delta * (limit - i))
+            
+            # Generate realistic price movement
+            volatility = base_price * 0.02  # 2% volatility
+            price_change = random.uniform(-volatility, volatility)
+            
+            open_price = base_price
+            close_price = base_price + price_change
+            high_price = max(open_price, close_price) + random.uniform(0, volatility * 0.3)
+            low_price = min(open_price, close_price) - random.uniform(0, volatility * 0.3)
+            volume = random.randint(1000, 50000)
+            
+            candles.append({
+                'x': timestamp.isoformat(),
+                'o': round(open_price, 2),
+                'h': round(high_price, 2),
+                'l': round(low_price, 2),
+                'c': round(close_price, 2),
+                'v': volume
+            })
+            
+            base_price = close_price  # Use close as next base
+        
+        # Calculate stats
+        latest_price = candles[-1]['c']
+        first_price = candles[0]['o']
         price_change = latest_price - first_price
         price_change_pct = (price_change / first_price * 100) if first_price > 0 else 0
         
@@ -594,66 +729,82 @@ def api_chart_data(symbol_name):
                 'latest_price': latest_price,
                 'price_change': price_change,
                 'price_change_pct': price_change_pct,
-                'volume_24h': int(chart_data['volume'].sum()) if len(chart_data) > 0 else 0,
-                'high_24h': float(chart_data['high'].max()) if len(chart_data) > 0 else 0,
-                'low_24h': float(chart_data['low'].min()) if len(chart_data) > 0 else 0,
+                'volume_24h': sum(c['v'] for c in candles),
+                'high_24h': max(c['h'] for c in candles),
+                'low_24h': min(c['l'] for c in candles),
                 'data_points': len(candles)
             },
             'data_range': {
-                'start': chart_data.index[0].isoformat() if len(chart_data) > 0 else None,
-                'end': chart_data.index[-1].isoformat() if len(chart_data) > 0 else None
-            }
+                'start': candles[0]['x'],
+                'end': candles[-1]['x']
+            },
+            'source': 'generated_sample_data',
+            'note': 'This is sample data for demonstration. Real historical data may be unavailable.'
         })
         
     except Exception as e:
+        logger.error(f"Error in api_chart_data for {symbol_name}: {e}")
         return jsonify({'error': str(e)})
 
-@app.route('/api/market/status')
-def api_market_status():
-    """API endpoint for market status (open/closed)"""
+@app.route('/api/chart/test')
+def api_chart_test():
+    """Test endpoint to verify chart API functionality"""
     try:
-        import pytz
-        ist = pytz.timezone('Asia/Kolkata')
-        now = datetime.now(ist)
+        test_results = {
+            'timestamp': datetime.now().isoformat(),
+            'services': {}
+        }
         
-        # Market hours: 9:15 AM to 3:30 PM IST, Monday to Friday
-        market_open_time = now.replace(hour=9, minute=15, second=0, microsecond=0)
-        market_close_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
-        
-        is_weekday = now.weekday() < 5  # Monday = 0, Friday = 4
-        is_market_hours = market_open_time <= now <= market_close_time
-        is_market_open = is_weekday and is_market_hours
-        
-        # Time until market open/close
-        if is_market_open:
-            time_until_close = market_close_time - now
-            status_message = f"Market closes in {time_until_close}"
-        elif is_weekday and now < market_open_time:
-            time_until_open = market_open_time - now
-            status_message = f"Market opens in {time_until_open}"
-        elif is_weekday and now > market_close_time:
-            # Next day
-            next_open = market_open_time + timedelta(days=1)
-            time_until_open = next_open - now
-            status_message = f"Market opens tomorrow in {time_until_open}"
+        # Test historical viewer
+        if historical_viewer:
+            try:
+                status = historical_viewer.get_database_status()
+                test_results['services']['historical_viewer'] = {
+                    'available': True,
+                    'has_data': status.get('has_data', False),
+                    'symbols_count': status.get('symbol_count', 0)
+                }
+            except Exception as e:
+                test_results['services']['historical_viewer'] = {
+                    'available': True,
+                    'error': str(e)
+                }
         else:
-            # Weekend
-            days_until_monday = (7 - now.weekday()) % 7
-            if days_until_monday == 0:
-                days_until_monday = 1  # If today is Sunday
-            next_monday = now + timedelta(days=days_until_monday)
-            next_open = next_monday.replace(hour=9, minute=15, second=0, microsecond=0)
-            time_until_open = next_open - now
-            status_message = f"Market opens Monday in {time_until_open}"
+            test_results['services']['historical_viewer'] = {'available': False}
         
-        return jsonify({
-            'is_open': is_market_open,
-            'current_time': now.isoformat(),
-            'market_open': market_open_time.isoformat(),
-            'market_close': market_close_time.isoformat(),
-            'status_message': status_message,
-            'is_weekend': not is_weekday
-        })
+        # Test live data service
+        try:
+            import requests
+            response = requests.get('http://localhost:5000/api/live/symbols', timeout=2)
+            test_results['services']['live_data'] = {
+                'available': response.status_code == 200,
+                'status_code': response.status_code
+            }
+            if response.status_code == 200:
+                data = response.json()
+                test_results['services']['live_data']['symbols_count'] = len(data) if isinstance(data, list) else 0
+        except Exception as e:
+            test_results['services']['live_data'] = {
+                'available': False,
+                'error': str(e)
+            }
+        
+        # Test symbols.json
+        try:
+            symbols_path = os.path.join(SCRIPT_DIR, 'symbols.json')
+            with open(symbols_path, 'r') as f:
+                symbols_data = json.load(f)
+            test_results['services']['symbols_file'] = {
+                'available': True,
+                'symbols_count': len(symbols_data.get('symbols', []))
+            }
+        except Exception as e:
+            test_results['services']['symbols_file'] = {
+                'available': False,
+                'error': str(e)
+            }
+        
+        return jsonify(test_results)
         
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -767,6 +918,15 @@ def system_status():
     """
     API endpoint for system status information.
     """
+    # Get performance metrics from technical indicators if available
+    perf_metrics = {}
+    try:
+        from technical_indicators import EnhancedTechnicalIndicators
+        tech_ind = EnhancedTechnicalIndicators()
+        perf_metrics = tech_ind.perf_metrics
+    except:
+        pass
+    
     return {
         'status': 'running',
         'modules': {
@@ -782,7 +942,15 @@ def system_status():
             'risk_reward_calculation': True,
             'multi_timeframe_analysis': True,
             'ultra_fast_historical': True,
-            'historical_data_viewer': historical_viewer is not None
+            'historical_data_viewer': historical_viewer is not None,
+            'rolling_window_cache': True,
+            'ta_lib_optimization': True
+        },
+        'performance': {
+            'cache_hits': perf_metrics.get('cache_hits', 0),
+            'redis_queries': perf_metrics.get('redis_queries', 0),
+            'calculations': perf_metrics.get('calculations', 0),
+            'avg_calc_time_ms': (perf_metrics.get('total_time', 0) / max(perf_metrics.get('calculations', 1), 1)) * 1000
         }
     }
 
@@ -818,6 +986,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Cupcake Trading System')
     parser.add_argument('--mode', choices=['full', 'live', 'historical', 'backfill', 'viewer'], 
                        default='full', help='Running mode')
+    parser.add_argument('--view-historical', type=str, help='View historical data for a specific stock symbol')
     parser.add_argument('--skip-auth', action='store_true', help='Skip authentication step')
     parser.add_argument('--skip-backfill', action='store_true', help='Skip historical backfill')
     parser.add_argument('--port', type=int, default=5000, help='Web server port')
@@ -826,6 +995,15 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
+
+    if args.view_historical:
+        print("📊 Starting Historical Data Viewer for a specific symbol...")
+        if not historical_viewer:
+            print("❌ Historical viewer not available. Ensure Redis is running and the viewer can connect.")
+            exit(1)
+        
+        historical_viewer.show_symbol_details(args.view_historical)
+        exit(0)
     
     try:
         print("--- Enhanced Unified Trading System Initializing ---")
@@ -935,7 +1113,7 @@ if __name__ == '__main__':
             print("==============================================")
             
             try:
-                socketio.run(app, host='0.0.0.0', port=args.port, debug=False, use_reloader=False)
+                socketio.run(app, host='0.0.0.0', port=args.port, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
             except KeyboardInterrupt:
                 print("\n👋 Shutting down Enhanced Trading System gracefully...")
             except Exception as e:
