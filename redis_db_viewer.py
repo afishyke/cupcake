@@ -4,6 +4,7 @@ Redis Database Viewer for Trading Data
 Comprehensive tool to inspect stored historical and live market data
 """
 
+import os
 import redis
 import json
 import pandas as pd
@@ -17,8 +18,14 @@ import sys
 IST = pytz.timezone('Asia/Kolkata')
 
 class TradingDataViewer:
-    def __init__(self, host='localhost', port=6379, db=0):
+    def __init__(self, host=None, port=None, db=0):
         """Initialize Redis connection"""
+        # Use environment variables if not provided
+        if host is None:
+            host = os.environ.get('REDIS_HOST', 'localhost')
+        if port is None:
+            port = int(os.environ.get('REDIS_PORT', '6379'))
+            
         try:
             self.redis_client = redis.Redis(
                 host=host, port=port, db=db,

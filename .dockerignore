@@ -1,0 +1,7 @@
+# Git
+.git
+# Python
+__pycache__/
+*.pyc
+# Protobuf source
+Dockerfile

@@ -62,9 +62,11 @@ orderbook_analyzer = OrderBookAnalyzer()
 
 # Redis client for data storage
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_host = os.environ.get('REDIS_HOST', 'localhost')
+    redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+    redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     redis_client.ping()  # Test connection
-    print("✓ Redis connection successful")
+    print(f"✓ Redis connection successful at {redis_host}:{redis_port}")
 except redis.RedisError as e:
     print(f"⚠ Redis connection failed: {e}")
     redis_client = None

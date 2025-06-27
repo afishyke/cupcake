@@ -51,8 +51,8 @@ SYMBOLS_PATH = os.path.join(SCRIPT_DIR, 'symbols.json')
 
 class Config:
     """Simple configuration class for shared settings."""
-    REDIS_HOST = 'localhost'
-    REDIS_PORT = 6379
+    REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+    REDIS_PORT = int(os.environ.get('REDIS_PORT', '6379'))
 
 # --- Main Application Setup with Fixed Paths ---
 # Create templates directory if it doesn't exist

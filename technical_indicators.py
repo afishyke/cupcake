@@ -1,6 +1,7 @@
 # Enhanced Technical Indicators with Rolling Window Cache and TA-Lib
 # Optimized for performance with in-memory data management
 
+import os
 import redis
 import numpy as np
 import pandas as pd
@@ -75,8 +76,14 @@ class RollingWindowCache:
             return time_diff > timedelta(minutes=2)
 
 class EnhancedTechnicalIndicators:
-    def __init__(self, redis_host='localhost', redis_port=6379, redis_db=0):
+    def __init__(self, redis_host=None, redis_port=None, redis_db=0):
         """Initialize enhanced technical indicators with rolling window cache"""
+        # Use environment variables if not provided
+        if redis_host is None:
+            redis_host = os.environ.get('REDIS_HOST', 'localhost')
+        if redis_port is None:
+            redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+            
         self.redis_client = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db,
             decode_responses=True

@@ -1,6 +1,7 @@
 # Order Book Analyzer
 # Analyzes bid/ask data, LTP, LTQ, market depth and pressure
 
+import os
 import redis
 import json
 import numpy as np
@@ -14,8 +15,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class OrderBookAnalyzer:
-    def __init__(self, redis_host='localhost', redis_port=6379, redis_db=0):
+    def __init__(self, redis_host=None, redis_port=None, redis_db=0):
         """Initialize Order Book Analyzer with Redis connection"""
+        # Use environment variables if not provided
+        if redis_host is None:
+            redis_host = os.environ.get('REDIS_HOST', 'localhost')
+        if redis_port is None:
+            redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+            
         self.redis_client = redis.Redis(
             host=redis_host, port=redis_port, db=redis_db,
             decode_responses=True

@@ -20,3 +20,5 @@ protobuf         # For decoding the WebSocket market data feed
 
 # Database
 redis            # For connecting to the Redis database
+TA-Lib
+grpcio-tools

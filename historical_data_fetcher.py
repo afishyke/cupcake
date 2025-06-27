@@ -219,7 +219,10 @@ class FastUpstoxAPI:
 class FastRedisManager:
     """Ultra-fast Redis operations with batch processing"""
     
-    def __init__(self, host='localhost', port=6379, db=0):
+    def __init__(self, host=None, port=6379, db=0):
+        if host is None:
+            host = os.environ.get('REDIS_HOST', 'localhost')
+
         self.redis_client = redis.Redis(
             host=host, port=port, db=db,
             decode_responses=True,
