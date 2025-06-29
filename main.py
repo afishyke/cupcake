@@ -52,6 +52,9 @@ except ImportError as e:
 from upstox_client import UpstoxAuthClient
 from portfolio_tracker import PortfolioTracker
 
+# Global auth client for web routes
+auth_client = None
+
 # --- Configuration ---
 CREDENTIALS_PATH = os.path.join(SCRIPT_DIR, 'credentials.json')
 SYMBOLS_PATH = os.path.join(SCRIPT_DIR, 'symbols.json')
@@ -197,7 +200,14 @@ def dashboard():
                     <p class="text-sm text-gray-300">Dashboard template not found, using fallback interface.</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h3 class="text-xl font-bold mb-2">🔐 Authentication</h3>
+                        <div id="auth-status">
+                            <p>Checking authentication...</p>
+                        </div>
+                    </div>
+                    
                     <div class="bg-gray-800 p-4 rounded-lg">
                         <h3 class="text-xl font-bold mb-2">🚀 System Status</h3>
                         <div id="system-status">
@@ -286,6 +296,33 @@ def dashboard():
                             '<p class="text-red-400">❌ Error loading historical status</p>';
                     });
                 
+                // Check authentication status
+                function checkAuthStatus() {
+                    fetch('/auth/status')
+                        .then(response => response.json())
+                        .then(data => {
+                            const authElement = document.getElementById('auth-status');
+                            if (data.authenticated) {
+                                authElement.innerHTML = `
+                                    <p class="text-green-400">✅ Authenticated</p>
+                                    <p class="text-sm text-gray-400">${data.message}</p>
+                                `;
+                            } else {
+                                authElement.innerHTML = `
+                                    <p class="text-red-400">❌ Not Authenticated</p>
+                                    <p class="text-sm text-gray-400 mb-2">${data.message}</p>
+                                    <a href="/auth" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                        Complete Authentication
+                                    </a>
+                                `;
+                            }
+                        })
+                        .catch(err => {
+                            document.getElementById('auth-status').innerHTML = 
+                                '<p class="text-red-400">❌ Error checking auth</p>';
+                        });
+                }
+                
                 // Check system status periodically
                 setInterval(() => {
                     fetch('/api/system_status')
@@ -295,6 +332,10 @@ def dashboard():
                         })
                         .catch(err => addLog(`⚠ System check failed: ${err}`));
                 }, 30000);
+                
+                // Check auth status on load and periodically
+                checkAuthStatus();
+                setInterval(checkAuthStatus, 60000); // Check every minute
             </script>
         </body>
         </html>
@@ -1184,8 +1225,17 @@ def system_status():
     except:
         pass
     
+    # Check authentication status
+    auth_status = 'not_initialized'
+    if auth_client:
+        if auth_client.is_token_valid():
+            auth_status = 'authenticated'
+        else:
+            auth_status = 'token_expired'
+    
     return {
         'status': 'running',
+        'authentication': auth_status,
         'modules': {
             'enhanced_live_fetcher': 'active' if enhanced_live_fetcher else 'unavailable',
             'portfolio_tracker': 'active',
@@ -1210,6 +1260,258 @@ def system_status():
             'avg_calc_time_ms': (perf_metrics.get('total_time', 0) / max(perf_metrics.get('calculations', 1), 1)) * 1000
         }
     }
+
+# --- Authentication Web Routes ---
+@app.route('/auth/status')
+def auth_status():
+    """Check authentication status"""
+    global auth_client
+    
+    if not auth_client:
+        return jsonify({
+            'authenticated': False,
+            'status': 'not_initialized',
+            'message': 'Authentication client not initialized'
+        })
+    
+    is_valid = auth_client.is_token_valid()
+    return jsonify({
+        'authenticated': is_valid,
+        'status': 'valid' if is_valid else 'expired',
+        'message': 'Token is valid' if is_valid else 'Token expired, authentication required'
+    })
+
+@app.route('/auth/login')
+def auth_login():
+    """Get login URL for browser authentication"""
+    global auth_client
+    
+    if not auth_client:
+        return jsonify({'error': 'Authentication client not initialized'}), 500
+    
+    if auth_client.is_token_valid():
+        return jsonify({
+            'authenticated': True,
+            'message': 'Already authenticated'
+        })
+    
+    login_url = auth_client.get_login_url()
+    return jsonify({
+        'login_url': login_url,
+        'message': 'Visit the login URL in your browser and paste the authorization code'
+    })
+
+@app.route('/auth/callback', methods=['POST'])
+def auth_callback():
+    """Handle authentication callback with authorization code"""
+    global auth_client
+    
+    if not auth_client:
+        return jsonify({'error': 'Authentication client not initialized'}), 500
+    
+    data = request.get_json()
+    auth_code = data.get('code', '').strip()
+    
+    if not auth_code:
+        return jsonify({'error': 'Authorization code is required'}), 400
+    
+    try:
+        success = auth_client.authenticate_with_code(auth_code)
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Authentication successful!',
+                'authenticated': True
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Authentication failed. Please check the authorization code.',
+                'authenticated': False
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Authentication error: {str(e)}',
+            'authenticated': False
+        }), 500
+
+@app.route('/auth')
+def auth_page():
+    """Authentication page for browser-based login"""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Upstox Authentication - Cupcake Trading</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-900 text-white">
+        <div class="container mx-auto p-8 max-w-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold mb-4">🔐 Upstox Authentication</h1>
+                <p class="text-gray-300">Complete authentication to access trading features</p>
+            </div>
+            
+            <div id="status-card" class="bg-gray-800 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-bold mb-4">Authentication Status</h3>
+                <div id="status-content">
+                    <p class="text-yellow-400">⏳ Checking authentication status...</p>
+                </div>
+            </div>
+            
+            <div id="auth-card" class="bg-gray-800 p-6 rounded-lg" style="display: none;">
+                <h3 class="text-xl font-bold mb-4">Complete Authentication</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-gray-300 mb-2">Step 1: Click the button below to open Upstox login</p>
+                        <button id="open-login" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium">
+                            🌐 Open Upstox Login
+                        </button>
+                    </div>
+                    
+                    <div class="border-t border-gray-700 pt-4">
+                        <p class="text-gray-300 mb-2">Step 2: After login, paste the authorization code here</p>
+                        <div class="flex space-x-2">
+                            <input type="text" id="auth-code" placeholder="Paste authorization code here..." 
+                                   class="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none">
+                            <button id="submit-code" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-medium">
+                                ✓ Submit
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-1">The code is in the URL after successful login</p>
+                    </div>
+                </div>
+                
+                <div id="result" class="mt-4" style="display: none;"></div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="/" class="text-blue-400 hover:text-blue-300">← Back to Dashboard</a>
+            </div>
+        </div>
+        
+        <script>
+            let loginUrl = '';
+            
+            async function checkAuthStatus() {
+                try {
+                    const response = await fetch('/auth/status');
+                    const data = await response.json();
+                    
+                    const statusContent = document.getElementById('status-content');
+                    const authCard = document.getElementById('auth-card');
+                    
+                    if (data.authenticated) {
+                        statusContent.innerHTML = `
+                            <p class="text-green-400">✅ Already Authenticated</p>
+                            <p class="text-sm text-gray-400 mt-1">${data.message}</p>
+                            <a href="/" class="inline-block mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                                Go to Dashboard
+                            </a>
+                        `;
+                        authCard.style.display = 'none';
+                    } else {
+                        statusContent.innerHTML = `
+                            <p class="text-red-400">❌ Authentication Required</p>
+                            <p class="text-sm text-gray-400 mt-1">${data.message}</p>
+                        `;
+                        authCard.style.display = 'block';
+                        await getLoginUrl();
+                    }
+                } catch (error) {
+                    document.getElementById('status-content').innerHTML = `
+                        <p class="text-red-400">❌ Error checking status</p>
+                        <p class="text-sm text-gray-400 mt-1">${error.message}</p>
+                    `;
+                }
+            }
+            
+            async function getLoginUrl() {
+                try {
+                    const response = await fetch('/auth/login');
+                    const data = await response.json();
+                    
+                    if (data.login_url) {
+                        loginUrl = data.login_url;
+                        document.getElementById('open-login').onclick = () => {
+                            window.open(loginUrl, '_blank');
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error getting login URL:', error);
+                }
+            }
+            
+            async function submitAuthCode() {
+                const authCode = document.getElementById('auth-code').value.trim();
+                const resultDiv = document.getElementById('result');
+                
+                if (!authCode) {
+                    resultDiv.innerHTML = '<p class="text-red-400">❌ Please enter the authorization code</p>';
+                    resultDiv.style.display = 'block';
+                    return;
+                }
+                
+                resultDiv.innerHTML = '<p class="text-yellow-400">⏳ Authenticating...</p>';
+                resultDiv.style.display = 'block';
+                
+                try {
+                    const response = await fetch('/auth/callback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code: authCode })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="bg-green-800 p-3 rounded">
+                                <p class="text-green-400">✅ ${data.message}</p>
+                                <a href="/" class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                    Go to Dashboard
+                                </a>
+                            </div>
+                        `;
+                        
+                        // Refresh status after 1 second
+                        setTimeout(checkAuthStatus, 1000);
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="bg-red-800 p-3 rounded">
+                                <p class="text-red-400">❌ ${data.message}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = `
+                        <div class="bg-red-800 p-3 rounded">
+                            <p class="text-red-400">❌ Error: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Event listeners
+            document.getElementById('submit-code').onclick = submitAuthCode;
+            document.getElementById('auth-code').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    submitAuthCode();
+                }
+            });
+            
+            // Check status on page load
+            checkAuthStatus();
+        </script>
+    </body>
+    </html>
+    """
 
 # --- SocketIO Connection Handlers ---
 @socketio.on('connect')
@@ -1291,20 +1593,34 @@ if __name__ == '__main__':
             run_historical_backfill()
             exit(0)
 
-        # 1. Authenticate with Upstox (unless skipped)
-        if not args.skip_auth:
-            print("\n[STEP 1] Authenticating with Upstox...")
-            try:
-                auth_client = UpstoxAuthClient(config_file=CREDENTIALS_PATH)
-                if not auth_client.authenticate():
-                    print("❌ Authentication Failed. Please check your credentials and auth code. Exiting.")
-                    exit()
-                print("✅ Authentication Successful.")
-            except Exception as e:
-                print(f"❌ Authentication error: {e}")
-                print("Continuing with other services...")
-        else:
-            print("\n[STEP 1] Skipping authentication as requested")
+        # 1. Initialize auth client and check token validity
+        print("\n[STEP 1] Initializing authentication...")
+        try:
+            auth_client = UpstoxAuthClient(config_file=CREDENTIALS_PATH)
+            
+            if auth_client.is_token_valid():
+                print("✅ Token is valid, authentication successful.")
+            else:
+                print("⚠️  Token expired or not found.")
+                print("🌐 Web-based authentication available at: /auth")
+                print("📱 Visit http://localhost:5000/auth in your browser to complete authentication")
+                
+                if not args.skip_auth:
+                    # In Docker/non-interactive environment, just log the URLs
+                    login_url = auth_client.get_login_url()
+                    print(f"\n🔗 Upstox Login URL: {login_url}")
+                    print("\n💡 Authentication Steps:")
+                    print("  1. Open the login URL above in your browser")
+                    print("  2. Complete Upstox login")
+                    print("  3. Copy the authorization code from the redirect URL")
+                    print("  4. Visit http://localhost:5000/auth and paste the code")
+                    print("\n⚠️  Continuing without authentication - some features may be limited")
+                else:
+                    print("🔄 Authentication skipped as requested")
+                    
+        except Exception as e:
+            print(f"❌ Authentication initialization error: {e}")
+            print("Continuing with other services...")
 
         # 2. Run Ultra-Fast Historical Data Backfill (unless skipped or in live mode)
         if args.mode != 'live' and not args.skip_backfill:

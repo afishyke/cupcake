@@ -18,6 +18,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.optimize import minimize_scalar
+from scipy.signal import butter, filtfilt
+from scipy.linalg import inv
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -39,6 +41,17 @@ class PracticalQuantEngine:
             'volatility_lookback': 30,    # Days for volatility calculation
             'correlation_lookback': 60    # Days for correlation analysis
         }
+        
+        # Kalman filter parameters
+        self.kalman_params = {
+            'process_variance': 1e-5,
+            'measurement_variance': 1e-1,
+            'estimation_error': 1.0
+        }
+        
+        # Cross-asset correlation cache
+        self.correlation_cache = {}
+        self.price_cache = {}
     
     def calculate_advanced_momentum_score(self, df, timeframes=[3, 7, 14, 21]):
         """
@@ -666,5 +679,486 @@ class PracticalQuantEngine:
                 'volatility_regime': analysis['detailed_analysis']['volatility_regime']['regime'],
                 'momentum_strength': analysis['detailed_analysis']['momentum']['momentum_strength'],
                 'volume_trend': analysis['detailed_analysis']['volume_analysis']['volume_trend']
+            }
+        }
+    
+    # ============================================================================
+    # RENAISSANCE TECHNOLOGIES-STYLE ADVANCED QUANTITATIVE METHODS
+    # ============================================================================
+    
+    def apply_kalman_filter(self, price_series, symbol=None):
+        """
+        Apply Kalman filter for signal smoothing and noise reduction
+        Renaissance-style adaptive filtering
+        """
+        if len(price_series) < 10:
+            return price_series.copy()
+        
+        # Kalman filter implementation
+        n = len(price_series)
+        
+        # State transition model (prices follow random walk)
+        A = 1  # State transition
+        H = 1  # Observation model
+        
+        # Noise parameters
+        Q = self.kalman_params['process_variance']  # Process noise
+        R = self.kalman_params['measurement_variance']  # Measurement noise
+        
+        # Initialize
+        x = np.zeros(n)  # State estimates
+        P = np.zeros(n)  # Error covariances
+        
+        x[0] = price_series.iloc[0]
+        P[0] = self.kalman_params['estimation_error']
+        
+        # Kalman filtering
+        for k in range(1, n):
+            # Prediction step
+            x_pred = A * x[k-1]
+            P_pred = A * P[k-1] * A + Q
+            
+            # Update step
+            K = P_pred * H / (H * P_pred * H + R)  # Kalman gain
+            x[k] = x_pred + K * (price_series.iloc[k] - H * x_pred)
+            P[k] = (1 - K * H) * P_pred
+        
+        return pd.Series(x, index=price_series.index)
+    
+    def calculate_cross_asset_momentum(self, symbols_data):
+        """
+        Cross-asset momentum analysis for enhanced signal generation
+        Analyze momentum spillover effects between related assets
+        """
+        if len(symbols_data) < 2:
+            return {'cross_momentum_score': 0, 'momentum_consensus': 'NEUTRAL'}
+        
+        momentum_scores = {}
+        price_changes = {}
+        
+        # Calculate momentum for each asset
+        for symbol, df in symbols_data.items():
+            if len(df) < 21:
+                continue
+                
+            # Multiple timeframe momentum
+            momentum_1w = (df['close'].iloc[-1] / df['close'].iloc[-5] - 1) if len(df) >= 5 else 0
+            momentum_2w = (df['close'].iloc[-1] / df['close'].iloc[-10] - 1) if len(df) >= 10 else 0
+            momentum_3w = (df['close'].iloc[-1] / df['close'].iloc[-21] - 1) if len(df) >= 21 else 0
+            
+            # Weighted momentum score
+            momentum_score = (momentum_1w * 0.5 + momentum_2w * 0.3 + momentum_3w * 0.2)
+            momentum_scores[symbol] = momentum_score
+            price_changes[symbol] = momentum_1w
+        
+        if not momentum_scores:
+            return {'cross_momentum_score': 0, 'momentum_consensus': 'NEUTRAL'}
+        
+        # Calculate consensus momentum
+        avg_momentum = np.mean(list(momentum_scores.values()))
+        momentum_std = np.std(list(momentum_scores.values()))
+        
+        # Calculate cross-asset correlation in momentum
+        if len(momentum_scores) >= 3:
+            momentum_values = list(momentum_scores.values())
+            momentum_corr = np.corrcoef(momentum_values, momentum_values)[0, 1] if len(momentum_values) > 1 else 0
+        else:
+            momentum_corr = 0
+        
+        # Determine consensus strength
+        consensus_threshold = 0.6
+        positive_momentum_count = sum(1 for m in momentum_scores.values() if m > 0.01)
+        negative_momentum_count = sum(1 for m in momentum_scores.values() if m < -0.01)
+        total_assets = len(momentum_scores)
+        
+        if positive_momentum_count / total_assets > consensus_threshold:
+            consensus = 'STRONG_BULLISH'
+        elif negative_momentum_count / total_assets > consensus_threshold:
+            consensus = 'STRONG_BEARISH'
+        elif positive_momentum_count > negative_momentum_count:
+            consensus = 'WEAK_BULLISH'
+        elif negative_momentum_count > positive_momentum_count:
+            consensus = 'WEAK_BEARISH'
+        else:
+            consensus = 'NEUTRAL'
+        
+        return {
+            'cross_momentum_score': avg_momentum,
+            'momentum_consensus': consensus,
+            'momentum_correlation': momentum_corr,
+            'momentum_dispersion': momentum_std,
+            'individual_momentum': momentum_scores,
+            'consensus_strength': max(positive_momentum_count, negative_momentum_count) / total_assets
+        }
+    
+    def statistical_significance_test(self, signal_data, alpha=0.05):
+        """
+        Test statistical significance of trading signals
+        Uses multiple statistical tests for robustness
+        """
+        if len(signal_data) < 30:
+            return {'significant': False, 'p_value': 1.0, 'test_used': 'insufficient_data'}
+        
+        # Convert to returns if price data
+        if signal_data.max() > 10:  # Likely price data
+            returns = signal_data.pct_change().dropna()
+        else:
+            returns = signal_data.dropna()
+        
+        if len(returns) < 10:
+            return {'significant': False, 'p_value': 1.0, 'test_used': 'insufficient_returns'}
+        
+        tests_results = {}
+        
+        # Test 1: T-test against zero (is mean return significantly different from 0?)
+        t_stat, t_p_value = stats.ttest_1samp(returns, 0)
+        tests_results['t_test'] = {
+            'statistic': t_stat,
+            'p_value': t_p_value,
+            'significant': t_p_value < alpha
+        }
+        
+        # Test 2: Jarque-Bera test for normality
+        if len(returns) > 8:
+            jb_stat, jb_p_value = stats.jarque_bera(returns)
+            tests_results['normality_test'] = {
+                'statistic': jb_stat,
+                'p_value': jb_p_value,
+                'normal_distribution': jb_p_value > alpha
+            }
+        
+        # Test 3: Run test for randomness
+        median_return = np.median(returns)
+        runs, runs_p_value = self._runs_test(returns > median_return)
+        tests_results['runs_test'] = {
+            'statistic': runs,
+            'p_value': runs_p_value,
+            'random': runs_p_value > alpha
+        }
+        
+        # Test 4: Augmented Dickey-Fuller test for stationarity
+        try:
+            from scipy.stats import adfuller
+            adf_stat, adf_p_value = adfuller(returns, maxlag=1)[:2]
+            tests_results['stationarity_test'] = {
+                'statistic': adf_stat,
+                'p_value': adf_p_value,
+                'stationary': adf_p_value < alpha
+            }
+        except:
+            tests_results['stationarity_test'] = {'p_value': 1.0, 'stationary': False}
+        
+        # Overall significance (conservative approach)
+        significant_tests = sum(1 for test in tests_results.values() 
+                              if test.get('significant', False) or test.get('p_value', 1) < alpha)
+        
+        overall_significant = significant_tests >= 2  # At least 2 tests must be significant
+        min_p_value = min(test.get('p_value', 1) for test in tests_results.values())
+        
+        return {
+            'significant': overall_significant,
+            'p_value': min_p_value,
+            'significant_tests_count': significant_tests,
+            'total_tests': len(tests_results),
+            'individual_tests': tests_results,
+            'confidence_level': 1 - alpha
+        }
+    
+    def _runs_test(self, binary_sequence):
+        """
+        Runs test for randomness
+        """
+        binary_sequence = np.array(binary_sequence, dtype=bool)
+        n = len(binary_sequence)
+        
+        if n < 2:
+            return 0, 1.0
+        
+        # Count runs
+        runs = 1
+        for i in range(1, n):
+            if binary_sequence[i] != binary_sequence[i-1]:
+                runs += 1
+        
+        # Calculate expected runs and standard deviation
+        n1 = np.sum(binary_sequence)  # Number of True values
+        n0 = n - n1  # Number of False values
+        
+        if n1 == 0 or n0 == 0:
+            return runs, 1.0
+        
+        expected_runs = (2 * n1 * n0) / n + 1
+        variance_runs = (2 * n1 * n0 * (2 * n1 * n0 - n)) / (n * n * (n - 1))
+        
+        if variance_runs <= 0:
+            return runs, 1.0
+        
+        # Z-score
+        z_score = (runs - expected_runs) / np.sqrt(variance_runs)
+        p_value = 2 * (1 - stats.norm.cdf(abs(z_score)))
+        
+        return runs, p_value
+    
+    def calculate_regime_dependent_signals(self, df, regime_lookback=60):
+        """
+        Calculate signals that adapt to different market regimes
+        Renaissance-style regime-dependent strategies
+        """
+        if len(df) < regime_lookback:
+            return {'regime': 'UNKNOWN', 'signals': {}}
+        
+        returns = df['close'].pct_change().dropna()
+        
+        # Identify market regime
+        recent_returns = returns.tail(regime_lookback)
+        
+        # Regime characteristics
+        volatility = recent_returns.std() * np.sqrt(252)
+        skewness = stats.skew(recent_returns)
+        kurtosis = stats.kurtosis(recent_returns)
+        autocorr_1 = recent_returns.autocorr(lag=1) if len(recent_returns) > 1 else 0
+        
+        # Classify regime
+        if volatility > 0.25:  # High volatility
+            if abs(skewness) > 1:
+                regime = 'CRISIS'
+            else:
+                regime = 'HIGH_VOLATILITY'
+        elif volatility < 0.12:  # Low volatility
+            if kurtosis > 3:
+                regime = 'LOW_VOLATILITY_COMPRESSED'
+            else:
+                regime = 'LOW_VOLATILITY_NORMAL'
+        else:
+            if autocorr_1 > 0.1:
+                regime = 'TRENDING'
+            elif autocorr_1 < -0.1:
+                regime = 'MEAN_REVERTING'
+            else:
+                regime = 'NORMAL'
+        
+        # Regime-specific signals
+        signals = {}
+        
+        if regime in ['TRENDING', 'HIGH_VOLATILITY']:
+            # Momentum signals work better
+            momentum = self.calculate_advanced_momentum_score(df)
+            signals['primary_strategy'] = 'momentum'
+            signals['momentum_weight'] = 0.7
+            signals['mean_reversion_weight'] = 0.3
+            
+        elif regime in ['MEAN_REVERTING', 'LOW_VOLATILITY_COMPRESSED']:
+            # Mean reversion signals work better
+            mean_rev = self.calculate_mean_reversion_probability(df)
+            signals['primary_strategy'] = 'mean_reversion'
+            signals['momentum_weight'] = 0.3
+            signals['mean_reversion_weight'] = 0.7
+            
+        elif regime == 'CRISIS':
+            # Risk-off signals
+            signals['primary_strategy'] = 'risk_off'
+            signals['momentum_weight'] = 0.2
+            signals['mean_reversion_weight'] = 0.2
+            signals['risk_off_weight'] = 0.6
+            
+        else:
+            # Balanced approach
+            signals['primary_strategy'] = 'balanced'
+            signals['momentum_weight'] = 0.5
+            signals['mean_reversion_weight'] = 0.5
+        
+        return {
+            'regime': regime,
+            'regime_characteristics': {
+                'volatility': volatility,
+                'skewness': skewness,
+                'kurtosis': kurtosis,
+                'autocorrelation': autocorr_1
+            },
+            'signals': signals,
+            'confidence': min(1.0, len(recent_returns) / regime_lookback)
+        }
+    
+    def calculate_microstructure_alpha(self, df, orderbook_data=None):
+        """
+        Calculate alpha from market microstructure
+        High-frequency patterns and orderbook dynamics
+        """
+        if len(df) < 50:
+            return {'microstructure_alpha': 0, 'confidence': 0}
+        
+        alpha_signals = {}
+        
+        # 1. Intraday momentum patterns
+        if 'timestamp' in df.columns or df.index.name == 'timestamp':
+            # Time-based patterns
+            df_copy = df.copy()
+            if 'timestamp' not in df.columns:
+                df_copy['timestamp'] = df.index
+            
+            df_copy['hour'] = pd.to_datetime(df_copy['timestamp']).dt.hour
+            df_copy['minute'] = pd.to_datetime(df_copy['timestamp']).dt.minute
+            
+            # Opening auction effects (9:15-9:30)
+            opening_returns = df_copy[df_copy['hour'] == 9]['close'].pct_change().mean()
+            
+            # Closing auction effects (15:15-15:30)
+            closing_returns = df_copy[df_copy['hour'] == 15]['close'].pct_change().mean()
+            
+            alpha_signals['opening_bias'] = opening_returns
+            alpha_signals['closing_bias'] = closing_returns
+        
+        # 2. Volume-price relationship
+        if 'volume' in df.columns:
+            price_changes = df['close'].pct_change()
+            volume_changes = df['volume'].pct_change()
+            
+            # Volume-price correlation
+            vol_price_corr = price_changes.corr(volume_changes)
+            alpha_signals['volume_price_correlation'] = vol_price_corr
+            
+            # Unusual volume patterns
+            volume_ma = df['volume'].rolling(20).mean()
+            volume_ratio = df['volume'] / volume_ma
+            high_volume_returns = price_changes[volume_ratio > 2].mean()
+            alpha_signals['high_volume_alpha'] = high_volume_returns
+        
+        # 3. Price level effects
+        df['returns'] = df['close'].pct_change()
+        df['price_level'] = pd.qcut(df['close'], q=5, labels=['very_low', 'low', 'medium', 'high', 'very_high'])
+        
+        level_returns = df.groupby('price_level')['returns'].mean()
+        alpha_signals['price_level_effects'] = level_returns.to_dict()
+        
+        # 4. Bid-ask spread analysis (if orderbook data available)
+        if orderbook_data:
+            spread = (orderbook_data['ask'] - orderbook_data['bid']) / orderbook_data['mid']
+            spread_quartiles = pd.qcut(spread, q=4, labels=['tight', 'normal', 'wide', 'very_wide'])
+            
+            spread_returns = {}
+            for quartile in spread_quartiles.categories:
+                mask = spread_quartiles == quartile
+                if mask.sum() > 0:
+                    spread_returns[quartile] = df.loc[mask, 'returns'].mean()
+            
+            alpha_signals['spread_effects'] = spread_returns
+        
+        # 5. Serial correlation in returns
+        serial_corr_1 = df['returns'].autocorr(lag=1)
+        serial_corr_5 = df['returns'].autocorr(lag=5)
+        
+        alpha_signals['serial_correlation_1'] = serial_corr_1
+        alpha_signals['serial_correlation_5'] = serial_corr_5
+        
+        # Calculate overall microstructure alpha
+        alpha_score = 0
+        
+        # Weight different alpha sources
+        if abs(alpha_signals.get('opening_bias', 0)) > 0.001:
+            alpha_score += alpha_signals['opening_bias'] * 0.2
+        
+        if abs(alpha_signals.get('high_volume_alpha', 0)) > 0.001:
+            alpha_score += alpha_signals['high_volume_alpha'] * 0.3
+        
+        if abs(serial_corr_1) > 0.05:
+            alpha_score += serial_corr_1 * 0.2
+        
+        confidence = min(1.0, len(df) / 100)  # More data = higher confidence
+        
+        return {
+            'microstructure_alpha': alpha_score,
+            'confidence': confidence,
+            'alpha_components': alpha_signals,
+            'dominant_pattern': max(alpha_signals.items(), key=lambda x: abs(x[1])) if alpha_signals else ('none', 0)
+        }
+    
+    def calculate_enhanced_comprehensive_score(self, df, symbols_data=None, orderbook_data=None):
+        """
+        Enhanced comprehensive scoring with all Renaissance-style methods
+        """
+        base_analysis = self.calculate_comprehensive_score(df)
+        
+        enhancements = {}
+        
+        # 1. Kalman filtered signals
+        if len(df) >= 20:
+            filtered_prices = self.apply_kalman_filter(df['close'])
+            filtered_df = df.copy()
+            filtered_df['close'] = filtered_prices
+            
+            filtered_momentum = self.calculate_advanced_momentum_score(filtered_df)
+            enhancements['kalman_momentum'] = filtered_momentum['momentum_score']
+        
+        # 2. Cross-asset momentum (if multi-asset data available)
+        if symbols_data and len(symbols_data) > 1:
+            cross_momentum = self.calculate_cross_asset_momentum(symbols_data)
+            enhancements['cross_asset_momentum'] = cross_momentum['cross_momentum_score']
+            enhancements['momentum_consensus'] = cross_momentum['momentum_consensus']
+        
+        # 3. Statistical significance
+        recent_returns = df['close'].pct_change().tail(30)
+        significance = self.statistical_significance_test(recent_returns)
+        enhancements['signal_significance'] = significance['significant']
+        enhancements['signal_p_value'] = significance['p_value']
+        
+        # 4. Regime-dependent signals
+        regime_analysis = self.calculate_regime_dependent_signals(df)
+        enhancements['market_regime'] = regime_analysis['regime']
+        enhancements['regime_signals'] = regime_analysis['signals']
+        
+        # 5. Microstructure alpha
+        microstructure = self.calculate_microstructure_alpha(df, orderbook_data)
+        enhancements['microstructure_alpha'] = microstructure['microstructure_alpha']
+        
+        # Adjust final score based on enhancements
+        base_score = base_analysis['final_score']
+        
+        # Kalman filter bonus (reduces noise)
+        if 'kalman_momentum' in enhancements:
+            if abs(enhancements['kalman_momentum']) > abs(base_analysis['component_scores'].get('momentum', 0)):
+                base_score += 0.05
+        
+        # Cross-asset consensus bonus
+        if enhancements.get('momentum_consensus') in ['STRONG_BULLISH', 'STRONG_BEARISH']:
+            base_score += 0.08
+        
+        # Statistical significance bonus
+        if enhancements.get('signal_significance'):
+            base_score += 0.10
+        
+        # Regime adaptation bonus
+        if regime_analysis['confidence'] > 0.8:
+            base_score += 0.05
+        
+        # Microstructure alpha bonus
+        if abs(enhancements.get('microstructure_alpha', 0)) > 0.01:
+            base_score += min(0.1, abs(enhancements['microstructure_alpha']) * 5)
+        
+        # Cap the score between 0 and 1
+        enhanced_score = max(0, min(1, base_score))
+        
+        # Update recommendation based on enhanced score
+        if enhanced_score >= 0.8:
+            recommendation = 'STRONG_BUY'
+        elif enhanced_score >= 0.65:
+            recommendation = 'BUY'
+        elif enhanced_score >= 0.35:
+            recommendation = 'HOLD'
+        elif enhanced_score >= 0.2:
+            recommendation = 'SELL'
+        else:
+            recommendation = 'STRONG_SELL'
+        
+        return {
+            'enhanced_score': enhanced_score,
+            'base_score': base_analysis['final_score'],
+            'recommendation': recommendation,
+            'base_analysis': base_analysis,
+            'enhancements': enhancements,
+            'confidence_factors': {
+                'statistical_significance': enhancements.get('signal_significance', False),
+                'cross_asset_consensus': enhancements.get('momentum_consensus', 'NEUTRAL'),
+                'regime_confidence': regime_analysis['confidence'],
+                'microstructure_confidence': microstructure['confidence']
             }
         }

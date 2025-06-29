@@ -259,6 +259,96 @@
 
                 <p class="text-xs text-slate-500 mt-4 text-right">Last updated: <span id="actionable-screener-last-updated">N/A</span></p>
             </section>
+            
+            <!-- Fake Trade Testing Section -->
+            <section class="bg-slate-800 p-6 rounded-lg shadow-lg mt-6">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🧪</span>
+                    Signal Testing (Fake Trades)
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Test Trade Controls -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-400 mb-3">Test Trade Execution</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Select Signal to Test:</label>
+                                <select id="test-signal-select" class="w-full bg-slate-600 border border-slate-500 text-white rounded px-3 py-2">
+                                    <option value="">Select a signal...</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1">Quantity:</label>
+                                    <input type="number" id="test-quantity" value="10" min="1" max="1000" 
+                                           class="w-full bg-slate-600 border border-slate-500 text-white rounded px-3 py-2">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1">Test Capital:</label>
+                                    <input type="number" id="test-capital" value="100000" min="10000" max="10000000" 
+                                           class="w-full bg-slate-600 border border-slate-500 text-white rounded px-3 py-2">
+                                </div>
+                            </div>
+                            <button onclick="executeFakeTrade()" 
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium">
+                                Execute Fake Trade
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Test Results Summary -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Test Performance</h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white" id="test-total-trades">0</div>
+                                <div class="text-slate-400">Total Tests</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="test-win-rate">0%</div>
+                                <div class="text-slate-400">Win Rate</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="test-total-pnl">₹0</div>
+                                <div class="text-slate-400">Total P&L</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="test-avg-return">0%</div>
+                                <div class="text-slate-400">Avg Return</div>
+                            </div>
+                        </div>
+                        <button onclick="resetTestStats()" 
+                                class="w-full mt-3 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                            Reset Stats
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Active Test Trades -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-3">Active Test Trades</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-600">
+                            <thead class="bg-slate-700">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-slate-300 uppercase">Side</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Entry</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Current</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Target</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Stop</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-slate-300 uppercase">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="test-trades-body" class="bg-slate-800 divide-y divide-slate-700">
+                                <tr><td colspan="8" class="text-center py-4 text-slate-500">No active test trades</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- Charts Tab -->
@@ -904,9 +994,11 @@
             
             availableSymbols.forEach(symbol => {
                 const option = document.createElement('option');
-                option.value = symbol.symbol || symbol.display_name || symbol.name;
+                // Use symbol_clean for API calls, display original name to user
+                option.value = symbol.symbol_clean || symbol.symbol || symbol.display_name || symbol.name;
+                const displayName = symbol.symbol || symbol.display_name || symbol.name;
                 const price = symbol.latest_price || symbol.last_price || 0;
-                option.textContent = `${option.value} (₹${price.toFixed(2)})`;
+                option.textContent = `${displayName} (₹${price.toFixed(2)})`;
                 dropdown.appendChild(option);
             });
 
@@ -2218,6 +2310,287 @@
                     </tr>
                 `).join('');
             }
+        });
+
+        // ============================================================================
+        // FAKE TRADE TESTING FUNCTIONALITY
+        // ============================================================================
+        
+        let testTrades = JSON.parse(localStorage.getItem('testTrades') || '[]');
+        let testStats = JSON.parse(localStorage.getItem('testStats') || '{"totalTrades": 0, "winningTrades": 0, "totalPnL": 0, "totalCapital": 0}');
+        
+        function updateTestSignalSelect() {
+            const select = document.getElementById('test-signal-select');
+            const tbody = document.getElementById('market-data-body');
+            
+            select.innerHTML = '<option value="">Select a signal...</option>';
+            
+            // Get all rows with valid signals
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 3) {
+                    const symbol = cells[0]?.textContent?.trim();
+                    const signal = cells[2]?.textContent?.trim();
+                    const ltp = cells[1]?.textContent?.trim();
+                    
+                    if (symbol && signal && signal !== 'WAIT' && ltp) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify({
+                            symbol: symbol,
+                            signal: signal,
+                            price: parseFloat(ltp.replace('₹', '').replace(',', '')),
+                            target: cells[5]?.textContent?.trim().replace('₹', '').replace(',', '') || null,
+                            stopLoss: cells[6]?.textContent?.trim().replace('₹', '').replace(',', '') || null,
+                            confidence: cells[3]?.textContent?.trim().replace('%', '') || '0'
+                        });
+                        option.textContent = `${symbol} - ${signal} @ ₹${ltp}`;
+                        select.appendChild(option);
+                    }
+                }
+            });
+        }
+        
+        function executeFakeTrade() {
+            const selectElement = document.getElementById('test-signal-select');
+            const quantityElement = document.getElementById('test-quantity');
+            const capitalElement = document.getElementById('test-capital');
+            
+            if (!selectElement.value) {
+                alert('Please select a signal to test');
+                return;
+            }
+            
+            try {
+                const signalData = JSON.parse(selectElement.value);
+                const quantity = parseInt(quantityElement.value);
+                const testCapital = parseFloat(capitalElement.value);
+                
+                if (quantity <= 0 || testCapital <= 0) {
+                    alert('Please enter valid quantity and capital amounts');
+                    return;
+                }
+                
+                // Create fake trade
+                const trade = {
+                    id: Date.now(),
+                    symbol: signalData.symbol,
+                    side: signalData.signal,
+                    entryPrice: signalData.price,
+                    currentPrice: signalData.price,
+                    quantity: quantity,
+                    targetPrice: signalData.target ? parseFloat(signalData.target) : null,
+                    stopLoss: signalData.stopLoss ? parseFloat(signalData.stopLoss) : null,
+                    confidence: parseFloat(signalData.confidence),
+                    timestamp: new Date().toISOString(),
+                    testCapital: testCapital,
+                    status: 'ACTIVE',
+                    pnl: 0
+                };
+                
+                testTrades.push(trade);
+                localStorage.setItem('testTrades', JSON.stringify(testTrades));
+                
+                updateTestTradesDisplay();
+                updateTestStats();
+                
+                // Show success message
+                showNotification(`Fake ${trade.side} trade executed for ${trade.symbol}`, 'success');
+                
+                // Reset form
+                selectElement.value = '';
+                
+            } catch (error) {
+                console.error('Error executing fake trade:', error);
+                alert('Error executing fake trade');
+            }
+        }
+        
+        function updateTestTradesDisplay() {
+            const tbody = document.getElementById('test-trades-body');
+            
+            if (testTrades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-slate-500">No active test trades</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = testTrades.filter(trade => trade.status === 'ACTIVE').map(trade => {
+                const pnlValue = (trade.currentPrice - trade.entryPrice) * trade.quantity * (trade.side === 'BUY' ? 1 : -1);
+                const pnlPct = ((trade.currentPrice - trade.entryPrice) / trade.entryPrice) * 100 * (trade.side === 'BUY' ? 1 : -1);
+                const pnlClass = pnlValue >= 0 ? 'text-green-400' : 'text-red-400';
+                
+                return `
+                    <tr class="hover:bg-slate-700">
+                        <td class="px-3 py-2 font-medium text-white">${trade.symbol}</td>
+                        <td class="px-3 py-2 text-center">
+                            <span class="px-2 py-1 text-xs font-semibold rounded ${trade.side === 'BUY' ? 'bg-green-600' : 'bg-red-600'} text-white">
+                                ${trade.side}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-right font-semibold text-white">₹${trade.entryPrice.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-right font-semibold text-white">₹${trade.currentPrice.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-right font-bold ${pnlClass}">
+                            ₹${pnlValue.toFixed(0)} (${pnlPct.toFixed(1)}%)
+                        </td>
+                        <td class="px-3 py-2 text-right text-green-400">
+                            ${trade.targetPrice ? '₹' + trade.targetPrice.toFixed(2) : '-'}
+                        </td>
+                        <td class="px-3 py-2 text-right text-red-400">
+                            ${trade.stopLoss ? '₹' + trade.stopLoss.toFixed(2) : '-'}
+                        </td>
+                        <td class="px-3 py-2 text-center">
+                            <button onclick="closeFakeTrade(${trade.id})" 
+                                    class="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded">
+                                Close
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function closeFakeTrade(tradeId) {
+            const trade = testTrades.find(t => t.id === tradeId);
+            if (!trade) return;
+            
+            const finalPnL = (trade.currentPrice - trade.entryPrice) * trade.quantity * (trade.side === 'BUY' ? 1 : -1);
+            trade.status = 'CLOSED';
+            trade.pnl = finalPnL;
+            trade.closedAt = new Date().toISOString();
+            
+            // Update stats
+            testStats.totalTrades++;
+            testStats.totalPnL += finalPnL;
+            testStats.totalCapital += trade.testCapital;
+            
+            if (finalPnL > 0) {
+                testStats.winningTrades++;
+            }
+            
+            localStorage.setItem('testTrades', JSON.stringify(testTrades));
+            localStorage.setItem('testStats', JSON.stringify(testStats));
+            
+            updateTestTradesDisplay();
+            updateTestStats();
+            
+            const pnlMsg = finalPnL >= 0 ? `Profit: ₹${finalPnL.toFixed(0)}` : `Loss: ₹${Math.abs(finalPnL).toFixed(0)}`;
+            showNotification(`${trade.symbol} fake trade closed - ${pnlMsg}`, finalPnL >= 0 ? 'success' : 'error');
+        }
+        
+        function updateTestStats() {
+            document.getElementById('test-total-trades').textContent = testStats.totalTrades;
+            document.getElementById('test-win-rate').textContent = testStats.totalTrades > 0 ? 
+                Math.round((testStats.winningTrades / testStats.totalTrades) * 100) + '%' : '0%';
+            document.getElementById('test-total-pnl').textContent = '₹' + testStats.totalPnL.toFixed(0);
+            document.getElementById('test-avg-return').textContent = testStats.totalCapital > 0 ? 
+                ((testStats.totalPnL / testStats.totalCapital) * 100).toFixed(1) + '%' : '0%';
+            
+            // Update color based on performance
+            const pnlElement = document.getElementById('test-total-pnl');
+            const returnElement = document.getElementById('test-avg-return');
+            
+            pnlElement.className = `text-2xl font-bold ${testStats.totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`;
+            returnElement.className = `text-2xl font-bold ${testStats.totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`;
+        }
+        
+        function resetTestStats() {
+            if (confirm('Are you sure you want to reset all test statistics? This cannot be undone.')) {
+                testTrades = [];
+                testStats = {"totalTrades": 0, "winningTrades": 0, "totalPnL": 0, "totalCapital": 0};
+                
+                localStorage.setItem('testTrades', JSON.stringify(testTrades));
+                localStorage.setItem('testStats', JSON.stringify(testStats));
+                
+                updateTestTradesDisplay();
+                updateTestStats();
+                
+                showNotification('Test statistics reset', 'success');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded shadow-lg z-50 text-white ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Update fake trade prices with real market data
+        function updateFakeTradesPrices(marketData) {
+            let updated = false;
+            
+            testTrades.forEach(trade => {
+                if (trade.status === 'ACTIVE') {
+                    const stockData = Object.values(marketData).find(stock => stock.name === trade.symbol);
+                    if (stockData && stockData.ltp) {
+                        trade.currentPrice = stockData.ltp;
+                        updated = true;
+                        
+                        // Auto-close trade if stop loss or target hit
+                        if (trade.side === 'BUY') {
+                            if (trade.stopLoss && stockData.ltp <= trade.stopLoss) {
+                                trade.currentPrice = trade.stopLoss;
+                                closeFakeTrade(trade.id);
+                            } else if (trade.targetPrice && stockData.ltp >= trade.targetPrice) {
+                                trade.currentPrice = trade.targetPrice;
+                                closeFakeTrade(trade.id);
+                            }
+                        } else { // SELL
+                            if (trade.stopLoss && stockData.ltp >= trade.stopLoss) {
+                                trade.currentPrice = trade.stopLoss;
+                                closeFakeTrade(trade.id);
+                            } else if (trade.targetPrice && stockData.ltp <= trade.targetPrice) {
+                                trade.currentPrice = trade.targetPrice;
+                                closeFakeTrade(trade.id);
+                            }
+                        }
+                    }
+                }
+            });
+            
+            if (updated) {
+                localStorage.setItem('testTrades', JSON.stringify(testTrades));
+                updateTestTradesDisplay();
+            }
+        }
+        
+        // Initialize test functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTestStats();
+            updateTestTradesDisplay();
+            
+            // Initialize chart functionality
+            console.log('Initializing charts on page load...');
+            
+            // Ensure Chart.js is loaded before initializing
+            function waitForChart() {
+                if (typeof Chart !== 'undefined') {
+                    console.log('Chart.js is loaded, initializing...');
+                    initializeChart();
+                    loadAvailableSymbols();
+                } else {
+                    console.log('Waiting for Chart.js to load...');
+                    setTimeout(waitForChart, 100);
+                }
+            }
+            
+            setTimeout(waitForChart, 500); // Start checking after 500ms
+            
+            // Update signal select when market data changes
+            const originalUpdateMarketData = updateMarketData;
+            updateMarketData = function(data) {
+                originalUpdateMarketData(data);
+                updateTestSignalSelect();
+                updateFakeTradesPrices(data);
+            };
         });
 
     </script>

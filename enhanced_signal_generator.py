@@ -1085,7 +1085,8 @@ class TrajectorySignalGenerator:
             return None
     
     def get_enhanced_signal_with_quant_analysis(self, symbol: str, current_market_data: Dict, 
-                                               technical_indicators: Dict, orderbook_analysis: Dict) -> Dict:
+                                               technical_indicators: Dict, orderbook_analysis: Dict, 
+                                               symbols_data: Dict = None) -> Dict:
         """Generate enhanced signal with comprehensive quantitative analysis"""
         try:
             # Get traditional signals
@@ -1094,10 +1095,13 @@ class TrajectorySignalGenerator:
             # Get quantitative analysis
             df = self._get_symbol_dataframe(symbol)
             if df is not None:
-                quant_analysis = self.quant_engine.calculate_comprehensive_score(df)
+                # Use enhanced comprehensive scoring with Renaissance-style methods
+                enhanced_quant = self.quant_engine.calculate_enhanced_comprehensive_score(
+                    df, symbols_data, orderbook_analysis
+                )
                 trading_plan = self.quant_engine.generate_trading_plan(df, portfolio_value=1000000)
                 
-                # Combine traditional and quantitative insights
+                # Combine traditional and enhanced quantitative insights
                 combined_analysis = {
                     'symbol': symbol,
                     'traditional_signals': [
@@ -1106,22 +1110,37 @@ class TrajectorySignalGenerator:
                             'confidence': s.confidence,
                             'strength': s.strength.name,
                             'reasons': s.reasons,
-                            'risk_reward': s.risk_reward_ratio
+                            'risk_reward': s.risk_reward_ratio,
+                            'target_price': s.target_price,
+                            'stop_loss': s.stop_loss,
+                            'gap_risk_factor': s.gap_risk_factor
                         } for s in traditional_signals
                     ],
                     'quantitative_analysis': {
-                        'overall_score': quant_analysis['final_score'],
-                        'recommendation': quant_analysis['recommendation'],
-                        'component_scores': quant_analysis['component_scores'],
-                        'detailed_analysis': {
-                            key: value for key, value in quant_analysis['detailed_analysis'].items()
-                            if key in ['momentum', 'volatility_regime', 'risk_reward_ratio']
+                        'enhanced_score': enhanced_quant['enhanced_score'],
+                        'base_score': enhanced_quant['base_score'],
+                        'recommendation': enhanced_quant['recommendation'],
+                        'enhancements': enhanced_quant['enhancements'],
+                        'confidence_factors': enhanced_quant['confidence_factors'],
+                        'base_analysis': {
+                            'component_scores': enhanced_quant['base_analysis']['component_scores'],
+                            'detailed_analysis': {
+                                key: value for key, value in enhanced_quant['base_analysis']['detailed_analysis'].items()
+                                if key in ['momentum', 'volatility_regime', 'risk_reward_ratio', 'support_resistance']
+                            }
                         }
                     },
-                    'trading_plan': trading_plan['trading_plan'] if trading_plan['trading_plan'].get('action') in ['BUY', 'STRONG_BUY'] else None,
+                    'trading_plan': trading_plan['trading_plan'] if trading_plan['trading_plan'].get('action') in ['BUY', 'STRONG_BUY', 'SELL', 'STRONG_SELL'] else None,
                     'market_conditions': trading_plan['market_conditions'],
-                    'final_recommendation': self._combine_recommendations(traditional_signals, quant_analysis),
-                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat()
+                    'final_recommendation': self._combine_enhanced_recommendations(traditional_signals, enhanced_quant),
+                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat(),
+                    'advanced_features': {
+                        'kalman_filtered': 'kalman_momentum' in enhanced_quant['enhancements'],
+                        'cross_asset_analysis': 'cross_asset_momentum' in enhanced_quant['enhancements'],
+                        'statistical_significance': enhanced_quant['enhancements'].get('signal_significance', False),
+                        'regime_adaptive': enhanced_quant['enhancements'].get('market_regime', 'UNKNOWN'),
+                        'microstructure_alpha': enhanced_quant['enhancements'].get('microstructure_alpha', 0)
+                    }
                 }
                 
                 return combined_analysis
@@ -1140,7 +1159,14 @@ class TrajectorySignalGenerator:
                     ],
                     'quantitative_analysis': None,
                     'final_recommendation': traditional_signals[0].signal_type if traditional_signals else 'HOLD',
-                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat()
+                    'analysis_timestamp': datetime.now(self.ist_timezone).isoformat(),
+                    'advanced_features': {
+                        'kalman_filtered': False,
+                        'cross_asset_analysis': False,
+                        'statistical_significance': False,
+                        'regime_adaptive': 'UNKNOWN',
+                        'microstructure_alpha': 0
+                    }
                 }
                 
         except Exception as e:
@@ -1166,6 +1192,64 @@ class TrajectorySignalGenerator:
             return quant_rec
         else:
             return 'HOLD'
+    
+    def _combine_enhanced_recommendations(self, traditional_signals, enhanced_quant):
+        """Combine traditional and enhanced quantitative recommendations with confidence weighting"""
+        if not traditional_signals:
+            return enhanced_quant['recommendation']
+        
+        traditional_rec = traditional_signals[0].signal_type
+        traditional_confidence = traditional_signals[0].confidence
+        
+        enhanced_rec = enhanced_quant['recommendation']
+        enhanced_score = enhanced_quant['enhanced_score']
+        
+        # Calculate weights based on confidence and enhancements
+        traditional_weight = traditional_confidence
+        enhanced_weight = enhanced_score
+        
+        # Bonus weight for statistical significance
+        if enhanced_quant['enhancements'].get('signal_significance', False):
+            enhanced_weight += 0.15
+        
+        # Bonus weight for cross-asset consensus
+        consensus = enhanced_quant['enhancements'].get('momentum_consensus', 'NEUTRAL')
+        if consensus in ['STRONG_BULLISH', 'STRONG_BEARISH']:
+            enhanced_weight += 0.10
+        
+        # Bonus weight for regime adaptation
+        if enhanced_quant['confidence_factors'].get('regime_confidence', 0) > 0.8:
+            enhanced_weight += 0.05
+        
+        # Normalize weights
+        total_weight = traditional_weight + enhanced_weight
+        if total_weight > 0:
+            trad_weight_norm = traditional_weight / total_weight
+            enh_weight_norm = enhanced_weight / total_weight
+        else:
+            trad_weight_norm = enh_weight_norm = 0.5
+        
+        # Combine recommendations based on weights
+        if enhanced_weight > traditional_weight * 1.5:  # Enhanced analysis is much stronger
+            final_rec = enhanced_rec
+        elif traditional_weight > enhanced_weight * 1.5:  # Traditional analysis is much stronger
+            final_rec = traditional_rec
+        else:
+            # Agreement-based combination
+            if traditional_rec == enhanced_rec:
+                final_rec = traditional_rec
+            elif traditional_rec == 'BUY' and enhanced_rec in ['BUY', 'STRONG_BUY']:
+                final_rec = 'STRONG_BUY'
+            elif traditional_rec == 'SELL' and enhanced_rec in ['SELL', 'STRONG_SELL']:
+                final_rec = 'STRONG_SELL'
+            elif enhanced_rec in ['STRONG_BUY', 'STRONG_SELL']:
+                final_rec = enhanced_rec
+            elif traditional_rec in ['BUY', 'SELL'] and enhanced_rec == 'HOLD':
+                final_rec = traditional_rec
+            else:
+                final_rec = 'HOLD'
+        
+        return final_rec
 
 # Example usage and testing
 if __name__ == "__main__":

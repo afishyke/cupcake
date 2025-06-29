@@ -179,6 +179,67 @@ class UpstoxAuthClient:
             print(f"❌ Authentication failed: {response.text}")
             return False
     
+    def authenticate_with_code(self, auth_code: str) -> bool:
+        """Authenticate using authorization code (for non-interactive use)"""
+        self._log_event("AUTH_ATTEMPT", "Starting authentication with provided code")
+        
+        token_data = {
+            'code': auth_code,
+            'client_id': self.config['api_key'],
+            'client_secret': self.config['api_secret'],
+            'redirect_uri': self.config['redirect_uri'],
+            'grant_type': 'authorization_code'
+        }
+        
+        response = self.session.post(
+            f"{self.base_url}/login/authorization/token",
+            data=token_data,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+        
+        if response.status_code == 200:
+            token_info = response.json()
+            self.config['access_token'] = token_info['access_token']
+            
+            # ==== FORCE EXPIRY AT NEXT 3:30 AM IST ====
+            now_utc = datetime.now(timezone.utc)
+            ist_offset = timedelta(hours=5, minutes=30)
+            
+            # Create IST timezone
+            ist_tz = timezone(ist_offset)
+            now_ist = now_utc.astimezone(ist_tz)
+
+            # Create timezone-aware datetime for 3:30 AM IST
+            today_330_ist = datetime.combine(now_ist.date(), time(3, 30)).replace(tzinfo=ist_tz)
+            if now_ist >= today_330_ist:
+                target_ist = today_330_ist + timedelta(days=1)
+            else:
+                target_ist = today_330_ist
+
+            # Convert to UTC for storage
+            expires_at_utc = target_ist.astimezone(timezone.utc)
+            self.config['token_expires_at'] = expires_at_utc.isoformat()
+            # ============================================
+            
+            self._save_config()
+            self._setup_session()
+            self._log_event("AUTH_SUCCESS", f"Authentication successful with code, token expires at {expires_at_utc}")
+            print("✅ Authentication successful with provided code!")
+            return True
+        else:
+            self._log_event("AUTH_FAILED", f"Authentication failed with status {response.status_code}: {response.text}")
+            print(f"❌ Authentication failed: {response.text}")
+            return False
+    
+    def get_login_url(self) -> str:
+        """Get the login URL for browser authentication"""
+        return (
+            f"{self.base_url}/login/authorization/dialog"
+            f"?response_type=code"
+            f"&client_id={self.config['api_key']}"
+            f"&redirect_uri={self.config['redirect_uri']}"
+        )
+    
     def get_valid_token(self) -> Optional[str]:
         """Get a valid access token, refreshing if necessary"""
         if not self.is_token_valid():
@@ -225,6 +286,158 @@ class UpstoxAuthClient:
             self._log_event("CONNECTION_ERROR", f"Connection test error: {str(e)}")
             print(f"❌ Connection test error: {e}")
             return False
+    
+    async def calculate_trade_charges(self, symbol: str, quantity: int, price: float, 
+                                    transaction_type: str = 'BUY', product: str = 'I') -> Dict:
+        """
+        Calculate trade charges using Upstox API
+        """
+        token = self.get_valid_token()
+        if not token:
+            self._log_event("CHARGES_CALCULATION", "No access token available, using estimation")
+            return self._calculate_estimated_charges(symbol, quantity, price, transaction_type)
+        
+        try:
+            # Prepare request for Upstox trade charges API
+            charges_url = f"{self.base_url}/charges/brokerage"
+            
+            payload = {
+                "instrument_token": symbol,  # You might need to convert symbol to instrument_token
+                "quantity": quantity,
+                "price": price,
+                "transaction_type": transaction_type,
+                "product": product
+            }
+            
+            headers = self.get_auth_headers()
+            headers["Content-Type"] = "application/json"
+            
+            response = self.session.post(charges_url, json=payload, headers=headers)
+            
+            if response.status_code == 200:
+                charges_data = response.json()
+                
+                if charges_data.get('status') == 'success':
+                    charges = charges_data.get('data', {})
+                    
+                    # Parse Upstox charges response
+                    parsed_charges = {
+                        'brokerage': float(charges.get('brokerage', 0)),
+                        'stt': float(charges.get('stt', 0)),
+                        'transaction_charges': float(charges.get('transaction_charges', 0)),
+                        'gst': float(charges.get('gst', 0)),
+                        'sebi_charges': float(charges.get('sebi_charges', 0)),
+                        'stamp_duty': float(charges.get('stamp_duty', 0)),
+                        'total': float(charges.get('total', 0))
+                    }
+                    
+                    self._log_event("CHARGES_SUCCESS", f"Trade charges calculated for {symbol}: ₹{parsed_charges['total']:.2f}")
+                    return {
+                        'status': 'success',
+                        'charges': parsed_charges,
+                        'source': 'upstox_api'
+                    }
+                else:
+                    self._log_event("CHARGES_API_ERROR", "Upstox charges API returned error, using estimation")
+                    return self._calculate_estimated_charges(symbol, quantity, price, transaction_type)
+            else:
+                self._log_event("CHARGES_HTTP_ERROR", f"Upstox charges API error {response.status_code}, using estimation")
+                return self._calculate_estimated_charges(symbol, quantity, price, transaction_type)
+                
+        except Exception as e:
+            self._log_event("CHARGES_EXCEPTION", f"Error calculating trade charges via API: {str(e)}")
+            return self._calculate_estimated_charges(symbol, quantity, price, transaction_type)
+    
+    def _calculate_estimated_charges(self, symbol: str, quantity: int, price: float, 
+                                   transaction_type: str = 'BUY') -> Dict:
+        """
+        Calculate estimated trade charges when API is not available
+        Based on standard Upstox fee structure
+        """
+        try:
+            notional_value = quantity * price
+            
+            # Upstox fee structure (as of 2024)
+            charges = {}
+            
+            # Brokerage - ₹20 or 0.05%, whichever is lower for intraday
+            charges['brokerage'] = min(20, notional_value * 0.0005)
+            
+            # STT (Securities Transaction Tax) - 0.025% on sell side for equity delivery
+            # For intraday: 0.025% on both buy and sell
+            if transaction_type.upper() == 'SELL':
+                charges['stt'] = notional_value * 0.00025
+            else:
+                charges['stt'] = notional_value * 0.00025  # Intraday rate
+            
+            # Exchange transaction charges - NSE: 0.00345%
+            charges['transaction_charges'] = notional_value * 0.0000345
+            
+            # SEBI charges - ₹10 per crore
+            charges['sebi_charges'] = notional_value * 0.000001
+            
+            # Stamp duty - 0.003% on buy side
+            if transaction_type.upper() == 'BUY':
+                charges['stamp_duty'] = notional_value * 0.00003
+            else:
+                charges['stamp_duty'] = 0
+            
+            # GST - 18% on (brokerage + transaction charges)
+            gst_base = charges['brokerage'] + charges['transaction_charges']
+            charges['gst'] = gst_base * 0.18
+            
+            # Total charges
+            charges['total'] = sum(charges.values())
+            
+            self._log_event("CHARGES_ESTIMATED", f"Estimated trade charges for {symbol}: ₹{charges['total']:.2f}")
+            
+            return {
+                'status': 'success',
+                'charges': charges,
+                'source': 'estimation'
+            }
+            
+        except Exception as e:
+            self._log_event("CHARGES_ERROR", f"Error calculating estimated charges: {str(e)}")
+            return {
+                'status': 'error',
+                'charges': {
+                    'brokerage': 20.0,
+                    'stt': 0.0,
+                    'transaction_charges': 0.0,
+                    'gst': 3.6,
+                    'sebi_charges': 0.0,
+                    'stamp_duty': 0.0,
+                    'total': 23.6
+                },
+                'source': 'fallback'
+            }
+    
+    def get_net_pnl(self, gross_pnl: float, charges: Dict) -> Dict:
+        """
+        Calculate net P&L after deducting all charges
+        """
+        try:
+            total_charges = charges.get('total', 0) if isinstance(charges, dict) else charges
+            net_pnl = gross_pnl - total_charges
+            
+            return {
+                'gross_pnl': gross_pnl,
+                'total_charges': total_charges,
+                'net_pnl': net_pnl,
+                'charges_pct': (total_charges / abs(gross_pnl)) * 100 if gross_pnl != 0 else 0,
+                'break_even_move': total_charges  # Amount price needs to move to break even
+            }
+            
+        except Exception as e:
+            self._log_event("NET_PNL_ERROR", f"Error calculating net P&L: {str(e)}")
+            return {
+                'gross_pnl': gross_pnl,
+                'total_charges': 0,
+                'net_pnl': gross_pnl,
+                'charges_pct': 0,
+                'break_even_move': 0
+            }
 
 def create_config_template():
     """Create a template credentials.json file"""
