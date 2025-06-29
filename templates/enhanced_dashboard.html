@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/2.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Add Financial Charts Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -108,6 +110,14 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .error-message {
+            background-color: #7f1d1d;
+            border: 1px solid #dc2626;
+            color: #fecaca;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-300">
@@ -146,6 +156,9 @@
                 </button>
                 <button onclick="showTab('portfolio')" id="tab-portfolio" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
                     Portfolio
+                </button>
+                <button onclick="showTab('quant')" id="tab-quant" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    🧮 Quant Analysis
                 </button>
             </div>
         </div>
@@ -195,11 +208,13 @@
                                 <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">Target</th>
                                 <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">Stop Loss</th>
                                 <th class="px-4 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">R/R</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Market Regime</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Position Size</th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
                         <tbody id="market-data-body" class="bg-slate-800 divide-y divide-slate-700">
-                            <tr><td colspan="9" class="text-center py-4 text-slate-500">Loading market data...</td></tr>
+                            <tr><td colspan="11" class="text-center py-4 text-slate-500">Loading market data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -255,7 +270,7 @@
                     <div class="flex items-center space-x-2">
                         <label class="text-sm font-medium text-slate-300">Symbol:</label>
                         <select id="chart-symbol-select" class="bg-slate-700 border border-slate-600 text-white rounded px-3 py-2 min-w-48">
-                            <option value="">Select Symbol...</option>
+                            <option value="">Loading symbols...</option>
                         </select>
                     </div>
 
@@ -280,6 +295,9 @@
                         <span class="text-sm text-slate-400">Loading...</span>
                     </div>
                 </div>
+                
+                <!-- Chart Status Messages -->
+                <div id="chart-messages" class="mt-4"></div>
             </div>
 
             <!-- Chart Section -->
@@ -587,6 +605,150 @@
             </section>
         </div>
 
+        <!-- Quantitative Analysis Tab -->
+        <div id="content-quant" class="tab-content hidden">
+            <!-- Quant Summary Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Top Quant Score</h3>
+                        <span id="top-quant-score" class="text-2xl font-bold text-green-400">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Portfolio Sharpe</h3>
+                        <span id="portfolio-sharpe-ratio" class="text-2xl font-bold text-blue-400">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">VaR (95%)</h3>
+                        <span id="portfolio-var" class="text-2xl font-bold text-red-400">-</span>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Strong Buy Signals</h3>
+                        <span id="strong-buy-count" class="text-2xl font-bold text-yellow-400">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quantitative Rankings and Deep Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Top Quantitative Picks -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-white">🏆 Quantitative Rankings</h2>
+                        <button onclick="refreshQuantRankings()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            <span id="quant-refresh-icon">🔄</span> Refresh
+                        </button>
+                    </div>
+                    <div id="quant-rankings-list" class="space-y-3 max-h-96 overflow-y-auto">
+                        <p class="text-slate-500">Loading quantitative rankings...</p>
+                    </div>
+                </div>
+
+                <!-- Symbol Deep Analysis -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-white mb-4">🔬 Deep Analysis</h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Select Symbol for Analysis</label>
+                        <div class="flex space-x-2">
+                            <select id="quant-symbol-select" class="flex-1 bg-slate-700 border border-slate-600 text-white rounded px-3 py-2">
+                                <option value="">Choose symbol...</option>
+                            </select>
+                            <button onclick="analyzeSymbolQuant()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                                Analyze
+                            </button>
+                        </div>
+                    </div>
+                    <div id="symbol-quant-analysis" class="space-y-4">
+                        <div class="text-center py-8 text-slate-500">
+                            Select a symbol to see advanced quantitative analysis
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Metrics Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Momentum Analysis -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-lg font-bold text-white mb-4">📈 Momentum Metrics</h3>
+                    <div id="momentum-metrics" class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Market Momentum</span>
+                            <span id="market-momentum" class="text-white font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Trend Strength</span>
+                            <span id="trend-strength" class="text-white font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Volatility Regime</span>
+                            <span id="volatility-regime" class="text-white font-semibold">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Analysis -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-lg font-bold text-white mb-4">🛡️ Risk Analysis</h3>
+                    <div id="risk-analysis" class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Max Drawdown</span>
+                            <span id="max-drawdown" class="text-red-400 font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Beta</span>
+                            <span id="market-beta" class="text-blue-400 font-semibold">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Sortino Ratio</span>
+                            <span id="sortino-ratio" class="text-green-400 font-semibold">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Optimizer -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Portfolio Optimizer</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Portfolio Value</label>
+                            <input type="number" id="portfolio-value" value="1000000" 
+                                   class="w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Risk Tolerance</label>
+                            <input type="range" id="risk-tolerance" min="0.05" max="0.30" step="0.05" value="0.15"
+                                   class="w-full">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>Conservative</span>
+                                <span id="risk-tolerance-value">0.15</span>
+                                <span>Aggressive</span>
+                            </div>
+                        </div>
+                        <button onclick="optimizePortfolio()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded text-sm">
+                            Optimize Portfolio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Charts -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold text-white mb-4">📊 Quantitative Scorecard</h2>
+                <div id="quant-scorecard-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="text-center py-8 text-slate-500 col-span-full">
+                        Select a symbol for detailed quantitative scoring
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Risk Warnings -->
         <section id="risk-warnings" class="bg-red-900/20 border border-red-700 p-4 rounded-lg hidden">
             <h3 class="text-lg font-semibold text-red-400 mb-2">Risk Warnings</h3>
@@ -609,6 +771,7 @@
         let selectedSymbol = '';
         let selectedTimeframe = '1h';
         let availableSymbols = [];
+        let chartInitialized = false;
 
         // Tab management
         function showTab(tabName) {
@@ -631,34 +794,123 @@
             // Load specific tab data
             if (tabName === 'charts') {
                 loadChartsTab();
+            } else if (tabName === 'quant') {
+                loadQuantTab();
             }
         }
 
         // Charts functionality
         function loadChartsTab() {
-            loadAvailableSymbols();
+            console.log('Loading charts tab...');
             updateMarketStatus();
-            if (!priceChart) {
+            if (!chartInitialized) {
                 initializeChart();
             }
+            // Load symbols with error handling
+            loadAvailableSymbols();
+        }
+
+        function showChartMessage(message, type = 'info') {
+            const messagesContainer = document.getElementById('chart-messages');
+            const className = type === 'error' ? 'error-message' : 'bg-blue-900/20 border border-blue-700 text-blue-300 p-3 rounded-lg';
+            messagesContainer.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+
+        function clearChartMessages() {
+            document.getElementById('chart-messages').innerHTML = '';
         }
 
         function loadAvailableSymbols() {
-            fetch('/api/chart/symbols')
-                .then(response => response.json())
-                .then(symbols => {
-                    availableSymbols = symbols;
-                    const dropdown = document.getElementById('chart-symbol-select');
-                    dropdown.innerHTML = '<option value="">Select Symbol...</option>';
-                    
-                    symbols.forEach(symbol => {
-                        const option = document.createElement('option');
-                        option.value = symbol.symbol;
-                        option.textContent = `${symbol.symbol} (₹${symbol.latest_price.toFixed(2)})`;
-                        dropdown.appendChild(option);
+            console.log('Loading available symbols...');
+            clearChartMessages();
+            
+            // Try different API endpoints
+            const endpoints = [
+                '/api/chart/symbols',
+                '/api/historical/symbols',
+                '/api/market_data'
+            ];
+
+            let tried = 0;
+
+            function tryEndpoint(index) {
+                if (index >= endpoints.length) {
+                    // All endpoints failed, create fallback symbols from market data
+                    if (Object.keys(currentMarketData).length > 0) {
+                        console.log('Using market data as fallback for symbols');
+                        availableSymbols = Object.keys(currentMarketData).map(key => ({
+                            symbol: currentMarketData[key].name,
+                            symbol_clean: key,
+                            latest_price: currentMarketData[key].ltp || 0,
+                            data_points: 100 // Estimate
+                        }));
+                        updateSymbolDropdown();
+                        showChartMessage('Using live market data for symbols. Historical charts may be limited.', 'info');
+                    } else {
+                        showChartMessage('Unable to load symbols. Please check if the data services are running.', 'error');
+                    }
+                    return;
+                }
+
+                console.log(`Trying endpoint: ${endpoints[index]}`);
+                
+                fetch(endpoints[index])
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(`Success with endpoint ${endpoints[index]}:`, data);
+                        
+                        // Handle different response formats
+                        let symbols = [];
+                        if (Array.isArray(data)) {
+                            symbols = data;
+                        } else if (data.symbols) {
+                            symbols = data.symbols;
+                        } else if (typeof data === 'object') {
+                            // Convert market data object to symbol array
+                            symbols = Object.keys(data).map(key => ({
+                                symbol: data[key].name || key,
+                                symbol_clean: key,
+                                latest_price: data[key].ltp || data[key].close || 0,
+                                data_points: 50 // Estimate
+                            }));
+                        }
+
+                        if (symbols.length > 0) {
+                            availableSymbols = symbols;
+                            updateSymbolDropdown();
+                            clearChartMessages();
+                            console.log(`Loaded ${symbols.length} symbols`);
+                        } else {
+                            throw new Error('No symbols in response');
+                        }
+                    })
+                    .catch(err => {
+                        console.log(`Failed with endpoint ${endpoints[index]}:`, err);
+                        tryEndpoint(index + 1);
                     });
-                })
-                .catch(err => console.error('Error loading symbols:', err));
+            }
+
+            tryEndpoint(0);
+        }
+
+        function updateSymbolDropdown() {
+            const dropdown = document.getElementById('chart-symbol-select');
+            dropdown.innerHTML = '<option value="">Select Symbol...</option>';
+            
+            availableSymbols.forEach(symbol => {
+                const option = document.createElement('option');
+                option.value = symbol.symbol || symbol.display_name || symbol.name;
+                const price = symbol.latest_price || symbol.last_price || 0;
+                option.textContent = `${option.value} (₹${price.toFixed(2)})`;
+                dropdown.appendChild(option);
+            });
+
+            console.log(`Updated dropdown with ${availableSymbols.length} symbols`);
         }
 
         function updateMarketStatus() {
@@ -679,23 +931,32 @@
                         text.className = 'text-sm text-red-400';
                     }
                 })
-                .catch(err => console.error('Error loading market status:', err));
+                .catch(err => {
+                    console.error('Error loading market status:', err);
+                    const indicator = document.getElementById('market-status-indicator');
+                    const text = indicator.querySelector('span');
+                    text.textContent = 'Status Unknown';
+                    text.className = 'text-sm text-gray-400';
+                });
         }
 
         function initializeChart() {
+            console.log('Initializing chart...');
             const ctx = document.getElementById('priceChart').getContext('2d');
             
             priceChart = new Chart(ctx, {
-                type: 'candlestick',
+                type: 'line', // Use line chart instead of candlestick for better compatibility
                 data: {
                     datasets: [{
                         label: 'Price',
                         data: [],
                         borderColor: 'rgb(59, 130, 246)',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        tension: 0.1
+                        borderWidth: 2,
+                        pointRadius: 1,
+                        pointHoverRadius: 4,
+                        tension: 0.1,
+                        fill: false
                     }]
                 },
                 options: {
@@ -740,11 +1001,16 @@
                     }
                 }
             });
+
+            chartInitialized = true;
+            console.log('Chart initialized successfully');
         }
 
         function onSymbolChange() {
             const symbolDropdown = document.getElementById('chart-symbol-select');
             selectedSymbol = symbolDropdown.value;
+            
+            console.log('Symbol changed to:', selectedSymbol);
             
             if (selectedSymbol) {
                 loadChartData();
@@ -755,6 +1021,7 @@
 
         function setTimeframe(timeframe) {
             selectedTimeframe = timeframe;
+            console.log('Timeframe changed to:', timeframe);
             
             // Update button states
             document.querySelectorAll('.timeframe-btn').forEach(btn => {
@@ -771,17 +1038,27 @@
         function loadChartData() {
             if (!selectedSymbol) return;
             
+            console.log(`Loading chart data for ${selectedSymbol} with timeframe ${selectedTimeframe}`);
+            
             // Show loading
             document.getElementById('chart-loading').classList.remove('hidden');
             document.getElementById('chart-title').textContent = `Loading ${selectedSymbol}...`;
+            clearChartMessages();
             
+            // Try chart API first, then fallback to generating fake data
             fetch(`/api/chart/data/${selectedSymbol}?timeframe=${selectedTimeframe}&limit=100`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         throw new Error(data.error);
                     }
                     
+                    console.log('Chart data loaded:', data);
                     updateChart(data);
                     updateChartStatistics(data.stats);
                     updateChartInfo(data);
@@ -790,18 +1067,81 @@
                 })
                 .catch(err => {
                     console.error('Error loading chart data:', err);
-                    document.getElementById('chart-title').textContent = `Error loading ${selectedSymbol}`;
-                    clearChart();
+                    
+                    // Try to generate fallback data from live market data
+                    if (generateFallbackChartData()) {
+                        showChartMessage('Displaying simulated data. Historical data service may be unavailable.', 'info');
+                    } else {
+                        showChartMessage(`Unable to load chart data for ${selectedSymbol}. Error: ${err.message}`, 'error');
+                        document.getElementById('chart-title').textContent = `Error: ${selectedSymbol}`;
+                        clearChart();
+                    }
                 })
                 .finally(() => {
                     document.getElementById('chart-loading').classList.add('hidden');
                 });
         }
 
+        function generateFallbackChartData() {
+            // Generate simple fake data based on current price if available
+            const currentData = Object.values(currentMarketData).find(d => d.name === selectedSymbol);
+            if (!currentData || !currentData.ltp) {
+                return false;
+            }
+            
+            const basePrice = currentData.ltp;
+            const dataPoints = [];
+            const now = new Date();
+            
+            // Generate 50 fake data points
+            for (let i = 49; i >= 0; i--) {
+                const timestamp = new Date(now.getTime() - (i * 5 * 60 * 1000)); // 5-minute intervals
+                const volatility = basePrice * 0.02; // 2% volatility
+                const randomChange = (Math.random() - 0.5) * volatility;
+                const price = basePrice + randomChange;
+                
+                dataPoints.push({
+                    x: timestamp,
+                    y: price
+                });
+            }
+            
+            // Create fake chart data
+            const fakeData = {
+                symbol: selectedSymbol,
+                candles: dataPoints.map(point => ({
+                    x: point.x.toISOString(),
+                    c: point.y
+                })),
+                stats: {
+                    latest_price: basePrice,
+                    price_change: 0,
+                    price_change_pct: 0,
+                    high_24h: basePrice * 1.02,
+                    low_24h: basePrice * 0.98,
+                    volume_24h: 10000,
+                    data_points: dataPoints.length
+                },
+                data_range: {
+                    start: dataPoints[0].x.toISOString(),
+                    end: dataPoints[dataPoints.length - 1].x.toISOString()
+                }
+            };
+            
+            updateChart(fakeData);
+            updateChartStatistics(fakeData.stats);
+            updateChartInfo(fakeData);
+            document.getElementById('chart-title').textContent = `${selectedSymbol} (Simulated)`;
+            
+            return true;
+        }
+
         function updateChart(data) {
             if (!priceChart) return;
             
-            // Convert candlestick data to line chart for now
+            console.log('Updating chart with data:', data);
+            
+            // Convert chart data to format expected by Chart.js
             const chartData = data.candles.map(candle => ({
                 x: new Date(candle.x),
                 y: candle.c
@@ -815,6 +1155,7 @@
             priceChart.options.scales.x.time.unit = timeUnit;
             
             priceChart.update();
+            console.log('Chart updated successfully');
         }
 
         function updateChartStatistics(stats) {
@@ -864,6 +1205,8 @@
             
             if (selectedSymbol) {
                 loadChartData();
+            } else {
+                loadAvailableSymbols();
             }
             
             setTimeout(() => {
@@ -914,6 +1257,11 @@
         // Simulator functions
         function populateSymbolDropdown() {
             const dropdown = document.getElementById('simulator-symbol');
+            // Clear existing options except the first one
+            while(dropdown.children.length > 1) {
+                dropdown.removeChild(dropdown.lastChild);
+            }
+            
             for (const symbol in currentMarketData) {
                 const option = document.createElement('option');
                 option.value = symbol;
@@ -1404,6 +1752,361 @@
             document.getElementById('actionable-screener-last-updated').innerText = new Date(data.last_updated).toLocaleTimeString('en-IN');
         });
 
+        // =====================================================
+        // QUANTITATIVE ANALYSIS FUNCTIONS
+        // =====================================================
+
+        function loadQuantTab() {
+            console.log('Loading quantitative analysis tab...');
+            loadQuantSymbols();
+            refreshQuantRankings();
+            updateRiskToleranceDisplay();
+        }
+
+        function loadQuantSymbols() {
+            // Populate symbol dropdown for quant analysis
+            const dropdown = document.getElementById('quant-symbol-select');
+            dropdown.innerHTML = '<option value="">Choose symbol...</option>';
+            
+            // Use market data to populate symbols
+            for (const symbol in currentMarketData) {
+                const option = document.createElement('option');
+                option.value = currentMarketData[symbol].name;
+                option.textContent = currentMarketData[symbol].name;
+                dropdown.appendChild(option);
+            }
+        }
+
+        function refreshQuantRankings() {
+            const refreshIcon = document.getElementById('quant-refresh-icon');
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+            
+            fetch('/api/quant/ranking')
+                .then(response => response.json())
+                .then(data => {
+                    displayQuantRankings(data);
+                    updateQuantSummaryStats(data);
+                })
+                .catch(err => {
+                    console.error('Error loading quant rankings:', err);
+                    document.getElementById('quant-rankings-list').innerHTML = 
+                        '<p class="text-red-400">Error loading rankings</p>';
+                })
+                .finally(() => {
+                    refreshIcon.style.animation = '';
+                });
+        }
+
+        function displayQuantRankings(data) {
+            const container = document.getElementById('quant-rankings-list');
+            
+            if (!data.rankings || data.rankings.length === 0) {
+                container.innerHTML = '<p class="text-slate-500">No quantitative rankings available</p>';
+                return;
+            }
+
+            container.innerHTML = data.rankings.slice(0, 10).map((rank, index) => {
+                const scoreColor = getQuantScoreColor(rank.quant_score);
+                const scorePercent = (rank.quant_score * 100).toFixed(0);
+                
+                return `
+                    <div class="bg-slate-700 p-3 rounded-lg hover:bg-slate-600 cursor-pointer transition-colors"
+                         onclick="analyzeSymbolQuantByName('${rank.symbol}')">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-slate-600 text-white px-2 py-1 rounded text-xs font-bold">#${index + 1}</span>
+                                <h4 class="font-bold text-white">${rank.symbol}</h4>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-bold ${scoreColor}">${scorePercent}%</div>
+                                <div class="text-xs text-slate-400">${rank.recommendation}</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <span class="text-slate-400">Momentum:</span>
+                                <span class="text-white">${rank.momentum_strength}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400">Vol Regime:</span>
+                                <span class="text-white">${rank.volatility_regime}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400">Sharpe:</span>
+                                <span class="text-white">${rank.sharpe_ratio.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateQuantSummaryStats(data) {
+            if (!data.rankings || data.rankings.length === 0) return;
+            
+            // Update summary cards
+            const topScore = Math.max(...data.rankings.map(r => r.quant_score));
+            const strongBuys = data.rankings.filter(r => r.recommendation === 'STRONG_BUY').length;
+            const avgSharpe = data.rankings.reduce((sum, r) => sum + r.sharpe_ratio, 0) / data.rankings.length;
+            
+            document.getElementById('top-quant-score').textContent = (topScore * 100).toFixed(0) + '%';
+            document.getElementById('strong-buy-count').textContent = strongBuys;
+            document.getElementById('portfolio-sharpe-ratio').textContent = avgSharpe.toFixed(2);
+            
+            // Update general metrics
+            document.getElementById('market-momentum').textContent = 
+                data.rankings.filter(r => r.momentum_strength === 'STRONG').length + ' Strong';
+            document.getElementById('volatility-regime').textContent = 
+                data.rankings.filter(r => r.volatility_regime === 'NORMAL').length + ' Normal';
+        }
+
+        function analyzeSymbolQuant() {
+            const symbol = document.getElementById('quant-symbol-select').value;
+            if (!symbol) return;
+            analyzeSymbolQuantByName(symbol);
+        }
+
+        function analyzeSymbolQuantByName(symbolName) {
+            document.getElementById('symbol-quant-analysis').innerHTML = `
+                <div class="text-center py-4">
+                    <div class="loading-spinner mx-auto mb-2"></div>
+                    <p class="text-slate-400">Analyzing ${symbolName}...</p>
+                </div>
+            `;
+
+            fetch(`/api/quant/analyze/${encodeURIComponent(symbolName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySymbolQuantAnalysis(data);
+                    displayQuantScorecard(data);
+                })
+                .catch(err => {
+                    console.error('Error analyzing symbol:', err);
+                    document.getElementById('symbol-quant-analysis').innerHTML = 
+                        '<p class="text-red-400">Error analyzing symbol</p>';
+                });
+        }
+
+        function displaySymbolQuantAnalysis(analysis) {
+            const container = document.getElementById('symbol-quant-analysis');
+            
+            if (analysis.error) {
+                container.innerHTML = `<p class="text-red-400">Error: ${analysis.error}</p>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <!-- Final Recommendation -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="font-bold text-white mb-2">📊 Final Recommendation</h4>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold ${getRecommendationColor(analysis.final_recommendation)}">
+                                ${analysis.final_recommendation}
+                            </span>
+                            ${analysis.quantitative_analysis ? `
+                                <span class="text-lg font-semibold text-blue-400">
+                                    ${(analysis.quantitative_analysis.overall_score * 100).toFixed(0)}% Score
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    ${analysis.traditional_signals && analysis.traditional_signals.length > 0 ? `
+                    <!-- Traditional Signals -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="font-bold text-white mb-2">🎯 Traditional Signals</h4>
+                        <div class="space-y-2">
+                            ${analysis.traditional_signals.map(signal => `
+                                <div class="flex justify-between items-center py-1 border-b border-slate-600 last:border-b-0">
+                                    <span class="font-medium">${signal.type}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs bg-slate-600 px-2 py-1 rounded">${signal.strength}</span>
+                                        <span class="text-sm font-bold">${(signal.confidence * 100).toFixed(0)}%</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${analysis.quantitative_analysis && analysis.quantitative_analysis.detailed_analysis ? `
+                    <!-- Advanced Metrics -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="font-bold text-white mb-2">🔬 Advanced Metrics</h4>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            ${analysis.quantitative_analysis.detailed_analysis.momentum ? `
+                                <div>
+                                    <span class="text-slate-400">Momentum Score:</span>
+                                    <span class="text-white font-semibold">${(analysis.quantitative_analysis.detailed_analysis.momentum.momentum_score * 100).toFixed(1)}%</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400">Momentum Strength:</span>
+                                    <span class="text-white font-semibold">${analysis.quantitative_analysis.detailed_analysis.momentum.momentum_strength}</span>
+                                </div>
+                            ` : ''}
+                            ${analysis.quantitative_analysis.detailed_analysis.volatility_regime ? `
+                                <div>
+                                    <span class="text-slate-400">Vol Regime:</span>
+                                    <span class="text-white font-semibold">${analysis.quantitative_analysis.detailed_analysis.volatility_regime.regime}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400">Vol Score:</span>
+                                    <span class="text-white font-semibold">${(analysis.quantitative_analysis.detailed_analysis.volatility_regime.vol_score * 100).toFixed(1)}%</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function displayQuantScorecard(analysis) {
+            const container = document.getElementById('quant-scorecard-container');
+            
+            if (!analysis.quantitative_analysis || !analysis.quantitative_analysis.component_scores) {
+                container.innerHTML = '<div class="col-span-full text-center text-slate-500">No quantitative scoring available</div>';
+                return;
+            }
+
+            const scores = analysis.quantitative_analysis.component_scores;
+            
+            container.innerHTML = Object.entries(scores).map(([key, value]) => {
+                const percentage = (value * 100).toFixed(0);
+                const barColor = getQuantScoreColor(value);
+                const title = key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                return `
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-sm font-medium text-slate-300">${title}</h4>
+                            <span class="text-lg font-bold ${barColor}">${percentage}%</span>
+                        </div>
+                        <div class="w-full bg-slate-600 rounded-full h-2">
+                            <div class="bg-current h-2 rounded-full ${barColor}" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function optimizePortfolio() {
+            const portfolioValue = document.getElementById('portfolio-value').value;
+            const riskTolerance = document.getElementById('risk-tolerance').value;
+            
+            // Get selected symbols from current market data
+            const symbols = Object.values(currentMarketData).slice(0, 5).map(stock => stock.name);
+            
+            if (symbols.length < 2) {
+                alert('Need at least 2 symbols for portfolio optimization');
+                return;
+            }
+
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Optimizing...';
+            button.disabled = true;
+
+            fetch('/api/quant/portfolio_optimizer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbols: symbols,
+                    portfolio_value: parseFloat(portfolioValue),
+                    risk_tolerance: parseFloat(riskTolerance)
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert(`Portfolio optimization failed: ${result.error}`);
+                } else {
+                    displayPortfolioOptimizationResults(result);
+                }
+            })
+            .catch(err => {
+                console.error('Portfolio optimization error:', err);
+                alert('Portfolio optimization failed');
+            })
+            .finally(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function displayPortfolioOptimizationResults(result) {
+            // Create a modal or update a section with results
+            const resultsHtml = `
+                <div class="bg-slate-600 p-4 rounded-lg mt-4">
+                    <h4 class="font-bold text-white mb-2">Optimization Results</h4>
+                    <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div>
+                            <span class="text-slate-400">Expected Return:</span>
+                            <span class="text-green-400 font-semibold">${(result.portfolio_metrics.expected_annual_return * 100).toFixed(2)}%</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Volatility:</span>
+                            <span class="text-yellow-400 font-semibold">${(result.portfolio_metrics.annual_volatility * 100).toFixed(2)}%</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Sharpe Ratio:</span>
+                            <span class="text-blue-400 font-semibold">${result.portfolio_metrics.sharpe_ratio.toFixed(3)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Symbols:</span>
+                            <span class="text-white font-semibold">${result.symbols_count}</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400">
+                        Top Allocations: ${Object.entries(result.optimal_portfolio)
+                            .sort((a, b) => b[1].percentage - a[1].percentage)
+                            .slice(0, 3)
+                            .map(([symbol, data]) => `${symbol} (${data.percentage.toFixed(1)}%)`)
+                            .join(', ')}
+                    </div>
+                </div>
+            `;
+            
+            // Insert results after the optimize button
+            const optimizerContainer = document.querySelector('#risk-tolerance').closest('.bg-slate-800');
+            
+            // Remove existing results
+            const existingResults = optimizerContainer.querySelector('.bg-slate-600');
+            if (existingResults) {
+                existingResults.remove();
+            }
+            
+            optimizerContainer.insertAdjacentHTML('beforeend', resultsHtml);
+        }
+
+        function updateRiskToleranceDisplay() {
+            const slider = document.getElementById('risk-tolerance');
+            const display = document.getElementById('risk-tolerance-value');
+            
+            slider.addEventListener('input', function() {
+                display.textContent = this.value;
+            });
+        }
+
+        function getQuantScoreColor(score) {
+            if (score >= 0.8) return 'text-green-400';
+            if (score >= 0.6) return 'text-blue-400';
+            if (score >= 0.4) return 'text-yellow-400';
+            return 'text-red-400';
+        }
+
+        function getRecommendationColor(recommendation) {
+            switch (recommendation) {
+                case 'STRONG_BUY': return 'text-green-400';
+                case 'BUY': return 'text-green-300';
+                case 'HOLD': return 'text-yellow-400';
+                case 'SELL': return 'text-red-300';
+                case 'STRONG_SELL': return 'text-red-400';
+                default: return 'text-slate-400';
+            }
+        }
+
         socket.on('portfolio_update', (data) => {
             const pnlContent = document.getElementById('pnl-data-content');
             if(data.pnl_data) {
@@ -1495,6 +2198,14 @@
                         </td>
                         <td class="px-4 py-4 text-right font-bold ${stock.risk_reward_ratio > 2 ? 'text-green-400' : stock.risk_reward_ratio > 1 ? 'text-yellow-400' : 'text-red-400'}">
                             ${stock.risk_reward_ratio ? stock.risk_reward_ratio.toFixed(1) : '-'}
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-slate-600 text-white">
+                                ${stock.best_signal?.market_regime || 'UNKNOWN'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 text-right font-semibold">
+                            ${stock.best_signal?.position_size_pct ? (stock.best_signal.position_size_pct * 100).toFixed(2) + '%' : '-'}
                         </td>
                         <td class="px-4 py-4 text-center">
                             ${stock.recommended_action !== 'WAIT' ? `

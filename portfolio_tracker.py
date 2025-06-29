@@ -1,6 +1,7 @@
 # Portfolio Tracker and PnL Analyzer
 # Real-time portfolio tracking with WebSocket integration for Upstox
 
+import os
 import json
 import requests
 import websocket
@@ -54,9 +55,11 @@ class PortfolioTracker:
         
         # Redis for storing portfolio data
         try:
-            self.redis_client = redis.Redis(host='localhost', port=6379, db=1, decode_responses=True)
+            redis_host = os.environ.get('REDIS_HOST', 'localhost')
+            redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+            self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=1, decode_responses=True)
             self.redis_client.ping()
-            logger.info("Successfully connected to Redis.")
+            logger.info(f"Successfully connected to Redis at {redis_host}:{redis_port}.")
         except redis.exceptions.ConnectionError as e:
             logger.error(f"Could not connect to Redis: {e}. Some features will be disabled.")
             self.redis_client = None
@@ -610,7 +613,9 @@ if __name__ == "__main__":
     try:
         # Run the Flask-SocketIO server
         # use_reloader=False is important to prevent the tracking threads from starting twice
-        socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+        app_host = os.environ.get('APP_HOST', '0.0.0.0')
+        app_port = int(os.environ.get('APP_PORT', '5000'))
+        socketio.run(app, host=app_host, port=app_port, debug=True, use_reloader=False)
         
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received. Shutting down...")

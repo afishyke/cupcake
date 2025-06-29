@@ -1,0 +1,26 @@
+# Core Web Framework and Extensions
+Flask
+Flask-SocketIO
+Flask-Cors
+gunicorn         # Recommended for running the Flask/SocketIO server
+
+# Asynchronous Networking
+websockets       # Used by the enhanced live data fetcher
+websocket-client # Used by the portfolio tracker
+aiohttp          # Used in historical fetcher for async requests
+
+# Data Handling and Numerical Analysis
+numpy
+pandas
+scipy            # For statistical analysis and optimization
+scikit-learn     # For machine learning models
+pytz             # For timezone handling (IST)
+
+# Upstox API and Protocol Buffers
+requests         # For making HTTP requests to the Upstox API
+protobuf         # For decoding the WebSocket market data feed
+
+# Database
+redis            # For connecting to the Redis database
+TA-Lib
+grpcio-tools

@@ -29,7 +29,7 @@ IST_TIMEZONE = pytz.timezone('Asia/Kolkata')
 # Setup optimized logging
 def setup_fast_logging():
     """Setup minimal logging for speed"""
-    log_dir = "/home/abhishek/projects/CUPCAKE/logs"
+    log_dir = os.environ.get('LOG_DIR', os.path.join(os.getcwd(), 'logs'))
     os.makedirs(log_dir, exist_ok=True)
     
     ist_now = datetime.now(IST_TIMEZONE)
@@ -219,7 +219,12 @@ class FastUpstoxAPI:
 class FastRedisManager:
     """Ultra-fast Redis operations with batch processing"""
     
-    def __init__(self, host='localhost', port=6379, db=0):
+    def __init__(self, host=None, port=None, db=0):
+        if host is None:
+            host = os.environ.get('REDIS_HOST', 'localhost')
+        if port is None:
+            port = int(os.environ.get('REDIS_PORT', '6379'))
+
         self.redis_client = redis.Redis(
             host=host, port=port, db=db,
             decode_responses=True,
@@ -317,10 +322,10 @@ class HistoricalDataFetcher:
         # Handle both old and new initialization patterns
         if config:
             self.config = config
-            credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+            credentials_path = os.environ.get('CREDENTIALS_PATH', os.path.join(os.getcwd(), 'credentials.json'))
             symbols_path = os.path.join(os.path.dirname(__file__), "symbols.json")
         
-        self.credentials_path = credentials_path or "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+        self.credentials_path = credentials_path or os.environ.get('CREDENTIALS_PATH', os.path.join(os.getcwd(), 'credentials.json'))
         self.symbols_path = symbols_path or os.path.join(os.path.dirname(__file__), "symbols.json")
         
         # Initialize the ultra-fast fetcher
@@ -562,7 +567,7 @@ def main():
     print("=" * 60)
     
     # Paths
-    credentials_path = "/home/abhishek/projects/CUPCAKE/authentication/credentials.json"
+    credentials_path = os.environ.get('CREDENTIALS_PATH', os.path.join(os.getcwd(), 'credentials.json'))
     symbols_path = os.path.join(SCRIPT_DIR, "symbols.json")
     
     try:

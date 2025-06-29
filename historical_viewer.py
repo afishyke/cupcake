@@ -20,8 +20,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 IST = pytz.timezone('Asia/Kolkata')
 
 class HistoricalDataViewer:
-    def __init__(self, host='localhost', port=6379, db=0):
+    def __init__(self, host=None, port=None, db=0):
         """Initialize Redis connection"""
+        # Use environment variables if not provided
+        if host is None:
+            host = os.environ.get('REDIS_HOST', 'localhost')
+        if port is None:
+            port = int(os.environ.get('REDIS_PORT', '6379'))
+            
         try:
             self.redis_client = redis.Redis(
                 host=host, port=port, db=db,
@@ -74,57 +80,82 @@ class HistoricalDataViewer:
         }
     
     def get_symbols_summary(self):
-        """Get summary of all symbols with data ranges"""
-        stock_keys = self.redis_client.keys("stock:*:close")
-        symbols_data = []
-        
-        for key in stock_keys:
-            symbol_clean = key.split(':')[1]
+        """Get summary of all symbols with data ranges (ENHANCED with MGET)"""
+        try:
+            # Get all closing price time series keys
+            stock_keys = self.redis_client.keys("stock:*:close")
+            if not stock_keys:
+                return []
+
+            symbols_data = []
             
+            # Use TS.MGET to fetch the latest price for all symbols at once
             try:
-                # Get ALL data (no time filter)
-                result = self.redis_client.execute_command('TS.RANGE', key, '-', '+')
+                latest_prices_raw = self.redis_client.execute_command('TS.MGET', 'WITHLABELS', 'FILTER', 'series_type=close')
+                latest_prices = {item[1][0][1]: item[2] for item in latest_prices_raw if item[2]}
+            except redis.RedisError:
+                latest_prices = {}
+
+            for key in stock_keys:
+                symbol_clean = key.split(':')[1]
+                display_name = symbol_clean.replace('_', ' ').replace('and', '&')
                 
-                if result and len(result) > 0:
-                    # Get first and last data points
-                    first_ts, first_price = result[0]
-                    last_ts, last_price = result[-1]
+                try:
+                    # Get first and last data points for range and return calculation
+                    first_point = self.redis_client.execute_command('TS.GET', key)
+                    last_point_data = latest_prices.get(symbol_clean)
+
+                    if not last_point_data:
+                        # Fallback for symbols not returned by MGET for some reason
+                        last_point_data = self.redis_client.execute_command('TS.GET', key)
+
+                    if not first_point or not last_point_data:
+                        continue
+
+                    first_ts, first_price = first_point
+                    last_ts, last_price = last_point_data
+
+                    # Get total data points count from metadata if possible, else from info
+                    info = self.redis_client.execute_command('TS.INFO', key)
+                    data_points = info[info.index('totalSamples') + 1]
+
+                    first_time = datetime.fromtimestamp(first_ts / 1000, tz=IST)
+                    last_time = datetime.fromtimestamp(last_ts / 1000, tz=IST)
                     
-                    first_time = datetime.fromtimestamp(first_ts/1000, tz=IST)
-                    last_time = datetime.fromtimestamp(last_ts/1000, tz=IST)
+                    # Calculate return
+                    first_price_float = float(first_price)
+                    last_price_float = float(last_price)
                     
-                    # Get price range
-                    prices = [float(price) for _, price in result]
-                    min_price = min(prices)
-                    max_price = max(prices)
-                    
-                    # Convert symbol back to readable format
-                    display_name = symbol_clean.replace('_', ' ').replace('and', '&')
-                    
+                    if first_price_float > 0:
+                        total_return_pct = ((last_price_float - first_price_float) / first_price_float) * 100
+                    else:
+                        total_return_pct = 0.0
+
                     symbols_data.append({
                         'symbol_clean': symbol_clean,
                         'display_name': display_name,
-                        'data_points': len(result),
+                        'data_points': data_points,
                         'first_time': first_time,
                         'last_time': last_time,
-                        'first_price': float(first_price),
-                        'last_price': float(last_price),
-                        'min_price': min_price,
-                        'max_price': max_price,
-                        'total_return_pct': ((float(last_price) - float(first_price)) / float(first_price)) * 100,
+                        'first_price': first_price_float,
+                        'last_price': last_price_float,
+                        'total_return_pct': total_return_pct,
                         'duration_hours': (last_time - first_time).total_seconds() / 3600
                     })
-                    
-            except Exception as e:
-                display_name = symbol_clean.replace('_', ' ').replace('and', '&')
-                symbols_data.append({
-                    'symbol_clean': symbol_clean,
-                    'display_name': display_name,
-                    'error': str(e),
-                    'data_points': 0
-                })
-        
-        return sorted(symbols_data, key=lambda x: x.get('data_points', 0), reverse=True)
+
+                except (redis.RedisError, IndexError, TypeError, ValueError) as e:
+                    symbols_data.append({
+                        'symbol_clean': symbol_clean,
+                        'display_name': display_name,
+                        'error': str(e),
+                        'data_points': 0
+                    })
+            
+            return sorted(symbols_data, key=lambda x: x.get('data_points', 0), reverse=True)
+
+        except redis.RedisError as e:
+            print(f"❌ Redis error in get_symbols_summary: {e}")
+            return []
     
     def get_symbol_complete_data(self, symbol_name):
         """Get complete historical data for a symbol"""
