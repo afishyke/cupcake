@@ -12,3 +12,44 @@
 2025-06-29 18:12:54 IST - INFO - AUTH_ATTEMPT: Starting new authentication flow
 2025-06-29 18:39:49 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
 2025-06-29 18:39:49 IST - INFO - AUTH_ATTEMPT: Starting new authentication flow
+2025-06-30 09:18:43 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:22:28 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:22:28 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:22:51 IST - INFO - AUTH_ATTEMPT: Starting authentication with provided code
+2025-06-30 09:22:59 IST - INFO - AUTH_ATTEMPT: Starting authentication with provided code
+2025-06-30 09:22:59 IST - INFO - AUTH_FAILED: Authentication failed with status 401: {"status":"error","errors":[{"errorCode":"UDAPI100057","message":"Invalid Auth code","propertyPath":null,"invalidValue":null,"error_code":"UDAPI100057","property_path":null,"invalid_value":null}]}
+2025-06-30 09:23:21 IST - INFO - AUTH_ATTEMPT: Starting authentication with provided code
+2025-06-30 09:26:30 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:28:06 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:28:06 IST - INFO - TOKEN_CHECK: Token expired or expiring soon, expired at 2025-06-27 22:00:00+00:00
+2025-06-30 09:28:21 IST - INFO - AUTH_ATTEMPT: Starting authentication with provided code
+2025-06-30 09:28:21 IST - INFO - AUTH_SUCCESS: Authentication successful with code, token expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:28:22 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:31:13 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:39:06 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:47:18 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:49:37 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:53:20 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:55:50 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:56:35 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:56:53 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 09:57:29 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:01:51 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:05:18 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:06:21 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:22:22 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:25:23 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:25:37 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:40:06 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:41:25 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:42:48 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:46:58 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:47:27 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:51:32 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 10:51:54 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:01:38 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:06:34 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:19:47 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:20:06 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:20:40 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00
+2025-06-30 11:21:40 IST - INFO - TOKEN_CHECK: Token is valid, expires at 2025-06-30 22:00:00+00:00

@@ -31,10 +31,11 @@ services:
       - LOG_DIR=/app/logs
       - CONFIG_DIR=/app/config
     volumes:
-      - ./credentials.json:/app/credentials.json:ro
+      - ./credentials.json:/app/credentials.json
       - ./symbols.json:/app/symbols.json:ro
       - ./logs:/app/logs
       - ./config:/app/config
+      - .:/app
     restart: unless-stopped
 
 volumes:

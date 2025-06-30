@@ -1,0 +1,165 @@
+[
+  {
+    "symbol": "Reliance Industries",
+    "signal": "SELL",
+    "confidence": 0.6500000000000001,
+    "current_price": 1521.3,
+    "target_price": 1517.924921053556,
+    "stop_loss": 1523.8313092098329,
+    "risk_reward_ratio": 1.3333333333333333,
+    "reasons": [
+      "Short-term uptrend (MA5 > MA20)",
+      "RSI overbought (73.8)",
+      "MACD bullish crossover",
+      "Price near upper Bollinger Band",
+      "Low volume warning (0.2x avg)"
+    ],
+    "technical_data": {
+      "rsi": 73.80952380952398,
+      "ma_5": 1517.52,
+      "ma_20": 1515.3600000000001,
+      "macd": {
+        "macd": 0.3415794321638259,
+        "signal": -0.27521132797428544,
+        "histogram": 0.6167907601381113
+      },
+      "bollinger_position": 1.3799794159272156,
+      "volume_ratio": 0.1881488160086154,
+      "price_vs_ma5_pct": 0.24909062154040623,
+      "price_vs_ma20_pct": 0.3919860627177586
+    },
+    "market_data": {
+      "data_points": 54,
+      "price_range": {
+        "min": 1506.6,
+        "max": 1522.8
+      },
+      "volatility": 0.001109274615934992
+    },
+    "timestamp": "2025-06-30T10:13:22.269081+05:30"
+  },
+  {
+    "symbol": "Tata Consultancy Services",
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "current_price": 3441.2,
+    "target_price": 3441.2,
+    "stop_loss": 3269.14,
+    "risk_reward_ratio": 0.0,
+    "reasons": [
+      "Short-term uptrend (MA5 > MA20)",
+      "MACD bullish crossover",
+      "Price near upper Bollinger Band",
+      "Low volume warning (0.1x avg)"
+    ],
+    "technical_data": {
+      "rsi": 60.2941176470581,
+      "ma_5": 3439.6399999999994,
+      "ma_20": 3438.8799999999997,
+      "macd": {
+        "macd": -0.5599927356192893,
+        "signal": -1.0636150226580945,
+        "histogram": 0.5036222870388052
+      },
+      "bollinger_position": 0.8310178095422706,
+      "volume_ratio": 0.09567462620844258,
+      "price_vs_ma5_pct": 0.04535358351456549,
+      "price_vs_ma20_pct": 0.06746382543154061
+    },
+    "market_data": {
+      "data_points": 55,
+      "price_range": {
+        "min": 3434.1,
+        "max": 3459.5
+      },
+      "volatility": 0.0005091745858924773
+    },
+    "timestamp": "2025-06-30T10:13:22.276771+05:30"
+  },
+  {
+    "symbol": "HDFC Bank",
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "current_price": 2004.2,
+    "target_price": 2004.2,
+    "stop_loss": 1903.99,
+    "risk_reward_ratio": 0.0,
+    "reasons": [
+      "Short-term uptrend (MA5 > MA20)",
+      "MACD bullish crossover",
+      "Price near upper Bollinger Band",
+      "Low volume warning (0.1x avg)"
+    ],
+    "technical_data": {
+      "rsi": 65.9340659340666,
+      "ma_5": 2002.52,
+      "ma_20": 2001.6600000000003,
+      "macd": {
+        "macd": 0.0827356075321859,
+        "signal": -0.2533010542045349,
+        "histogram": 0.3360366617367208
+      },
+      "bollinger_position": 1.1751379272768687,
+      "volume_ratio": 0.12809217680987844,
+      "price_vs_ma5_pct": 0.08389429319058304,
+      "price_vs_ma20_pct": 0.12689467741773008
+    },
+    "market_data": {
+      "data_points": 55,
+      "price_range": {
+        "min": 2000.0,
+        "max": 2009.3
+      },
+      "volatility": 0.00046928876965731477
+    },
+    "timestamp": "2025-06-30T10:13:22.284292+05:30"
+  },
+  {
+    "symbol": "Infosys",
+    "signal": "SELL",
+    "confidence": 0.6500000000000001,
+    "current_price": 1599.8,
+    "target_price": 1597.0368781957277,
+    "stop_loss": 1601.872341353204,
+    "risk_reward_ratio": 1.33333333333337,
+    "reasons": [
+      "Short-term uptrend (MA5 > MA20)",
+      "RSI overbought (77.1)",
+      "MACD bullish crossover",
+      "Price near upper Bollinger Band",
+      "Low volume warning (0.3x avg)"
+    ],
+    "technical_data": {
+      "rsi": 77.14285714285771,
+      "ma_5": 1598.58,
+      "ma_20": 1596.9150000000002,
+      "macd": {
+        "macd": 0.05750753073107262,
+        "signal": -0.439866472972141,
+        "histogram": 0.4973740037032136
+      },
+      "bollinger_position": 1.0220544377629426,
+      "volume_ratio": 0.2846625766871166,
+      "price_vs_ma5_pct": 0.0763177319871403,
+      "price_vs_ma20_pct": 0.18066083667570054
+    },
+    "market_data": {
+      "data_points": 55,
+      "price_range": {
+        "min": 1594.3,
+        "max": 1611.5
+      },
+      "volatility": 0.0008635835117740413
+    },
+    "timestamp": "2025-06-30T10:13:22.292305+05:30"
+  },
+  {
+    "symbol": "ICICI Bank",
+    "signal": "NO_DATA",
+    "confidence": 0,
+    "reasons": [
+      "No historical data available"
+    ],
+    "timestamp": "2025-06-30T10:13:22.293317+05:30"
+  }
+]

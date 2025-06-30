@@ -24,7 +24,8 @@ try:
     from historical_data_fetcher import FastUpstoxAPI, Candle
     from technical_indicators import EnhancedTechnicalIndicators
     from orderbook_analyzer import OrderBookAnalyzer
-    print("✓ Successfully imported technical indicators and orderbook analyzer")
+    from enhanced_signal_generator import TrajectorySignalGenerator
+    print("✓ Successfully imported technical indicators, orderbook analyzer, and signal generator")
 except ImportError as e:
     print(f"⚠ Import error for enhanced modules: {e}")
     # Create dummy classes as fallback
@@ -41,6 +42,12 @@ except ImportError as e:
             print("⚠ Using dummy OrderBookAnalyzer")
         def comprehensive_orderbook_analysis(self, *args, **kwargs):
             return {}
+    
+    class TrajectorySignalGenerator:
+        def __init__(self, *args, **kwargs):
+            print("⚠ Using dummy TrajectorySignalGenerator")
+        def generate_actionable_signals(self, *args, **kwargs):
+            return []
 
 import MarketDataFeedV3_pb2 as pb
 
@@ -56,9 +63,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Initialize enhanced technical indicators and orderbook analyzer
+# Initialize enhanced technical indicators, orderbook analyzer, and signal generator
 tech_indicators = EnhancedTechnicalIndicators()
 orderbook_analyzer = OrderBookAnalyzer()
+signal_generator = TrajectorySignalGenerator()
 
 # Redis client for data storage
 try:
@@ -512,6 +520,9 @@ def calculate_position_size(signal_confidence: float, portfolio_risk: float = 0.
 def generate_actionable_signals(symbol_name, instrument_key, current_market_data):
     """Generate actionable trading signals with trajectory confirmation"""
     try:
+        # Get technical indicators for the symbol
+        technical_indicators = tech_indicators.get_enhanced_indicators(symbol_name, current_market_data)
+        
         # Existing orderbook analysis...
         orderbook_analysis = orderbook_analyzer.comprehensive_orderbook_analysis(
             symbol_name, current_market_data
@@ -523,9 +534,9 @@ def generate_actionable_signals(symbol_name, instrument_key, current_market_data
             debug_log(f"Skipping signal generation for {symbol_name} due to too many recent high-confidence signals.", "INFO")
             return []
             
-        # Existing signal generation...
-        actionable_signals = tech_indicators.generate_actionable_signals(
-            symbol_name, current_market_data, orderbook_analysis
+        # Generate actionable signals using the dedicated signal generator
+        actionable_signals = signal_generator.generate_actionable_signals(
+            symbol_name, current_market_data, technical_indicators, orderbook_analysis
         )
         
         # ADD: Simple quality filter

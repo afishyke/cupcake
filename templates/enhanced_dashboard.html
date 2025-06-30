@@ -6,10 +6,7 @@
     <title>Cupcake Trading Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/2.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- Add Financial Charts Plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -98,6 +95,78 @@
             border-radius: 8px;
             padding: 12px;
         }
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 40px;
+            height: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 6px;
+            border: 2px solid #ffffff;
+            border-radius: 6px;
+            background-color: #1e40af;
+        }
+        .hamburger-menu:hover {
+            background-color: #2563eb;
+        }
+        .hamburger-line {
+            width: 100%;
+            height: 4px;
+            background-color: #ffffff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger-menu.authenticated .hamburger-line {
+            background-color: #22c55e;
+        }
+        .hamburger-menu.unauthenticated .hamburger-line {
+            background-color: #ef4444;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 200px;
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #334155;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background-color: #374151;
+        }
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .auth-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .auth-indicator.authenticated {
+            background-color: #22c55e;
+        }
+        .auth-indicator.unauthenticated {
+            background-color: #ef4444;
+        }
         .loading-spinner {
             border: 2px solid #374151;
             border-top: 2px solid #3b82f6;
@@ -130,11 +199,28 @@
                 <h1 class="text-3xl font-bold text-white">Cupcake Trading Platform</h1>
                 <p class="text-slate-400">Professional Trading Dashboard with Strategy Testing</p>
             </div>
-            <div class="text-right">
-                <p class="text-lg font-medium text-white" id="current-time"></p>
-                <div id="connection-status" class="flex items-center justify-end space-x-2 mt-1">
-                     <div class="h-3 w-3 rounded-full bg-red-500 blinking"></div>
-                     <span class="text-sm text-red-400">Connecting...</span>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-lg font-medium text-white" id="current-time"></p>
+                    <div id="connection-status" class="flex items-center justify-end space-x-2 mt-1">
+                         <div class="h-3 w-3 rounded-full bg-red-500 blinking"></div>
+                         <span class="text-sm text-red-400">Connecting...</span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div id="hamburger-menu" class="hamburger-menu" onclick="toggleDropdown()">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                    </div>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <div class="dropdown-item" onclick="window.open('/auth', '_blank')">
+                            🔐 Authentication
+                        </div>
+                        <div class="dropdown-item" onclick="window.open('/history', '_blank')">
+                            📊 History
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -158,7 +244,7 @@
                     Portfolio
                 </button>
                 <button onclick="showTab('quant')" id="tab-quant" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
-                    🧮 Quant Analysis
+                    Quant Analysis
                 </button>
             </div>
         </div>
@@ -368,10 +454,31 @@
                     <div class="flex items-center space-x-2">
                         <label class="text-sm font-medium text-slate-300">Timeframe:</label>
                         <div class="flex space-x-1">
-                            <button onclick="setTimeframe('1h')" id="tf-1h" class="timeframe-btn active">1H</button>
-                            <button onclick="setTimeframe('4h')" id="tf-4h" class="timeframe-btn">4H</button>
-                            <button onclick="setTimeframe('1d')" id="tf-1d" class="timeframe-btn">1D</button>
+                            <button onclick="setTimeframe('1m')" id="tf-1m" class="timeframe-btn active">1M</button>
+                            <button onclick="setTimeframe('5m')" id="tf-5m" class="timeframe-btn">5M</button>
+                            <button onclick="setTimeframe('15m')" id="tf-15m" class="timeframe-btn">15M</button>
+                            <button onclick="setTimeframe('30m')" id="tf-30m" class="timeframe-btn">30M</button>
+                            <button onclick="setTimeframe('1h')" id="tf-1h" class="timeframe-btn">1H</button>
                         </div>
+                    </div>
+
+                    <!-- Data Range Selection -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-slate-300">Range:</label>
+                        <div class="flex space-x-1">
+                            <button onclick="setDataRange('1h')" id="range-1h" class="timeframe-btn">1H</button>
+                            <button onclick="setDataRange('4h')" id="range-4h" class="timeframe-btn">4H</button>
+                            <button onclick="setDataRange('1d')" id="range-1d" class="timeframe-btn active">1D</button>
+                            <button onclick="setDataRange('all')" id="range-all" class="timeframe-btn">All</button>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Toggle -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-slate-300">Real-time:</label>
+                        <button onclick="toggleRealtime()" id="realtime-toggle" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded font-medium text-sm">
+                            <span id="realtime-icon">📡</span> ON
+                        </button>
                     </div>
 
                     <!-- Refresh Button -->
@@ -381,8 +488,9 @@
 
                     <!-- Market Status -->
                     <div id="market-status-indicator" class="flex items-center space-x-2 ml-auto">
-                        <div class="h-3 w-3 rounded-full bg-gray-500"></div>
-                        <span class="text-sm text-slate-400">Loading...</span>
+                        <div id="market-status-dot" class="h-3 w-3 rounded-full bg-gray-500"></div>
+                        <span id="market-status-text" class="text-sm text-slate-400">Loading...</span>
+                        <span id="market-time" class="text-xs text-slate-500 ml-2">IST</span>
                     </div>
                 </div>
                 
@@ -401,7 +509,29 @@
                         </div>
                         
                         <div class="chart-container">
-                            <canvas id="priceChart"></canvas>
+                            <div id="priceChart" style="width:100%;height:500px;"></div>
+                        </div>
+                        
+                        <!-- Chart Info Bar -->
+                        <div class="mt-4 bg-slate-700 p-3 rounded-lg">
+                            <div class="flex justify-between items-center text-sm">
+                                <div class="flex space-x-4">
+                                    <span class="text-slate-300">Data Points: <span id="data-points" class="text-white font-medium">--</span></span>
+                                    <span class="text-slate-300">Resolution: <span id="chart-resolution" class="text-white font-medium">1 minute</span></span>
+                                    <span class="text-slate-300">Last Update: <span id="last-update" class="text-white font-medium">--</span></span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <span id="chart-status" class="text-green-400 font-medium">Ready</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Market Timing Info -->
+                        <div class="mt-2 bg-slate-700 p-3 rounded-lg">
+                            <div class="text-xs text-slate-400">
+                                <strong class="text-slate-300">Indian Market Hours (IST):</strong>
+                                Pre-market: 9:00-9:15 AM | Regular: 9:15 AM-3:30 PM | Post-market: 3:40-4:00 PM
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -857,11 +987,30 @@
         let currentMarketData = {};
 
         // Global variables for charts
-        let priceChart = null;
         let selectedSymbol = '';
-        let selectedTimeframe = '1h';
+        let selectedTimeframe = '1m';
+        let selectedDataRange = '1d';
         let availableSymbols = [];
         let chartInitialized = false;
+        let realtimeEnabled = true;
+        let chartUpdateInterval = null;
+        let lastChartUpdate = null;
+
+        // Menu functions
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const hamburger = document.getElementById('hamburger-menu');
+            
+            if (!hamburger.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
 
         // Tab management
         function showTab(tabName) {
@@ -916,6 +1065,7 @@
             
             // Try different API endpoints
             const endpoints = [
+                '/api/chart/symbols_available',
                 '/api/chart/symbols',
                 '/api/historical/symbols',
                 '/api/market_data'
@@ -1033,69 +1183,101 @@
         }
 
         function initializeChart() {
-            console.log('Initializing chart...');
-            const ctx = document.getElementById('priceChart').getContext('2d');
+            console.log('Initializing modern trading chart...');
             
-            priceChart = new Chart(ctx, {
-                type: 'line', // Use line chart instead of candlestick for better compatibility
-                data: {
-                    datasets: [{
-                        label: 'Price',
-                        data: [],
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        pointRadius: 1,
-                        pointHoverRadius: 4,
-                        tension: 0.1,
-                        fill: false
-                    }]
+            // Check if Plotly is available
+            if (typeof Plotly === 'undefined') {
+                console.error('Plotly is not loaded!');
+                showChartError('Plotly library failed to load');
+                return;
+            }
+            
+            // Initialize empty chart with proper structure
+            const layout = {
+                title: {
+                    text: 'Select a Symbol to View Chart',
+                    font: { color: '#e2e8f0', size: 16, family: 'Inter, sans-serif' },
+                    x: 0.5
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: false
-                        },
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'hour'
-                            },
-                            grid: {
-                                color: 'rgba(75, 85, 99, 0.3)'
-                            },
-                            ticks: {
-                                color: 'rgb(156, 163, 175)'
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: 'rgba(75, 85, 99, 0.3)'
-                            },
-                            ticks: {
-                                color: 'rgb(156, 163, 175)',
-                                callback: function(value) {
-                                    return '₹' + value.toFixed(2);
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
+                xaxis: {
+                    title: { text: 'Time', font: { color: '#94a3b8' } },
+                    gridcolor: 'rgba(71, 85, 105, 0.3)',
+                    tickfont: { color: '#94a3b8', size: 10 },
+                    showline: true,
+                    linecolor: 'rgba(71, 85, 105, 0.5)',
+                    rangeslider: { visible: false },
+                    type: 'date'
+                },
+                yaxis: {
+                    title: { text: 'Price (₹)', font: { color: '#94a3b8' } },
+                    gridcolor: 'rgba(71, 85, 105, 0.3)',
+                    tickfont: { color: '#94a3b8', size: 10 },
+                    showline: true,
+                    linecolor: 'rgba(71, 85, 105, 0.5)',
+                    tickformat: '₹,.2f',
+                    side: 'left'
+                },
+                plot_bgcolor: '#0f172a',
+                paper_bgcolor: '#1e293b',
+                font: { color: '#e2e8f0', family: 'Inter, sans-serif' },
+                margin: { t: 50, r: 50, b: 50, l: 80 },
+                showlegend: false,
+                hovermode: 'x unified',
+                hoverlabel: {
+                    bgcolor: 'rgba(15, 23, 42, 0.9)',
+                    bordercolor: 'rgba(71, 85, 105, 0.5)',
+                    font: { color: '#e2e8f0' }
                 }
-            });
+            };
 
-            chartInitialized = true;
-            console.log('Chart initialized successfully');
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: [
+                    'pan2d', 'lasso2d', 'select2d', 'autoScale2d', 
+                    'hoverClosestCartesian', 'hoverCompareCartesian', 'toggleSpikelines'
+                ]
+            };
+
+            // Create empty chart
+            Plotly.newPlot('priceChart', [], layout, config)
+                .then(() => {
+                    chartInitialized = true;
+                    updateChartStatus('Ready', 'green');
+                    console.log('Chart initialized successfully');
+                })
+                .catch(error => {
+                    console.error('Failed to initialize chart:', error);
+                    showChartError('Chart initialization failed');
+                });
+        }
+
+        // New chart utility functions
+        function showChartError(message) {
+            document.getElementById('priceChart').innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ef4444; font-size: 16px;">${message}</div>`;
+            updateChartStatus('Error', 'red');
+        }
+
+        function updateChartStatus(status, color) {
+            const statusEl = document.getElementById('chart-status');
+            statusEl.textContent = status;
+            statusEl.className = `text-${color}-400 font-medium`;
+        }
+
+        function updateChartInfo(dataPoints, lastUpdate) {
+            document.getElementById('data-points').textContent = dataPoints || '--';
+            document.getElementById('last-update').textContent = lastUpdate || '--';
+            
+            // Update resolution based on timeframe
+            const resolutionMap = {
+                '1m': '1 minute',
+                '5m': '5 minutes', 
+                '15m': '15 minutes',
+                '30m': '30 minutes',
+                '1h': '1 hour'
+            };
+            document.getElementById('chart-resolution').textContent = resolutionMap[selectedTimeframe] || selectedTimeframe;
         }
 
         function onSymbolChange() {
@@ -1127,6 +1309,99 @@
             }
         }
 
+        // New timeframe and range management functions
+        function setTimeframe(timeframe) {
+            selectedTimeframe = timeframe;
+            
+            // Update UI
+            document.querySelectorAll('[id^="tf-"]').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('timeframe-btn');
+            });
+            document.getElementById(`tf-${timeframe}`).classList.add('active');
+            
+            // Reload chart if symbol is selected
+            if (selectedSymbol) {
+                loadChartData();
+            }
+            
+            updateChartInfo();
+            console.log(`Timeframe changed to: ${timeframe}`);
+        }
+
+        function setDataRange(range) {
+            selectedDataRange = range;
+            
+            // Update UI
+            document.querySelectorAll('[id^="range-"]').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('timeframe-btn');
+            });
+            document.getElementById(`range-${range}`).classList.add('active');
+            
+            // Reload chart if symbol is selected
+            if (selectedSymbol) {
+                loadChartData();
+            }
+            
+            console.log(`Data range changed to: ${range}`);
+        }
+
+        function toggleRealtime() {
+            realtimeEnabled = !realtimeEnabled;
+            const toggle = document.getElementById('realtime-toggle');
+            const icon = document.getElementById('realtime-icon');
+            
+            if (realtimeEnabled) {
+                toggle.className = 'bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded font-medium text-sm';
+                toggle.innerHTML = '<span id="realtime-icon">📡</span> ON';
+                startRealtimeUpdates();
+            } else {
+                toggle.className = 'bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded font-medium text-sm';
+                toggle.innerHTML = '<span id="realtime-icon">⏸️</span> OFF';
+                stopRealtimeUpdates();
+            }
+            
+            console.log(`Real-time updates: ${realtimeEnabled ? 'ON' : 'OFF'}`);
+        }
+
+        function startRealtimeUpdates() {
+            if (chartUpdateInterval) {
+                clearInterval(chartUpdateInterval);
+            }
+            
+            // Adjust update frequency based on timeframe
+            let updateInterval = 30000; // Default 30 seconds
+            if (selectedTimeframe === '1m') {
+                updateInterval = 15000; // 15 seconds for 1-minute charts
+            } else if (selectedTimeframe === '5m') {
+                updateInterval = 60000; // 1 minute for 5-minute charts
+            }
+            
+            chartUpdateInterval = setInterval(() => {
+                if (selectedSymbol && realtimeEnabled) {
+                    console.log('Real-time update triggered for:', selectedSymbol);
+                    loadChartData();
+                }
+            }, updateInterval);
+            
+            console.log(`Real-time updates started: every ${updateInterval/1000} seconds`);
+        }
+
+        function stopRealtimeUpdates() {
+            if (chartUpdateInterval) {
+                clearInterval(chartUpdateInterval);
+                chartUpdateInterval = null;
+            }
+        }
+
+        function refreshChart() {
+            if (selectedSymbol) {
+                updateChartStatus('Refreshing...', 'yellow');
+                loadChartData();
+            }
+        }
+
         function loadChartData() {
             if (!selectedSymbol) return;
             
@@ -1137,8 +1412,8 @@
             document.getElementById('chart-title').textContent = `Loading ${selectedSymbol}...`;
             clearChartMessages();
             
-            // Try chart API first, then fallback to generating fake data
-            fetch(`/api/chart/data/${selectedSymbol}?timeframe=${selectedTimeframe}&limit=100`)
+            // Use new real-time API with proper timeframes
+            fetch(`/api/chart/realtime/${selectedSymbol}?timeframe=${selectedTimeframe}&range=${selectedDataRange}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1154,6 +1429,7 @@
                     updateChart(data);
                     updateChartStatistics(data.stats);
                     updateChartInfo(data);
+                    updateMarketStatus(data.market_status);
                     
                     document.getElementById('chart-title').textContent = selectedSymbol;
                 })
@@ -1229,25 +1505,56 @@
         }
 
         function updateChart(data) {
-            if (!priceChart) return;
+            if (!chartInitialized) return;
             
             console.log('Updating chart with data:', data);
             
-            // Convert chart data to format expected by Chart.js
-            const chartData = data.candles.map(candle => ({
-                x: new Date(candle.x),
-                y: candle.c
-            }));
+            // Convert chart data to OHLC format for candlestick
+            const dates = data.candles.map(candle => candle.x);
+            const opens = data.candles.map(candle => candle.o || candle.c);
+            const highs = data.candles.map(candle => candle.h || candle.c);
+            const lows = data.candles.map(candle => candle.l || candle.c);
+            const closes = data.candles.map(candle => candle.c);
             
-            priceChart.data.datasets[0].data = chartData;
-            priceChart.data.datasets[0].label = selectedSymbol;
+            // Create candlestick trace
+            const candlestickTrace = {
+                x: dates,
+                open: opens,
+                high: highs,
+                low: lows,
+                close: closes,
+                type: 'candlestick',
+                name: selectedSymbol,
+                increasing: { line: { color: '#22c55e' } },
+                decreasing: { line: { color: '#ef4444' } }
+            };
             
-            // Update time unit based on timeframe
-            const timeUnit = selectedTimeframe === '1d' ? 'day' : 'hour';
-            priceChart.options.scales.x.time.unit = timeUnit;
+            const layout = {
+                title: {
+                    text: `${selectedSymbol} - ${selectedTimeframe.toUpperCase()} Chart`,
+                    font: { color: '#e2e8f0', size: 16 }
+                },
+                xaxis: {
+                    title: 'Time',
+                    color: '#e2e8f0',
+                    gridcolor: '#374151',
+                    type: 'date'
+                },
+                yaxis: {
+                    title: 'Price (₹)',
+                    color: '#e2e8f0',
+                    gridcolor: '#374151'
+                },
+                plot_bgcolor: '#1e293b',
+                paper_bgcolor: '#1e293b',
+                font: { color: '#e2e8f0' },
+                showlegend: false,
+                margin: { l: 60, r: 40, t: 60, b: 60 }
+            };
             
-            priceChart.update();
-            console.log('Chart updated successfully');
+            // Update the plot with new data
+            Plotly.react('priceChart', [candlestickTrace], layout);
+            console.log('Chart updated successfully with', dates.length, 'data points');
         }
 
         function updateChartStatistics(stats) {
@@ -1275,9 +1582,12 @@
         }
 
         function clearChart() {
-            if (priceChart) {
-                priceChart.data.datasets[0].data = [];
-                priceChart.update();
+            if (chartInitialized) {
+                const update = {
+                    x: [[]],
+                    y: [[]]
+                };
+                Plotly.restyle('priceChart', update, [0]);
             }
             
             // Clear statistics
@@ -1290,6 +1600,54 @@
             document.getElementById('period-start').textContent = '--';
             document.getElementById('period-end').textContent = '--';
         }
+
+        function updateMarketStatus(marketStatus) {
+            if (!marketStatus) return;
+            
+            const statusDot = document.getElementById('market-status-dot');
+            const statusText = document.getElementById('market-status-text');
+            const marketTime = document.getElementById('market-time');
+            
+            // Update status text and color
+            statusText.textContent = marketStatus.message;
+            
+            // Update dot color based on market status
+            const colorClass = `bg-${marketStatus.color}-500`;
+            statusDot.className = `h-3 w-3 rounded-full ${colorClass}`;
+            
+            // Update time display with IST
+            const now = new Date();
+            const istTime = new Intl.DateTimeFormat('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            }).format(now);
+            
+            marketTime.textContent = `${istTime} IST`;
+            
+            console.log('Market status updated:', marketStatus);
+        }
+
+        function updateMarketTime() {
+            const marketTime = document.getElementById('market-time');
+            if (marketTime) {
+                const now = new Date();
+                const istTime = new Intl.DateTimeFormat('en-IN', {
+                    timeZone: 'Asia/Kolkata',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                }).format(now);
+                
+                marketTime.textContent = `${istTime} IST`;
+            }
+        }
+
+        // Update IST time every second
+        setInterval(updateMarketTime, 1000);
 
         function refreshChart() {
             const refreshIcon = document.getElementById('refresh-icon');

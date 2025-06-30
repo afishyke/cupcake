@@ -11,6 +11,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from datetime import datetime, timedelta
+import pytz
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -54,6 +55,77 @@ from portfolio_tracker import PortfolioTracker
 
 # Global auth client for web routes
 auth_client = None
+
+def get_indian_market_status(ist_time):
+    """
+    Determine Indian stock market status based on IST time
+    NSE/BSE Market Hours:
+    - Pre-market: 9:00 AM - 9:15 AM IST
+    - Regular Trading: 9:15 AM - 3:30 PM IST  
+    - Post-market: 3:40 PM - 4:00 PM IST
+    - Weekend: Saturday & Sunday closed
+    """
+    weekday = ist_time.weekday()  # 0=Monday, 6=Sunday
+    current_time = ist_time.time()
+    
+    # Weekend check
+    if weekday >= 5:  # Saturday (5) or Sunday (6)
+        return {
+            'status': 'CLOSED',
+            'message': 'Market closed - Weekend',
+            'next_open': 'Monday 9:00 AM IST',
+            'color': 'red'
+        }
+    
+    # Market timings
+    pre_market_start = datetime.strptime('09:00', '%H:%M').time()
+    market_open = datetime.strptime('09:15', '%H:%M').time()
+    market_close = datetime.strptime('15:30', '%H:%M').time()
+    post_market_start = datetime.strptime('15:40', '%H:%M').time()
+    post_market_end = datetime.strptime('16:00', '%H:%M').time()
+    
+    if current_time < pre_market_start:
+        return {
+            'status': 'PRE_MARKET_SOON',
+            'message': 'Pre-market opens at 9:00 AM IST',
+            'next_open': '9:00 AM IST',
+            'color': 'yellow'
+        }
+    elif pre_market_start <= current_time < market_open:
+        return {
+            'status': 'PRE_MARKET',
+            'message': 'Pre-market session (9:00-9:15 AM)',
+            'next_open': 'Market opens at 9:15 AM IST',
+            'color': 'orange'
+        }
+    elif market_open <= current_time < market_close:
+        return {
+            'status': 'OPEN',
+            'message': 'Market is OPEN (9:15 AM - 3:30 PM)',
+            'next_close': '3:30 PM IST',
+            'color': 'green'
+        }
+    elif market_close <= current_time < post_market_start:
+        return {
+            'status': 'CLOSING_BREAK',
+            'message': 'Market closed - Post-market starts at 3:40 PM',
+            'next_open': '3:40 PM IST (Post-market)',
+            'color': 'yellow'
+        }
+    elif post_market_start <= current_time < post_market_end:
+        return {
+            'status': 'POST_MARKET',
+            'message': 'Post-market session (3:40-4:00 PM)',
+            'next_close': '4:00 PM IST',
+            'color': 'orange'
+        }
+    else:  # After 4:00 PM
+        return {
+            'status': 'CLOSED',
+            'message': 'Market closed for the day',
+            'next_open': 'Tomorrow 9:00 AM IST',
+            'color': 'red'
+        }
 
 # --- Configuration ---
 CREDENTIALS_PATH = os.path.join(SCRIPT_DIR, 'credentials.json')
@@ -592,7 +664,7 @@ def api_chart_symbols():
                 for symbol_data in symbols_data.get('symbols', []):
                     symbols.append({
                         'symbol': symbol_data['name'],
-                        'symbol_clean': symbol_data['name'].replace(' ', '_').replace('&', 'and'),
+                        'symbol_clean': symbol_data['name'].replace(' ', '_').replace('.', '').replace('&', 'and'),
                         'instrument_key': symbol_data.get('instrument_key'),
                         'data_points': 50,  # Estimate
                         'latest_price': 100.0,  # Default price
@@ -621,6 +693,315 @@ def api_chart_symbols():
         
     except Exception as e:
         logger.error(f"Error in api_chart_symbols: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/chart/realtime/<symbol_name>')
+def api_chart_realtime(symbol_name):
+    """New API endpoint for real-time chart data with minute-level timeframes"""
+    try:
+        import redis
+        from datetime import datetime, timedelta
+        
+        # Get parameters
+        timeframe = request.args.get('timeframe', '1m')
+        data_range = request.args.get('range', '1d') 
+        
+        logger.info(f"Fetching real-time data for {symbol_name}, timeframe={timeframe}, range={data_range}")
+        
+        # Connect to Redis
+        try:
+            redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
+            redis_client.ping()
+        except Exception as e:
+            logger.error(f"Redis connection failed: {e}")
+            return jsonify({'error': 'Database connection failed'})
+        
+        # Calculate time range
+        now = datetime.now()
+        if data_range == '1h':
+            start_time = now - timedelta(hours=1)
+            limit = 60
+        elif data_range == '4h':
+            start_time = now - timedelta(hours=4)
+            limit = 240
+        elif data_range == '1d':
+            start_time = now - timedelta(days=1)
+            limit = 1440
+        else:  # 'all'
+            start_time = now - timedelta(days=7)
+            limit = 10080
+            
+        start_ts = int(start_time.timestamp() * 1000)
+        end_ts = int(now.timestamp() * 1000)
+        
+        # Clean symbol name for Redis key - keep Ltd, just replace spaces
+        symbol_clean = symbol_name.replace(' ', '_').replace('.', '').replace('&', 'and')
+        
+        # Get OHLCV data from Redis TimeSeries
+        try:
+            close_key = f'stock:{symbol_clean}:close'
+            open_key = f'stock:{symbol_clean}:open' 
+            high_key = f'stock:{symbol_clean}:high'
+            low_key = f'stock:{symbol_clean}:low'
+            volume_key = f'stock:{symbol_clean}:volume'
+            
+            logger.info(f"Looking for Redis key: {close_key} (from symbol: {symbol_name})")
+            
+            # Check if key exists first
+            key_exists = redis_client.exists(close_key)
+            if not key_exists:
+                # Try to find similar keys
+                similar_keys = redis_client.keys(f'stock:*{symbol_clean}*:close')
+                if not similar_keys:
+                    similar_keys = redis_client.keys(f'stock:*{symbol_name.replace(" ", "*")}*:close')
+                
+                if similar_keys:
+                    logger.warning(f"Key {close_key} not found, but found similar: {similar_keys}")
+                    return jsonify({
+                        'error': f'Symbol key mismatch. Found similar: {[k.decode() if isinstance(k, bytes) else k for k in similar_keys[:3]]}'
+                    })
+                else:
+                    # List available symbols for debugging
+                    all_close_keys = redis_client.keys('stock:*:close')
+                    available_symbols = [k.decode().split(':')[1] if isinstance(k, bytes) else k.split(':')[1] for k in all_close_keys[:10]]
+                    return jsonify({
+                        'error': f'No data found for {symbol_name}. Available symbols: {available_symbols}'
+                    })
+            
+            # Get data from Redis
+            close_data = redis_client.execute_command('TS.RANGE', close_key, start_ts, end_ts, 'COUNT', limit)
+            open_data = redis_client.execute_command('TS.RANGE', open_key, start_ts, end_ts, 'COUNT', limit)
+            high_data = redis_client.execute_command('TS.RANGE', high_key, start_ts, end_ts, 'COUNT', limit)
+            low_data = redis_client.execute_command('TS.RANGE', low_key, start_ts, end_ts, 'COUNT', limit)
+            volume_data = redis_client.execute_command('TS.RANGE', volume_key, start_ts, end_ts, 'COUNT', limit)
+            
+            if not close_data:
+                return jsonify({'error': f'No data found for {symbol_name}'})
+                
+            # Process data based on timeframe
+            candles = []
+            if timeframe == '1m':
+                # Use raw 1-minute data
+                for i in range(len(close_data)):
+                    timestamp = close_data[i][0]
+                    dt = datetime.fromtimestamp(timestamp/1000, tz=pytz.timezone('Asia/Kolkata'))
+                    
+                    candle = {
+                        'x': dt.isoformat(),
+                        'o': float(open_data[i][1]) if i < len(open_data) else float(close_data[i][1]),
+                        'h': float(high_data[i][1]) if i < len(high_data) else float(close_data[i][1]),
+                        'l': float(low_data[i][1]) if i < len(low_data) else float(close_data[i][1]),
+                        'c': float(close_data[i][1]),
+                        'v': int(volume_data[i][1]) if i < len(volume_data) else 0
+                    }
+                    candles.append(candle)
+            else:
+                # Aggregate data for other timeframes
+                import pandas as pd
+                
+                # Create DataFrame
+                df_data = []
+                for i in range(len(close_data)):
+                    timestamp = close_data[i][0]
+                    dt = datetime.fromtimestamp(timestamp/1000, tz=pytz.timezone('Asia/Kolkata'))
+                    
+                    row = {
+                        'timestamp': dt,
+                        'open': float(open_data[i][1]) if i < len(open_data) else float(close_data[i][1]),
+                        'high': float(high_data[i][1]) if i < len(high_data) else float(close_data[i][1]),
+                        'low': float(low_data[i][1]) if i < len(low_data) else float(close_data[i][1]),
+                        'close': float(close_data[i][1]),
+                        'volume': int(volume_data[i][1]) if i < len(volume_data) else 0
+                    }
+                    df_data.append(row)
+                
+                df = pd.DataFrame(df_data)
+                df.set_index('timestamp', inplace=True)
+                
+                # Resample based on timeframe
+                freq_map = {
+                    '5m': '5T',
+                    '15m': '15T', 
+                    '30m': '30T',
+                    '1h': '1H'
+                }
+                
+                freq = freq_map.get(timeframe, '5T')
+                df_resampled = df.resample(freq).agg({
+                    'open': 'first',
+                    'high': 'max', 
+                    'low': 'min',
+                    'close': 'last',
+                    'volume': 'sum'
+                }).dropna()
+                
+                # Convert back to candles
+                for timestamp, row in df_resampled.iterrows():
+                    # Ensure timestamp is in IST
+                    if timestamp.tz is None:
+                        timestamp = timestamp.tz_localize('Asia/Kolkata')
+                    else:
+                        timestamp = timestamp.tz_convert('Asia/Kolkata')
+                    
+                    candle = {
+                        'x': timestamp.isoformat(),
+                        'o': float(row['open']),
+                        'h': float(row['high']),
+                        'l': float(row['low']),
+                        'c': float(row['close']),
+                        'v': int(row['volume'])
+                    }
+                    candles.append(candle)
+            
+            # Calculate statistics
+            if candles:
+                prices = [c['c'] for c in candles]
+                volumes = [c['v'] for c in candles]
+                
+                stats = {
+                    'latest_price': prices[-1],
+                    'price_change': prices[-1] - prices[0] if len(prices) > 1 else 0,
+                    'price_change_pct': ((prices[-1] - prices[0]) / prices[0] * 100) if len(prices) > 1 and prices[0] != 0 else 0,
+                    'high_24h': max(prices),
+                    'low_24h': min(prices),
+                    'volume_24h': sum(volumes),
+                    'data_points': len(candles)
+                }
+            else:
+                stats = {
+                    'latest_price': 0,
+                    'price_change': 0,
+                    'price_change_pct': 0,
+                    'high_24h': 0,
+                    'low_24h': 0,
+                    'volume_24h': 0,
+                    'data_points': 0
+                }
+            
+            # Add Indian market context
+            ist_now = datetime.now(pytz.timezone('Asia/Kolkata'))
+            market_status = get_indian_market_status(ist_now)
+            
+            return jsonify({
+                'success': True,
+                'candles': candles,
+                'stats': stats,
+                'symbol': symbol_name,
+                'timeframe': timeframe,
+                'data_range': data_range,
+                'last_updated': ist_now.isoformat(),
+                'market_status': market_status,
+                'timezone': 'Asia/Kolkata'
+            })
+            
+        except Exception as e:
+            logger.error(f"Error fetching Redis data for {symbol_name}: {e}")
+            return jsonify({'error': f'Data fetch failed: {str(e)}'})
+            
+    except Exception as e:
+        logger.error(f"Error in api_chart_realtime: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/chart/symbols_available')
+def api_chart_symbols_available():
+    """Get list of symbols available in Redis TimeSeries"""
+    try:
+        import redis
+        redis_host = os.environ.get('REDIS_HOST', 'localhost')
+        redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+        redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+        
+        # Get all close keys to find available symbols
+        close_keys = redis_client.keys('stock:*:close')
+        symbols = []
+        
+        for key in close_keys:
+            symbol_clean = key.split(':')[1]
+            # Convert back to display name
+            symbol_display = symbol_clean.replace('_', ' ')
+            
+            # Get some sample data to check if it has recent data
+            try:
+                sample_data = redis_client.execute_command('TS.RANGE', key, '-', '+', 'COUNT', 1)
+                # TS.INFO returns a list, not a dict
+                info_data = redis_client.execute_command('TS.INFO', key)
+                data_points = 0
+                if info_data and isinstance(info_data, list):
+                    # TS.INFO returns key-value pairs in a list
+                    for i in range(0, len(info_data), 2):
+                        if i + 1 < len(info_data) and info_data[i] == b'totalSamples':
+                            data_points = int(info_data[i + 1])
+                            break
+                
+                symbols.append({
+                    'symbol': symbol_display,
+                    'symbol_clean': symbol_clean,
+                    'redis_key': key,
+                    'data_points': data_points,
+                    'has_data': len(sample_data) > 0 if sample_data else False,
+                    'source': 'redis_timeseries'
+                })
+            except Exception as e:
+                logger.warning(f"Error checking data for {key}: {e}")
+                symbols.append({
+                    'symbol': symbol_display,
+                    'symbol_clean': symbol_clean,
+                    'redis_key': key,
+                    'data_points': 0,
+                    'has_data': False,
+                    'error': str(e),
+                    'source': 'redis_timeseries'
+                })
+        
+        # Sort by symbol name
+        symbols.sort(key=lambda x: x['symbol'])
+        
+        return jsonify({
+            'success': True,
+            'symbols': symbols,
+            'total_count': len(symbols),
+            'timestamp': datetime.now(pytz.timezone('Asia/Kolkata')).isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting chart symbols: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/debug/redis_keys')
+def debug_redis_keys():
+    """Debug endpoint to show Redis keys"""
+    try:
+        import redis
+        redis_host = os.environ.get('REDIS_HOST', 'localhost')
+        redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+        redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+        
+        all_keys = redis_client.keys('stock:*')
+        key_info = {}
+        
+        for key in all_keys[:20]:  # Limit to first 20 keys
+            try:
+                key_type = redis_client.type(key)
+                if key_type == 'TSDB-TYPE':
+                    # Get sample data
+                    sample = redis_client.execute_command('TS.RANGE', key, '-', '+', 'COUNT', 1)
+                    key_info[key] = {
+                        'type': 'TimeSeries',
+                        'has_data': len(sample) > 0,
+                        'sample_count': 1 if sample else 0
+                    }
+                else:
+                    key_info[key] = {'type': key_type}
+            except Exception as e:
+                key_info[key] = {'error': str(e)}
+        
+        return jsonify({
+            'total_keys': len(all_keys),
+            'sample_keys': key_info,
+            'timestamp': datetime.now(pytz.timezone('Asia/Kolkata')).isoformat()
+        })
+        
+    except Exception as e:
         return jsonify({'error': str(e)})
 
 @app.route('/api/chart/data/<symbol_name>')
