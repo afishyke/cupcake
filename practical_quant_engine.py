@@ -348,7 +348,21 @@ class PracticalQuantEngine:
             high_close = abs(df['high'] - df['close'].shift())
             low_close = abs(df['low'] - df['close'].shift())
             
-            tr_data = pd.concat([high_low, high_close, low_close], axis=1)
+            # Align all series to have the same length (dropna removes first row from shifted series)
+            high_close = high_close.dropna()
+            low_close = low_close.dropna()
+            
+            # Align all to the same index
+            common_index = high_low.index.intersection(high_close.index).intersection(low_close.index)
+            if len(common_index) > 0:
+                tr_data = pd.concat([
+                    high_low.loc[common_index], 
+                    high_close.loc[common_index], 
+                    low_close.loc[common_index]
+                ], axis=1)
+            else:
+                # Fallback if no common index
+                tr_data = pd.DataFrame({'hl': high_low, 'hc': [0]*len(high_low), 'lc': [0]*len(high_low)})
             atr = tr_data.max(axis=1).rolling(14).mean().iloc[-1]
             
             # Adaptive ATR multiplier based on volatility regime
@@ -599,11 +613,21 @@ class PracticalQuantEngine:
         # Beta and Alpha (using market proxy - simplified)
         # In practice, you'd use a benchmark index
         market_returns = returns.rolling(20).mean()  # Simplified proxy
-        if len(market_returns.dropna()) > 10:
-            covariance = np.cov(returns.dropna(), market_returns.dropna())[0, 1]
-            market_variance = np.var(market_returns.dropna())
+        
+        # Align the arrays to have the same length for covariance calculation
+        aligned_returns = returns.dropna()
+        aligned_market = market_returns.dropna()
+        
+        # Find common index to ensure same length
+        common_index = aligned_returns.index.intersection(aligned_market.index)
+        if len(common_index) > 10:
+            aligned_returns = aligned_returns.loc[common_index]
+            aligned_market = aligned_market.loc[common_index]
+            
+            covariance = np.cov(aligned_returns, aligned_market)[0, 1]
+            market_variance = np.var(aligned_market)
             beta = covariance / market_variance if market_variance > 0 else 1.0
-            alpha = returns.mean() - beta * market_returns.mean()
+            alpha = aligned_returns.mean() - beta * aligned_market.mean()
         else:
             beta = 1.0
             alpha = 0
@@ -1024,11 +1048,16 @@ class PracticalQuantEngine:
             alpha_signals['high_volume_alpha'] = high_volume_returns
         
         # 3. Price level effects
-        df['returns'] = df['close'].pct_change()
-        df['price_level'] = pd.qcut(df['close'], q=5, labels=['very_low', 'low', 'medium', 'high', 'very_high'])
+        df_copy = df.copy()  # Don't modify original df
+        df_copy['returns'] = df_copy['close'].pct_change()
         
-        level_returns = df.groupby('price_level')['returns'].mean()
-        alpha_signals['price_level_effects'] = level_returns.to_dict()
+        try:
+            df_copy['price_level'] = pd.qcut(df_copy['close'], q=5, labels=['very_low', 'low', 'medium', 'high', 'very_high'], duplicates='drop')
+            level_returns = df_copy.groupby('price_level')['returns'].mean()
+            alpha_signals['price_level_effects'] = level_returns.to_dict()
+        except Exception as e:
+            # Handle cases where qcut fails (e.g., too few unique values)
+            alpha_signals['price_level_effects'] = {}
         
         # 4. Bid-ask spread analysis (if orderbook data available)
         if orderbook_data:
@@ -1039,13 +1068,13 @@ class PracticalQuantEngine:
             for quartile in spread_quartiles.categories:
                 mask = spread_quartiles == quartile
                 if mask.sum() > 0:
-                    spread_returns[quartile] = df.loc[mask, 'returns'].mean()
+                    spread_returns[quartile] = df_copy.loc[mask, 'returns'].mean()
             
             alpha_signals['spread_effects'] = spread_returns
         
         # 5. Serial correlation in returns
-        serial_corr_1 = df['returns'].autocorr(lag=1)
-        serial_corr_5 = df['returns'].autocorr(lag=5)
+        serial_corr_1 = df_copy['returns'].autocorr(lag=1)
+        serial_corr_5 = df_copy['returns'].autocorr(lag=5)
         
         alpha_signals['serial_correlation_1'] = serial_corr_1
         alpha_signals['serial_correlation_5'] = serial_corr_5

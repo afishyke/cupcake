@@ -1004,6 +1004,153 @@ def debug_redis_keys():
     except Exception as e:
         return jsonify({'error': str(e)})
 
+@app.route('/api/debug/test_signal_generation/<symbol_name>')
+def debug_test_signal_generation(symbol_name):
+    """Debug endpoint to test signal generation for a specific symbol"""
+    try:
+        # Import signal generator
+        from enhanced_signal_generator import TrajectorySignalGenerator
+        signal_generator = TrajectorySignalGenerator()
+        
+        # Clean symbol name
+        symbol_clean = symbol_name.replace(' ', '_').replace('.', '').replace('&', 'and')
+        
+        # Test if we can get DataFrame
+        df = signal_generator._get_symbol_dataframe(symbol_name)
+        
+        result = {
+            'symbol': symbol_name,
+            'symbol_clean': symbol_clean,
+            'dataframe_available': df is not None,
+            'data_points': len(df) if df is not None else 0,
+            'signal_generation_test': 'pending'
+        }
+        
+        if df is not None:
+            result['dataframe_summary'] = {
+                'columns': list(df.columns),
+                'date_range': {
+                    'start': df.index.min().isoformat() if len(df) > 0 else None,
+                    'end': df.index.max().isoformat() if len(df) > 0 else None
+                },
+                'price_range': {
+                    'min': float(df['close'].min()) if 'close' in df.columns else None,
+                    'max': float(df['close'].max()) if 'close' in df.columns else None,
+                    'current': float(df['close'].iloc[-1]) if 'close' in df.columns and len(df) > 0 else None
+                }
+            }
+            
+            # Test signal generation with mock data
+            try:
+                from technical_indicators import EnhancedTechnicalIndicators
+                tech_indicators = EnhancedTechnicalIndicators()
+                
+                # Create mock market data
+                mock_market_data = {
+                    'ltp': float(df['close'].iloc[-1]) if len(df) > 0 else 100.0,
+                    'volume': int(df['volume'].iloc[-1]) if 'volume' in df.columns and len(df) > 0 else 1000,
+                    'change': 0.0,
+                    'pct_change': 0.0
+                }
+                
+                # Generate technical indicators
+                tech_analysis = tech_indicators.calculate_all_indicators(symbol_name)
+                
+                # Test signal generation
+                signals = signal_generator.generate_actionable_signals(
+                    symbol_name, 
+                    mock_market_data, 
+                    tech_analysis,
+                    {}  # Empty orderbook analysis
+                )
+                
+                result['signal_generation_test'] = 'success'
+                result['signals_generated'] = len(signals)
+                result['signals'] = [
+                    {
+                        'type': signal.signal_type,
+                        'strength': signal.strength.name,
+                        'confidence': signal.confidence,
+                        'reasons': signal.reasons[:3]  # First 3 reasons
+                    } for signal in signals
+                ]
+                
+            except Exception as e:
+                result['signal_generation_test'] = 'failed'
+                result['signal_error'] = str(e)
+                import traceback
+                result['signal_traceback'] = traceback.format_exc()
+                
+        else:
+            result['dataframe_error'] = 'Could not create DataFrame from Redis data'
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        })
+
+@app.route('/api/debug/live_signal_test')
+def debug_live_signal_test():
+    """Test signal generation with current live data"""
+    try:
+        # Import necessary modules
+        from enhanced_live_fetcher import generate_actionable_signals, market_data
+        
+        results = []
+        
+        # Test signal generation for available symbols with live data
+        for instrument_key, data in list(market_data.items())[:5]:  # Test first 5 symbols
+            symbol_name = data.get('name', 'Unknown')
+            
+            try:
+                signals = generate_actionable_signals(symbol_name, instrument_key, data)
+                
+                result = {
+                    'symbol': symbol_name,
+                    'instrument_key': instrument_key,
+                    'signals_count': len(signals) if signals else 0,
+                    'current_price': data.get('ltp', 0),
+                    'has_live_data': bool(data.get('ltp')),
+                    'status': 'success'
+                }
+                
+                if signals:
+                    result['signals'] = [
+                        {
+                            'type': s.signal_type if hasattr(s, 'signal_type') else str(s.get('signal_type', 'unknown')),
+                            'confidence': s.confidence if hasattr(s, 'confidence') else s.get('confidence', 0),
+                            'strength': s.strength.name if hasattr(s, 'strength') and hasattr(s.strength, 'name') else str(s.get('strength', 'unknown'))
+                        } for s in signals[:3]  # First 3 signals
+                    ]
+                
+                results.append(result)
+                
+            except Exception as e:
+                results.append({
+                    'symbol': symbol_name,
+                    'instrument_key': instrument_key,
+                    'status': 'error',
+                    'error': str(e)
+                })
+        
+        return jsonify({
+            'live_data_symbols': len(market_data),
+            'tested_symbols': len(results),
+            'results': results,
+            'timestamp': datetime.now(pytz.timezone('Asia/Kolkata')).isoformat()
+        })
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        })
+
 @app.route('/api/chart/data/<symbol_name>')
 def api_chart_data(symbol_name):
     """API endpoint for chart data of a specific symbol (ENHANCED with multiple sources)"""
@@ -1339,40 +1486,97 @@ def api_batch_quantitative_analysis():
 def api_quantitative_ranking():
     """Get quantitative ranking of all available symbols"""
     try:
+        logger.info("Starting quantitative ranking analysis...")
+        
         if not historical_viewer:
+            logger.warning("Historical viewer not available")
             return jsonify({'error': 'Historical viewer not available'})
         
-        # Get available symbols
-        symbols_data = historical_viewer.get_symbols_summary()
+        # Get available symbols - try multiple methods
+        symbols_data = None
+        try:
+            symbols_data = historical_viewer.get_symbols_summary()
+            logger.info(f"Historical viewer returned {len(symbols_data) if symbols_data else 0} symbols")
+        except Exception as e:
+            logger.warning(f"Historical viewer failed: {e}")
+            
+        # Fallback: get symbols from Redis directly
+        if not symbols_data:
+            logger.info("Using Redis fallback for symbols...")
+            try:
+                import redis
+                redis_host = os.environ.get('REDIS_HOST', 'localhost')
+                redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+                redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+                
+                # Get symbols from Redis keys
+                close_keys = redis_client.keys('stock:*:close')
+                symbols_data = []
+                for key in close_keys:
+                    symbol_clean = key.split(':')[1]
+                    symbol_display = symbol_clean.replace('_', ' ')
+                    symbols_data.append({
+                        'display_name': symbol_display,
+                        'symbol_clean': symbol_clean
+                    })
+                logger.info(f"Using Redis fallback: found {len(symbols_data)} symbols")
+            except Exception as e:
+                logger.error(f"Error getting symbols from Redis: {e}")
         
         if not symbols_data:
             return jsonify({'error': 'No symbols data available'})
         
         try:
+            logger.info("Importing quantitative analysis modules...")
             from enhanced_signal_generator import TrajectorySignalGenerator
             from practical_quant_engine import PracticalQuantEngine
             
+            logger.info("Initializing quantitative engines...")
             signal_generator = TrajectorySignalGenerator()
             quant_engine = PracticalQuantEngine()
+            logger.info("Quantitative engines initialized successfully")
             
             rankings = []
+            logger.info(f"Starting analysis for {len(symbols_data)} symbols (limited to top 20)")
             
             for symbol_info in symbols_data[:20]:  # Limit to top 20 for performance
                 symbol_name = symbol_info.get('display_name')
+                logger.info(f"Analyzing symbol: {symbol_name}")
                 
                 try:
-                    # Get historical data
-                    symbol_data = historical_viewer.get_symbol_complete_data(symbol_name)
-                    if symbol_data and not symbol_data['dataframe'].empty:
-                        df = symbol_data['dataframe']
+                    # Get historical data - try multiple methods
+                    df = None
+                    
+                    # Method 1: Historical viewer
+                    try:
+                        symbol_data = historical_viewer.get_symbol_complete_data(symbol_name)
+                        if symbol_data and not symbol_data['dataframe'].empty:
+                            df = symbol_data['dataframe']
+                    except:
+                        pass
+                    
+                    # Method 2: Signal generator fallback
+                    if df is None or df.empty:
+                        df = signal_generator._get_symbol_dataframe(symbol_name)
+                        if df is not None:
+                            logger.info(f"Signal generator provided {len(df)} data points for {symbol_name}")
+                    
+                    if df is not None and not df.empty and len(df) >= 10:
+                        logger.info(f"Running quantitative analysis for {symbol_name} with {len(df)} data points")
                         
                         # Run quantitative analysis
-                        quant_score = quant_engine.calculate_comprehensive_score(df)
-                        
-                        # Get advanced metrics
-                        risk_metrics = quant_engine.calculate_advanced_risk_metrics(df)
-                        momentum_analysis = quant_engine.calculate_advanced_momentum_score(df)
-                        vol_regime = quant_engine.calculate_volatility_regime(df)
+                        try:
+                            quant_score = quant_engine.calculate_comprehensive_score(df)
+                            logger.info(f"Comprehensive score for {symbol_name}: {quant_score['final_score']:.3f}")
+                            
+                            # Get advanced metrics
+                            risk_metrics = quant_engine.calculate_advanced_risk_metrics(df)
+                            momentum_analysis = quant_engine.calculate_advanced_momentum_score(df)
+                            vol_regime = quant_engine.calculate_volatility_regime(df)
+                            
+                        except Exception as e:
+                            logger.error(f"Quantitative analysis failed for {symbol_name}: {e}")
+                            continue
                         
                         rankings.append({
                             'symbol': symbol_name,
@@ -1385,6 +1589,9 @@ def api_quantitative_ranking():
                             'current_price': df['close'].iloc[-1] if len(df) > 0 else 0,
                             'data_points': len(df)
                         })
+                        logger.info(f"Added ranking for {symbol_name}: score={quant_score['final_score']:.3f}")
+                    else:
+                        logger.warning(f"Insufficient data for {symbol_name}: {len(df) if df is not None else 0} points")
                         
                 except Exception as e:
                     print(f"Error analyzing {symbol_name}: {e}")
@@ -1893,6 +2100,290 @@ def auth_page():
     </body>
     </html>
     """
+
+# --- Quantitative Signal Generation Endpoints ---
+@app.route('/api/signals/quantitative')
+def api_quantitative_signals():
+    """Get quantitative signals for all available symbols"""
+    try:
+        logger.info("Generating quantitative signals for all symbols")
+        
+        # Get available symbols
+        symbols_data = []
+        try:
+            import redis
+            redis_host = os.environ.get('REDIS_HOST', 'localhost')
+            redis_port = int(os.environ.get('REDIS_PORT', '6379'))
+            redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+            
+            # Get symbols from Redis keys
+            close_keys = redis_client.keys('stock:*:close')
+            for key in close_keys:
+                symbol_clean = key.split(':')[1]
+                symbol_display = symbol_clean.replace('_', ' ')
+                symbols_data.append(symbol_display)
+                
+        except Exception as e:
+            logger.error(f"Error getting symbols: {e}")
+            return jsonify({'error': 'Could not retrieve symbols'})
+        
+        if not symbols_data:
+            return jsonify({'error': 'No symbols available'})
+        
+        # Generate signals
+        try:
+            from quant_signal_generator import QuantitativeSignalGenerator
+            quant_generator = QuantitativeSignalGenerator()
+            
+            signals = quant_generator.generate_signals_for_universe(symbols_data)
+            summary = quant_generator.get_signal_summary(signals)
+            
+            # Convert signals to JSON-serializable format
+            signals_json = []
+            for signal in signals:
+                signals_json.append({
+                    'symbol': signal.symbol,
+                    'signal_type': signal.signal_type.value,
+                    'strength': signal.strength.name,
+                    'confidence': signal.confidence,
+                    'entry_price': signal.entry_price,
+                    'stop_loss': signal.stop_loss,
+                    'target_price': signal.target_price,
+                    'position_size_pct': signal.position_size_pct,
+                    'hold_period_days': signal.hold_period_days,
+                    'factors': signal.factors,
+                    'statistical_metrics': signal.statistical_metrics,
+                    'risk_reward_ratio': (signal.target_price - signal.entry_price) / (signal.entry_price - signal.stop_loss) if signal.entry_price > signal.stop_loss else 0,
+                    'timestamp': signal.timestamp.isoformat()
+                })
+            
+            return jsonify({
+                'success': True,
+                'signals': signals_json,
+                'summary': summary,
+                'total_symbols_analyzed': len(symbols_data),
+                'signals_generated': len(signals),
+                'analysis_timestamp': datetime.now().isoformat()
+            })
+            
+        except ImportError as e:
+            return jsonify({'error': f'Quantitative signal generator not available: {e}'})
+            
+    except Exception as e:
+        logger.error(f"Error in quantitative signals endpoint: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/signals/quantitative/<symbol_name>')
+def api_quantitative_signal_single(symbol_name):
+    """Get quantitative signal for a single symbol"""
+    try:
+        logger.info(f"Generating quantitative signal for {symbol_name}")
+        
+        # Generate signal
+        try:
+            from quant_signal_generator import QuantitativeSignalGenerator
+            quant_generator = QuantitativeSignalGenerator()
+            
+            signal = quant_generator.generate_signal(symbol_name)
+            
+            if signal:
+                return jsonify({
+                    'success': True,
+                    'signal': {
+                        'symbol': signal.symbol,
+                        'signal_type': signal.signal_type.value,
+                        'strength': signal.strength.name,
+                        'confidence': signal.confidence,
+                        'entry_price': signal.entry_price,
+                        'stop_loss': signal.stop_loss,
+                        'target_price': signal.target_price,
+                        'position_size_pct': signal.position_size_pct,
+                        'hold_period_days': signal.hold_period_days,
+                        'factors': signal.factors,
+                        'statistical_metrics': signal.statistical_metrics,
+                        'risk_reward_ratio': (signal.target_price - signal.entry_price) / (signal.entry_price - signal.stop_loss) if signal.entry_price > signal.stop_loss else 0,
+                        'timestamp': signal.timestamp.isoformat()
+                    },
+                    'analysis_timestamp': datetime.now().isoformat()
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'No signal generated - insufficient confidence or data',
+                    'analysis_timestamp': datetime.now().isoformat()
+                })
+            
+        except ImportError as e:
+            return jsonify({'error': f'Quantitative signal generator not available: {e}'})
+            
+    except Exception as e:
+        logger.error(f"Error generating signal for {symbol_name}: {e}")
+        return jsonify({'error': str(e)})
+
+# --- Paper Trading API Routes ---
+# Initialize paper trading engine globally
+paper_trading_engine = None
+automated_executor = None
+
+@app.route('/api/paper-trading/portfolio')
+def api_paper_trading_portfolio():
+    """Get portfolio summary for paper trading"""
+    try:
+        from paper_trading_engine import PaperTradingEngine
+        
+        global paper_trading_engine
+        if paper_trading_engine is None:
+            paper_trading_engine = PaperTradingEngine()
+            paper_trading_engine.start_monitoring()
+        
+        portfolio_summary = paper_trading_engine.get_portfolio_summary()
+        
+        return jsonify({
+            'success': True,
+            'portfolio': portfolio_summary,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error getting paper trading portfolio: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/positions')
+def api_paper_trading_positions():
+    """Get open positions for paper trading"""
+    try:
+        from paper_trading_engine import PaperTradingEngine
+        
+        global paper_trading_engine
+        if paper_trading_engine is None:
+            paper_trading_engine = PaperTradingEngine()
+            paper_trading_engine.start_monitoring()
+        
+        positions = paper_trading_engine.get_open_positions()
+        
+        return jsonify({
+            'success': True,
+            'positions': positions,
+            'count': len(positions),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error getting paper trading positions: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/trades')
+def api_paper_trading_trades():
+    """Get recent trades for paper trading"""
+    try:
+        from paper_trading_engine import PaperTradingEngine
+        
+        global paper_trading_engine
+        if paper_trading_engine is None:
+            paper_trading_engine = PaperTradingEngine()
+            paper_trading_engine.start_monitoring()
+        
+        limit = request.args.get('limit', 20, type=int)
+        trades = paper_trading_engine.get_recent_trades(limit=limit)
+        
+        return jsonify({
+            'success': True,
+            'trades': trades,
+            'count': len(trades),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error getting paper trading trades: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/analytics')
+def api_paper_trading_analytics():
+    """Get performance analytics for paper trading"""
+    try:
+        from paper_trading_engine import PaperTradingEngine
+        
+        global paper_trading_engine
+        if paper_trading_engine is None:
+            paper_trading_engine = PaperTradingEngine()
+            paper_trading_engine.start_monitoring()
+        
+        analytics = paper_trading_engine.get_performance_analytics()
+        
+        return jsonify({
+            'success': True,
+            'analytics': analytics,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error getting paper trading analytics: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/start', methods=['POST'])
+def api_paper_trading_start():
+    """Start automated paper trading execution"""
+    try:
+        from paper_trading_engine import PaperTradingEngine, AutomatedSignalExecutor
+        
+        global paper_trading_engine, automated_executor
+        
+        if paper_trading_engine is None:
+            paper_trading_engine = PaperTradingEngine()
+            paper_trading_engine.start_monitoring()
+        
+        if automated_executor is None:
+            automated_executor = AutomatedSignalExecutor(paper_trading_engine)
+        
+        automated_executor.start()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Paper trading automation started',
+            'status': 'RUNNING',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error starting paper trading automation: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/stop', methods=['POST'])
+def api_paper_trading_stop():
+    """Stop automated paper trading execution"""
+    try:
+        global automated_executor
+        
+        if automated_executor and automated_executor.running:
+            automated_executor.stop()
+            
+        return jsonify({
+            'success': True,
+            'message': 'Paper trading automation stopped',
+            'status': 'STOPPED',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error stopping paper trading automation: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/paper-trading/status')
+def api_paper_trading_status():
+    """Get paper trading system status"""
+    try:
+        global paper_trading_engine, automated_executor
+        
+        engine_status = 'INITIALIZED' if paper_trading_engine else 'NOT_INITIALIZED'
+        executor_status = 'RUNNING' if (automated_executor and automated_executor.running) else 'STOPPED'
+        
+        return jsonify({
+            'success': True,
+            'status': {
+                'engine': engine_status,
+                'automation': executor_status,
+                'open_positions': len(paper_trading_engine.open_trades) if paper_trading_engine else 0,
+                'total_trades': paper_trading_engine.portfolio.total_trades if paper_trading_engine else 0
+            },
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error getting paper trading status: {e}")
+        return jsonify({'error': str(e)})
 
 # --- SocketIO Connection Handlers ---
 @socketio.on('connect')

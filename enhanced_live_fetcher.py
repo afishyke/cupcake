@@ -521,7 +521,11 @@ def generate_actionable_signals(symbol_name, instrument_key, current_market_data
     """Generate actionable trading signals with trajectory confirmation"""
     try:
         # Get technical indicators for the symbol
-        technical_indicators = tech_indicators.get_enhanced_indicators(symbol_name, current_market_data)
+        try:
+            technical_indicators = tech_indicators.calculate_all_indicators(symbol_name)
+        except Exception as e:
+            debug_log(f"Error calculating technical indicators for {symbol_name}: {e}", "ERROR")
+            technical_indicators = {}
         
         # Existing orderbook analysis...
         orderbook_analysis = orderbook_analyzer.comprehensive_orderbook_analysis(
@@ -530,7 +534,7 @@ def generate_actionable_signals(symbol_name, instrument_key, current_market_data
         
         # ADD: Simple market context check
         recent_signals = market_data[instrument_key].get('actionable_signals', [])
-        if len(recent_signals) >= 3 and any(s.get('confidence', 0) > 0.7 for s in recent_signals):  # If too many recent high-confidence signals, skip
+        if len(recent_signals) >= 3 and any(hasattr(s, 'confidence') and s.confidence > 0.7 for s in recent_signals):  # If too many recent high-confidence signals, skip
             debug_log(f"Skipping signal generation for {symbol_name} due to too many recent high-confidence signals.", "INFO")
             return []
             
@@ -539,10 +543,10 @@ def generate_actionable_signals(symbol_name, instrument_key, current_market_data
             symbol_name, current_market_data, technical_indicators, orderbook_analysis
         )
         
-        # ADD: Simple quality filter
+        # ADD: Simple quality filter - signals are ActionableSignal objects, not dicts
         filtered_signals = [s for s in actionable_signals 
-                          if s.get('confidence', 0) > 0.7 and 
-                             s.get('risk_reward_ratio', 0) > 2.0]
+                          if s.confidence > 0.4 and 
+                             s.risk_reward_ratio > 1.5]
 
         if filtered_signals:
             debug_stats['actionable_signals_generated'] += len(filtered_signals)

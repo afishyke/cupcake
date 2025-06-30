@@ -258,8 +258,23 @@ class TrajectorySignalGenerator:
         """Analyze price trajectory with Indian market considerations"""
         try:
             price_data = list(self.price_history[symbol])
+            
+            # If no live data history, try to get from DataFrame
             if len(price_data) < 10:
-                return {'status': 'insufficient_data'}
+                df = self._get_symbol_dataframe(symbol)
+                if df is not None and len(df) >= 10:
+                    # Convert DataFrame to price history format
+                    price_data = []
+                    for i in range(min(50, len(df))):  # Use last 50 points
+                        price_data.append({
+                            'timestamp': df.index[-50+i] if len(df) >= 50 else df.index[i],
+                            'price': df['close'].iloc[-50+i] if len(df) >= 50 else df['close'].iloc[i],
+                            'volume': df['volume'].iloc[-50+i] if len(df) >= 50 else df['volume'].iloc[i]
+                        })
+                    logger.info(f"Using DataFrame data for {symbol}: {len(price_data)} points")
+                else:
+                    logger.warning(f"Insufficient data for {symbol}: live={len(price_data)}, df={len(df) if df is not None else 0}")
+                    return {'status': 'insufficient_data'}
             
             prices = [d['price'] for d in price_data]
             
@@ -317,8 +332,31 @@ class TrajectorySignalGenerator:
         """Analyze momentum trajectory using Indian market calibrated indicators"""
         try:
             momentum_data = list(self.momentum_history[symbol])
+            
+            # If no live momentum history, generate from DataFrame
             if len(momentum_data) < 5:
-                return {'status': 'insufficient_data'}
+                df = self._get_symbol_dataframe(symbol)
+                if df is not None and len(df) >= 10:
+                    # Calculate basic indicators from DataFrame
+                    tech_indicators = EnhancedTechnicalIndicators()
+                    indicators = tech_indicators.calculate_all_indicators(symbol)
+                    
+                    # Create momentum data from indicators
+                    momentum_data = []
+                    for i in range(min(20, len(df))):  # Use last 20 points
+                        momentum_data.append({
+                            'timestamp': df.index[-20+i] if len(df) >= 20 else df.index[i],
+                            'rsi': indicators.get('rsi'),
+                            'macd': indicators.get('macd', {}).get('macd'),
+                            'macd_signal': indicators.get('macd', {}).get('signal'),
+                            'sma_5': indicators.get('sma', {}).get('sma_5'),
+                            'sma_20': indicators.get('sma', {}).get('sma_20'),
+                            'volume_ratio': indicators.get('volume', {}).get('volume_ratio', 1.0)
+                        })
+                    logger.info(f"Generated momentum data for {symbol}: {len(momentum_data)} points")
+                else:
+                    logger.warning(f"Insufficient momentum data for {symbol}")
+                    return {'status': 'insufficient_data'}
             
             # RSI trajectory with Indian market thresholds
             rsi_values = [d['rsi'] for d in momentum_data if d['rsi'] is not None]
@@ -375,6 +413,7 @@ class TrajectorySignalGenerator:
             sector_bias = self.calculate_sector_bias().get(sector, 0.0)
             
             if price_trajectory.get('status') == 'insufficient_data':
+                logger.info(f"Insufficient data for {symbol} - trajectory analysis failed")
                 return []
             
             signals = []
@@ -388,6 +427,9 @@ class TrajectorySignalGenerator:
             )
             if buy_signal:
                 signals.append(buy_signal)
+                logger.info(f"Generated BUY signal for {symbol}: {buy_signal.signal_type} with confidence {buy_signal.confidence}")
+            else:
+                logger.info(f"No BUY signal generated for {symbol}")
             
             # Generate SELL signals with Indian market logic
             sell_signal = self._evaluate_sell_opportunity_indian(
@@ -396,7 +438,11 @@ class TrajectorySignalGenerator:
             )
             if sell_signal:
                 signals.append(sell_signal)
+                logger.info(f"Generated SELL signal for {symbol}: {sell_signal.signal_type} with confidence {sell_signal.confidence}")
+            else:
+                logger.info(f"No SELL signal generated for {symbol}")
             
+            logger.info(f"Total signals generated for {symbol}: {len(signals)}")
             return signals
             
         except Exception as e:
@@ -483,14 +529,14 @@ class TrajectorySignalGenerator:
                     reasons.append("Orderbook shows buying pressure")
                     confidence_factors.append(0.1)
             
+            # Check if we have enough confirmation
+            total_confidence = sum(confidence_factors)
+            
             # ENHANCED: Add quantitative analysis
             quant_analysis = self._get_quantitative_analysis(symbol, current_price)
             if quant_analysis:
                 total_confidence += quant_analysis['confidence_boost']
                 reasons.extend(quant_analysis['reasons'])
-            
-            # Check if we have enough confirmation
-            total_confidence = sum(confidence_factors)
             
             # Adjust confidence thresholds for Indian market volatility
             min_confidence = 0.6 if market_regime == MarketRegime.RANGING else 0.65
@@ -1033,55 +1079,68 @@ class TrajectorySignalGenerator:
     def _get_symbol_dataframe(self, symbol):
         """Get historical data as DataFrame for quantitative analysis"""
         try:
-            # Try to get data from Redis
-            symbol_clean = symbol.replace(' ', '_').replace('&', 'and')
+            # Clean symbol name to match Redis keys
+            symbol_clean = symbol.replace(' ', '_').replace('.', '').replace('&', 'and')
             
-            # Get recent data points
-            timestamps = []
-            prices = []
-            volumes = []
-            highs = []
-            lows = []
+            # Correct Redis key patterns based on actual structure
+            close_key = f'stock:{symbol_clean}:close'
+            open_key = f'stock:{symbol_clean}:open'
+            high_key = f'stock:{symbol_clean}:high'
+            low_key = f'stock:{symbol_clean}:low'
+            volume_key = f'stock:{symbol_clean}:volume'
             
-            # Reconstruct OHLCV data from stored time series
-            # This is a simplified version - you might need to adapt based on your Redis structure
-            for i in range(100):  # Get last 100 data points
-                try:
-                    timestamp = datetime.now() - timedelta(minutes=i)
-                    price_key = f"ts:{symbol_clean}:close"
-                    volume_key = f"ts:{symbol_clean}:volume"
-                    high_key = f"ts:{symbol_clean}:high"
-                    low_key = f"ts:{symbol_clean}:low"
-                    
-                    # This is pseudocode - adapt based on your actual Redis TS structure
-                    price = self.redis_client.ts().get(price_key, timestamp.timestamp() * 1000)
-                    if price:
-                        timestamps.append(timestamp)
-                        prices.append(price[1])
-                        # Similar for volume, high, low
-                except:
-                    continue
+            logger.info(f"Fetching signal data for {symbol} using key pattern: stock:{symbol_clean}:*")
             
-            if len(prices) < 20:
+            # Check if keys exist
+            if not self.redis_client.exists(close_key):
+                logger.warning(f"No data found for symbol {symbol} (key: {close_key})")
                 return None
             
-            # Create DataFrame
-            df = pd.DataFrame({
-                'timestamp': timestamps,
-                'close': prices,
-                'volume': volumes,
-                'high': highs,
-                'low': lows,
-                'open': prices  # Simplified - use close as open
-            })
+            # Get last 200 data points for better signal analysis
+            now = datetime.now()
+            start_time = now - timedelta(hours=24)  # Last 24 hours
+            start_ts = int(start_time.timestamp() * 1000)
+            end_ts = int(now.timestamp() * 1000)
             
+            # Fetch OHLCV data from Redis TimeSeries
+            close_data = self.redis_client.execute_command('TS.RANGE', close_key, start_ts, end_ts, 'COUNT', 200)
+            open_data = self.redis_client.execute_command('TS.RANGE', open_key, start_ts, end_ts, 'COUNT', 200)
+            high_data = self.redis_client.execute_command('TS.RANGE', high_key, start_ts, end_ts, 'COUNT', 200)
+            low_data = self.redis_client.execute_command('TS.RANGE', low_key, start_ts, end_ts, 'COUNT', 200)
+            volume_data = self.redis_client.execute_command('TS.RANGE', volume_key, start_ts, end_ts, 'COUNT', 200)
+            
+            if not close_data or len(close_data) < 10:
+                logger.warning(f"Insufficient data for {symbol}: {len(close_data) if close_data else 0} points")
+                return None
+            
+            # Process data into DataFrame
+            data_rows = []
+            for i in range(len(close_data)):
+                timestamp = close_data[i][0] / 1000  # Convert from milliseconds
+                dt = datetime.fromtimestamp(timestamp, tz=self.ist_timezone)
+                
+                row = {
+                    'timestamp': dt,
+                    'close': float(close_data[i][1]),
+                    'open': float(open_data[i][1]) if i < len(open_data) else float(close_data[i][1]),
+                    'high': float(high_data[i][1]) if i < len(high_data) else float(close_data[i][1]),
+                    'low': float(low_data[i][1]) if i < len(low_data) else float(close_data[i][1]),
+                    'volume': int(volume_data[i][1]) if i < len(volume_data) else 0
+                }
+                data_rows.append(row)
+            
+            # Create DataFrame
+            df = pd.DataFrame(data_rows)
             df.set_index('timestamp', inplace=True)
             df.sort_index(inplace=True)
             
+            logger.info(f"Successfully loaded {len(df)} data points for {symbol}")
             return df
             
         except Exception as e:
-            logger.warning(f"Could not create DataFrame for {symbol}: {e}")
+            logger.error(f"Could not create DataFrame for {symbol}: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return None
     
     def get_enhanced_signal_with_quant_analysis(self, symbol: str, current_market_data: Dict, 

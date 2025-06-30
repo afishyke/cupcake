@@ -301,8 +301,23 @@ class EnhancedTechnicalIndicators:
             high_low = df['high'] - df['low']
             high_close = np.abs(df['high'] - df['close'].shift())
             low_close = np.abs(df['low'] - df['close'].shift())
-            ranges = pd.concat([high_low, high_close, low_close], axis=1)
-            true_range = ranges.max(axis=1)
+            
+            # Align all series to have the same length (dropna removes first row from shifted series)
+            high_close = high_close.dropna()
+            low_close = low_close.dropna()
+            
+            # Align all to the same index
+            common_index = high_low.index.intersection(high_close.index).intersection(low_close.index)
+            if len(common_index) > 0:
+                ranges = pd.concat([
+                    high_low.loc[common_index], 
+                    high_close.loc[common_index], 
+                    low_close.loc[common_index]
+                ], axis=1)
+                true_range = ranges.max(axis=1)
+            else:
+                # Fallback if no common index
+                true_range = high_low
             return true_range.rolling(window=window).mean()
 
     def calculate_adx(self, df: pd.DataFrame, window: int = 14) -> pd.Series:

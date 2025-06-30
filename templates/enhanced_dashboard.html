@@ -217,7 +217,7 @@
                         <div class="dropdown-item" onclick="window.open('/auth', '_blank')">
                             🔐 Authentication
                         </div>
-                        <div class="dropdown-item" onclick="window.open('/history', '_blank')">
+                        <div class="dropdown-item" onclick="window.open('/historical', '_blank')">
                             📊 History
                         </div>
                     </div>
@@ -242,6 +242,9 @@
                 </button>
                 <button onclick="showTab('portfolio')" id="tab-portfolio" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
                     Portfolio
+                </button>
+                <button onclick="showTab('paper-trading')" id="tab-paper-trading" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
+                    Paper Trading
                 </button>
                 <button onclick="showTab('quant')" id="tab-quant" class="tab-inactive px-4 py-2 rounded-md font-medium transition-colors">
                     Quant Analysis
@@ -344,6 +347,83 @@
                 </div>
 
                 <p class="text-xs text-slate-500 mt-4 text-right">Last updated: <span id="actionable-screener-last-updated">N/A</span></p>
+            </section>
+
+            <!-- Quantitative Signals Section -->
+            <section class="bg-slate-800 p-6 rounded-lg shadow-lg mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">Quantitative Signals</h2>
+                    <button onclick="refreshQuantSignals()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                        Refresh Signals
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Signal Summary -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-2">Signal Summary</h3>
+                        <div id="quant-signal-summary" class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Total Signals:</span>
+                                <span id="total-quant-signals" class="text-white">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Long Signals:</span>
+                                <span id="long-quant-signals" class="text-green-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Short Signals:</span>
+                                <span id="short-quant-signals" class="text-red-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Avg Confidence:</span>
+                                <span id="avg-quant-confidence" class="text-blue-400">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Metrics -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-2">Portfolio Risk</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Total Exposure:</span>
+                                <span id="total-quant-exposure" class="text-yellow-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Max Confidence:</span>
+                                <span id="max-quant-confidence" class="text-green-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">High Conf (>80%):</span>
+                                <span id="high-conf-signals" class="text-purple-400">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Last Update -->
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-2">Status</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Symbols Analyzed:</span>
+                                <span id="symbols-analyzed" class="text-blue-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">Last Updated:</span>
+                                <span id="quant-signals-updated" class="text-slate-400">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signals List -->
+                <div>
+                    <h3 class="text-xl font-semibold text-white mb-3">Active Signals</h3>
+                    <div id="quantitative-signals-list" class="space-y-3 max-h-96 overflow-y-auto">
+                        <p class="text-slate-500">Loading quantitative signals...</p>
+                    </div>
+                </div>
             </section>
             
             <!-- Fake Trade Testing Section -->
@@ -825,6 +905,137 @@
             </section>
         </div>
 
+        <!-- Paper Trading Tab -->
+        <div id="content-paper-trading" class="tab-content hidden">
+            <!-- Paper Trading Control Panel -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-lg mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-white">🤖 Paper Trading Automation</h2>
+                    <div class="flex space-x-3">
+                        <button id="paper-trading-start-btn" onclick="startPaperTrading()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium">
+                            ▶️ Start Auto Trading
+                        </button>
+                        <button id="paper-trading-stop-btn" onclick="stopPaperTrading()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium">
+                            ⏹️ Stop Auto Trading
+                        </button>
+                        <button onclick="refreshPaperTradingData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="paper-trading-status" class="text-sm text-slate-400">
+                    Status: <span id="automation-status" class="font-medium">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Portfolio Summary Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Capital</h3>
+                        <span id="paper-capital" class="text-2xl font-bold text-white">₹10,00,000</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Initial: <span id="initial-capital">₹10,00,000</span></p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Total P&L</h3>
+                        <span id="paper-total-pnl" class="text-2xl font-bold text-slate-400">₹0</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1"><span id="paper-pnl-pct">0.00%</span></p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Open Positions</h3>
+                        <span id="paper-open-positions" class="text-2xl font-bold text-blue-400">0</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Max: 10 positions</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-medium text-slate-400">Win Rate</h3>
+                        <span id="paper-win-rate" class="text-2xl font-bold text-green-400">0%</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Total trades: <span id="paper-total-trades">0</span></p>
+                </div>
+            </section>
+
+            <!-- Performance Metrics -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="text-sm font-medium text-slate-400 mb-2">Profit Factor</h3>
+                    <span id="paper-profit-factor" class="text-xl font-bold text-yellow-400">-</span>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="text-sm font-medium text-slate-400 mb-2">Sharpe Ratio</h3>
+                    <span id="paper-sharpe-ratio" class="text-xl font-bold text-purple-400">-</span>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="text-sm font-medium text-slate-400 mb-2">Max Drawdown</h3>
+                    <span id="paper-max-drawdown" class="text-xl font-bold text-red-400">-</span>
+                </div>
+            </section>
+
+            <!-- Open Positions -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-white mb-4">📊 Open Positions</h2>
+                    <div class="overflow-x-auto max-h-80">
+                        <table class="min-w-full divide-y divide-slate-700">
+                            <thead class="bg-slate-700">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-slate-300 uppercase">Type</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Entry</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Current</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Target</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Stop</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paper-positions-body" class="divide-y divide-slate-700">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-slate-500">No open positions</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Trades -->
+                <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-white mb-4">📈 Recent Trades</h2>
+                    <div class="overflow-x-auto max-h-80">
+                        <table class="min-w-full divide-y divide-slate-700">
+                            <thead class="bg-slate-700">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-300 uppercase">Symbol</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-slate-300 uppercase">Type</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">P&L%</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-slate-300 uppercase">Status</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-300 uppercase">Hold Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paper-trades-body" class="divide-y divide-slate-700">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-slate-500">No trades yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Analytics -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold text-white mb-4">🔬 Performance Analytics</h2>
+                <div id="paper-analytics-content">
+                    <p class="text-slate-500">No analytics available yet. Start trading to see performance metrics.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Quantitative Analysis Tab -->
         <div id="content-quant" class="tab-content hidden">
             <!-- Quant Summary Cards -->
@@ -1035,6 +1246,8 @@
                 loadChartsTab();
             } else if (tabName === 'quant') {
                 loadQuantTab();
+            } else if (tabName === 'paper-trading') {
+                refreshPaperTradingData();
             }
         }
 
@@ -1999,6 +2212,273 @@
             updateSimulatorDisplays();
         }
 
+        // === Paper Trading Functions ===
+        
+        // Global variables for paper trading
+        let paperTradingData = {
+            portfolio: null,
+            positions: [],
+            trades: [],
+            analytics: null,
+            status: { engine: 'NOT_INITIALIZED', automation: 'STOPPED' }
+        };
+
+        function startPaperTrading() {
+            fetch('/api/paper-trading/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Paper trading started:', data.message);
+                        document.getElementById('automation-status').textContent = 'RUNNING';
+                        document.getElementById('automation-status').className = 'font-medium text-green-400';
+                        refreshPaperTradingData();
+                    } else {
+                        console.error('Failed to start paper trading:', data.error);
+                        alert('Failed to start paper trading: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error starting paper trading:', error);
+                    alert('Error starting paper trading: ' + error);
+                });
+        }
+
+        function stopPaperTrading() {
+            fetch('/api/paper-trading/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Paper trading stopped:', data.message);
+                        document.getElementById('automation-status').textContent = 'STOPPED';
+                        document.getElementById('automation-status').className = 'font-medium text-red-400';
+                    } else {
+                        console.error('Failed to stop paper trading:', data.error);
+                        alert('Failed to stop paper trading: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error stopping paper trading:', error);
+                    alert('Error stopping paper trading: ' + error);
+                });
+        }
+
+        function refreshPaperTradingData() {
+            Promise.all([
+                fetch('/api/paper-trading/status').then(r => r.json()),
+                fetch('/api/paper-trading/portfolio').then(r => r.json()),
+                fetch('/api/paper-trading/positions').then(r => r.json()),
+                fetch('/api/paper-trading/trades?limit=20').then(r => r.json()),
+                fetch('/api/paper-trading/analytics').then(r => r.json())
+            ]).then(([statusData, portfolioData, positionsData, tradesData, analyticsData]) => {
+                if (statusData.success) {
+                    paperTradingData.status = statusData.status;
+                    updatePaperTradingStatus(statusData.status);
+                }
+                if (portfolioData.success) {
+                    paperTradingData.portfolio = portfolioData.portfolio;
+                    updatePaperTradingPortfolio(portfolioData.portfolio);
+                }
+                if (positionsData.success) {
+                    paperTradingData.positions = positionsData.positions;
+                    updatePaperTradingPositions(positionsData.positions);
+                }
+                if (tradesData.success) {
+                    paperTradingData.trades = tradesData.trades;
+                    updatePaperTradingTrades(tradesData.trades);
+                }
+                if (analyticsData.success) {
+                    paperTradingData.analytics = analyticsData.analytics;
+                    updatePaperTradingAnalytics(analyticsData.analytics);
+                }
+            }).catch(error => {
+                console.error('Error refreshing paper trading data:', error);
+            });
+        }
+
+        function updatePaperTradingStatus(status) {
+            const engineStatus = status.engine || 'NOT_INITIALIZED';
+            const automationStatus = status.automation || 'STOPPED';
+            
+            document.getElementById('automation-status').textContent = automationStatus;
+            document.getElementById('automation-status').className = 
+                automationStatus === 'RUNNING' ? 'font-medium text-green-400' : 'font-medium text-red-400';
+        }
+
+        function updatePaperTradingPortfolio(portfolio) {
+            if (!portfolio) return;
+            
+            // Update capital
+            document.getElementById('paper-capital').textContent = formatCurrency(portfolio.capital?.current || 0);
+            document.getElementById('initial-capital').textContent = formatCurrency(portfolio.capital?.initial || 0);
+            
+            // Update P&L
+            const totalPnl = portfolio.capital?.total_pnl || 0;
+            const totalPnlPct = portfolio.capital?.total_pnl_pct || 0;
+            document.getElementById('paper-total-pnl').textContent = formatCurrency(totalPnl);
+            document.getElementById('paper-total-pnl').className = 
+                totalPnl > 0 ? 'text-2xl font-bold text-green-400' : 
+                totalPnl < 0 ? 'text-2xl font-bold text-red-400' : 'text-2xl font-bold text-slate-400';
+            document.getElementById('paper-pnl-pct').textContent = `${totalPnlPct.toFixed(2)}%`;
+            
+            // Update positions and trades
+            document.getElementById('paper-open-positions').textContent = portfolio.positions?.open_positions || 0;
+            document.getElementById('paper-total-trades').textContent = portfolio.positions?.total_trades || 0;
+            
+            // Update performance metrics
+            const winRate = portfolio.performance?.win_rate || 0;
+            document.getElementById('paper-win-rate').textContent = `${winRate.toFixed(1)}%`;
+            
+            const profitFactor = portfolio.performance?.profit_factor;
+            document.getElementById('paper-profit-factor').textContent = 
+                profitFactor && isFinite(profitFactor) ? profitFactor.toFixed(2) : '-';
+            
+            const sharpeRatio = portfolio.performance?.sharpe_ratio || 0;
+            document.getElementById('paper-sharpe-ratio').textContent = sharpeRatio.toFixed(2);
+            
+            const maxDrawdown = portfolio.capital?.max_drawdown || 0;
+            document.getElementById('paper-max-drawdown').textContent = `${maxDrawdown.toFixed(2)}%`;
+        }
+
+        function updatePaperTradingPositions(positions) {
+            const tbody = document.getElementById('paper-positions-body');
+            
+            if (!positions || positions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-slate-500">No open positions</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = positions.map(position => {
+                const pnlClass = position.unrealized_pnl > 0 ? 'text-green-400' : 
+                               position.unrealized_pnl < 0 ? 'text-red-400' : 'text-slate-400';
+                
+                return `
+                    <tr class="hover:bg-slate-700">
+                        <td class="px-3 py-2 text-white font-medium">${position.symbol}</td>
+                        <td class="px-3 py-2 text-center">
+                            <span class="px-2 py-1 rounded text-xs ${position.trade_type === 'LONG' ? 'bg-green-600' : 'bg-red-600'} text-white">
+                                ${position.trade_type}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-right text-slate-300">₹${position.entry_price.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-right text-white">₹${position.current_price.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-right ${pnlClass}">
+                            ₹${position.unrealized_pnl.toFixed(0)}<br>
+                            <span class="text-xs">(${position.unrealized_pnl_pct.toFixed(2)}%)</span>
+                        </td>
+                        <td class="px-3 py-2 text-right text-slate-300">₹${position.target_price.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-right text-slate-300">₹${position.stop_loss.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePaperTradingTrades(trades) {
+            const tbody = document.getElementById('paper-trades-body');
+            
+            if (!trades || trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-500">No trades yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = trades.map(trade => {
+                const pnlClass = trade.pnl > 0 ? 'text-green-400' : 
+                               trade.pnl < 0 ? 'text-red-400' : 'text-slate-400';
+                
+                const statusColors = {
+                    'TARGET_HIT': 'bg-green-600',
+                    'STOPPED': 'bg-red-600',
+                    'EXPIRED': 'bg-yellow-600',
+                    'CLOSED': 'bg-blue-600'
+                };
+                
+                return `
+                    <tr class="hover:bg-slate-700">
+                        <td class="px-3 py-2 text-white font-medium">${trade.symbol}</td>
+                        <td class="px-3 py-2 text-center">
+                            <span class="px-2 py-1 rounded text-xs ${trade.trade_type === 'LONG' ? 'bg-green-600' : 'bg-red-600'} text-white">
+                                ${trade.trade_type}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-right ${pnlClass}">₹${trade.pnl.toFixed(0)}</td>
+                        <td class="px-3 py-2 text-right ${pnlClass}">${trade.pnl_pct.toFixed(2)}%</td>
+                        <td class="px-3 py-2 text-center">
+                            <span class="px-2 py-1 rounded text-xs ${statusColors[trade.status] || 'bg-slate-600'} text-white">
+                                ${trade.status}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-right text-slate-300">${trade.hold_period_hours.toFixed(1)}h</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePaperTradingAnalytics(analytics) {
+            const container = document.getElementById('paper-analytics-content');
+            
+            if (!analytics || analytics.message) {
+                container.innerHTML = '<p class="text-slate-500">No analytics available yet. Start trading to see performance metrics.</p>';
+                return;
+            }
+            
+            const confidenceAnalysis = analytics.confidence_analysis || {};
+            const monthlyPnl = analytics.monthly_pnl || {};
+            
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-slate-400 mb-2">Total Trades</h4>
+                        <p class="text-xl font-bold text-white">${analytics.total_trades || 0}</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-slate-400 mb-2">Win Rate</h4>
+                        <p class="text-xl font-bold text-green-400">${(analytics.win_rate || 0).toFixed(1)}%</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-slate-400 mb-2">Avg Hold Time</h4>
+                        <p class="text-xl font-bold text-blue-400">${(analytics.avg_hold_period_hours || 0).toFixed(1)}h</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-slate-400 mb-2">Best Trade</h4>
+                        <p class="text-xl font-bold text-green-400">₹${(analytics.best_trade || 0).toFixed(0)}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-lg font-medium text-white mb-3">Confidence Analysis</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">High Confidence Win Rate:</span>
+                                <span class="text-green-400">${(confidenceAnalysis.high_confidence_win_rate || 0).toFixed(1)}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Low Confidence Win Rate:</span>
+                                <span class="text-yellow-400">${(confidenceAnalysis.low_confidence_win_rate || 0).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h4 class="text-lg font-medium text-white mb-3">Monthly Performance</h4>
+                        <div class="space-y-2 max-h-32 overflow-y-auto">
+                            ${Object.entries(monthlyPnl).map(([month, pnl]) => `
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">${month}:</span>
+                                    <span class="${pnl > 0 ? 'text-green-400' : 'text-red-400'}">₹${pnl.toFixed(0)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Auto-refresh paper trading data when tab is active
+        function refreshPaperTradingIfActive() {
+            const paperTradingTab = document.getElementById('content-paper-trading');
+            if (paperTradingTab && !paperTradingTab.classList.contains('hidden')) {
+                refreshPaperTradingData();
+            }
+        }
+
         // Utility functions
         function formatCurrency(value) {
             if (typeof value !== 'number') return '--';
@@ -2949,6 +3429,160 @@
                 updateTestSignalSelect();
                 updateFakeTradesPrices(data);
             };
+        });
+
+        // Quantitative Signals Functions
+        function refreshQuantSignals() {
+            fetch('/api/signals/quantitative')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateQuantSignalsSummary(data.summary, data.total_symbols_analyzed);
+                        updateQuantSignalsList(data.signals);
+                        updateQuantSignalsTimestamp(data.analysis_timestamp);
+                        console.log('✅ Quantitative signals updated:', data.signals_generated, 'signals');
+                    } else {
+                        console.error('❌ Failed to fetch quantitative signals:', data.error);
+                        document.getElementById('quantitative-signals-list').innerHTML = 
+                            '<p class="text-red-500">Error loading signals: ' + (data.error || 'Unknown error') + '</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error fetching quantitative signals:', error);
+                    document.getElementById('quantitative-signals-list').innerHTML = 
+                        '<p class="text-red-500">Network error loading signals</p>';
+                });
+        }
+
+        function updateQuantSignalsSummary(summary, totalSymbols) {
+            if (!summary) {
+                // No signals case
+                document.getElementById('total-quant-signals').textContent = '0';
+                document.getElementById('long-quant-signals').textContent = '0';
+                document.getElementById('short-quant-signals').textContent = '0';
+                document.getElementById('avg-quant-confidence').textContent = 'N/A';
+                document.getElementById('total-quant-exposure').textContent = '0%';
+                document.getElementById('max-quant-confidence').textContent = 'N/A';
+                document.getElementById('high-conf-signals').textContent = '0';
+                document.getElementById('symbols-analyzed').textContent = totalSymbols || '0';
+                return;
+            }
+
+            document.getElementById('total-quant-signals').textContent = summary.total_signals || '0';
+            document.getElementById('long-quant-signals').textContent = summary.long_signals || '0';
+            document.getElementById('short-quant-signals').textContent = summary.short_signals || '0';
+            document.getElementById('avg-quant-confidence').textContent = 
+                summary.avg_confidence ? (summary.avg_confidence * 100).toFixed(1) + '%' : 'N/A';
+            document.getElementById('total-quant-exposure').textContent = 
+                summary.total_exposure_pct ? (summary.total_exposure_pct * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('max-quant-confidence').textContent = 
+                summary.max_confidence ? (summary.max_confidence * 100).toFixed(1) + '%' : 'N/A';
+            document.getElementById('high-conf-signals').textContent = summary.signals_above_80_confidence || '0';
+            document.getElementById('symbols-analyzed').textContent = totalSymbols || '0';
+        }
+
+        function updateQuantSignalsList(signals) {
+            const container = document.getElementById('quantitative-signals-list');
+            
+            if (!signals || signals.length === 0) {
+                container.innerHTML = '<p class="text-slate-500">No quantitative signals generated at current confidence levels</p>';
+                return;
+            }
+
+            container.innerHTML = signals.map(signal => {
+                const confidenceColor = signal.confidence > 0.7 ? 'text-green-400' : 
+                                      signal.confidence > 0.5 ? 'text-yellow-400' : 'text-orange-400';
+                const signalTypeColor = signal.signal_type === 'LONG' ? 'text-green-400' : 'text-red-400';
+                const strengthColor = signal.strength === 'VERY_STRONG' ? 'text-purple-400' :
+                                    signal.strength === 'STRONG' ? 'text-blue-400' :
+                                    signal.strength === 'MODERATE' ? 'text-yellow-400' : 'text-gray-400';
+
+                return `
+                    <div class="bg-slate-700 p-4 rounded-lg border-l-4 ${signal.signal_type === 'LONG' ? 'border-green-500' : 'border-red-500'}">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-white font-semibold">${signal.symbol}</h4>
+                            <div class="text-right">
+                                <span class="${signalTypeColor} font-bold text-lg">${signal.signal_type}</span>
+                                <div class="${strengthColor} text-sm">${signal.strength}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Confidence:</span>
+                                    <span class="${confidenceColor}">${(signal.confidence * 100).toFixed(1)}%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Entry:</span>
+                                    <span class="text-white">₹${signal.entry_price.toFixed(2)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Target:</span>
+                                    <span class="text-green-400">₹${signal.target_price.toFixed(2)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Stop Loss:</span>
+                                    <span class="text-red-400">₹${signal.stop_loss.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Position:</span>
+                                    <span class="text-blue-400">${(signal.position_size_pct * 100).toFixed(2)}%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">R:R Ratio:</span>
+                                    <span class="text-purple-400">${signal.risk_reward_ratio.toFixed(1)}:1</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Hold Period:</span>
+                                    <span class="text-yellow-400">${signal.hold_period_days}d</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-300">Quality:</span>
+                                    <span class="text-blue-300">${(signal.factors.quality * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 pt-3 border-t border-slate-600">
+                            <div class="text-xs text-slate-400">
+                                <strong>Factors:</strong> 
+                                Momentum: ${(signal.factors.momentum * 100).toFixed(1)}%, 
+                                Mean Rev: ${(signal.factors.mean_reversion * 100).toFixed(1)}%, 
+                                Volume: ${(signal.factors.volume * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateQuantSignalsTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            document.getElementById('quant-signals-updated').textContent = 
+                date.toLocaleTimeString() + ' IST';
+        }
+
+        // Load quantitative signals on page load and refresh every 2 minutes
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshQuantSignals();
+            setInterval(refreshQuantSignals, 120000); // 2 minutes
+            
+            // Initialize paper trading data refresh
+            setInterval(refreshPaperTradingIfActive, 30000); // 30 seconds
+            
+            // Load paper trading status on startup
+            fetch('/api/paper-trading/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updatePaperTradingStatus(data.status);
+                    }
+                })
+                .catch(error => console.log('Paper trading status check failed:', error));
         });
 
     </script>

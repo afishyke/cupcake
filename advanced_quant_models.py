@@ -243,11 +243,16 @@ class AdvancedQuantitativeModels:
         benchmark_prices = benchmark_df.loc[common_idx, 'close']
         
         # Calculate hedge ratio using OLS
-        X = np.column_stack([np.ones(len(benchmark_prices)), benchmark_prices])
-        hedge_ratio = np.linalg.lstsq(X, stock_prices, rcond=None)[0][1]
+        # Ensure arrays are same length
+        min_len = min(len(stock_prices), len(benchmark_prices))
+        stock_prices_aligned = stock_prices.iloc[:min_len]
+        benchmark_prices_aligned = benchmark_prices.iloc[:min_len]
         
-        # Calculate spread
-        spread = stock_prices - hedge_ratio * benchmark_prices
+        X = np.column_stack([np.ones(len(benchmark_prices_aligned)), benchmark_prices_aligned])
+        hedge_ratio = np.linalg.lstsq(X, stock_prices_aligned, rcond=None)[0][1]
+        
+        # Calculate spread with aligned prices
+        spread = stock_prices_aligned - hedge_ratio * benchmark_prices_aligned
         
         # Test for mean reversion (half-life)
         spread_lagged = spread.shift(1).dropna()

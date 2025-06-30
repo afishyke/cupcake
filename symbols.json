@@ -1,80 +1,24 @@
 {
   "symbols": [
     {
-      "name": "Reliance Industries",
-      "instrument_key": "NSE_EQ|INE002A01018"
+      "name": "Garden Reach Shipbuilders & Engineers Ltd",
+      "instrument_key": "NSE_EQ|INE382Z01011"
     },
     {
-      "name": "Tata Consultancy Services",
-      "instrument_key": "NSE_EQ|INE467B01029"
+      "name": "Gravita India Ltd",
+      "instrument_key": "NSE_EQ|INE024L01027"
     },
     {
-      "name": "HDFC Bank",
-      "instrument_key": "NSE_EQ|INE040A01034"
+      "name": "IFCI Ltd",
+      "instrument_key": "NSE_EQ|INE039A01010"
     },
     {
-      "name": "Infosys",
-      "instrument_key": "NSE_EQ|INE009A01021"
+      "name": "Mazagon Dock Shipbuilders Ltd",
+      "instrument_key": "NSE_EQ|INE249Z01020"
     },
     {
-      "name": "ICICI Bank",
-      "instrument_key": "NSE_EQ|INE090A01013"
-    },
-    {
-      "name": "State Bank of India",
-      "instrument_key": "NSE_EQ|INE062A01020"
-    },
-    {
-      "name": "Bharti Airtel",
-      "instrument_key": "NSE_EQ|INE397D01024"
-    },
-    {
-      "name": "ITC",
-      "instrument_key": "NSE_EQ|INE154A01025"
-    },
-    {
-      "name": "Hindustan Unilever",
-      "instrument_key": "NSE_EQ|INE030A01027"
-    },
-    {
-      "name": "Larsen & Toubro",
-      "instrument_key": "NSE_EQ|INE018A01030"
-    },
-    {
-      "name": "Maruti Suzuki India Ltd",
-      "instrument_key": "NSE_EQ|INE585B01010"
-    },
-    {
-      "name": "Manappuram Finance Ltd",
-      "instrument_key": "NSE_EQ|INE522D01027"
-    },
-    {
-      "name": "Wonderla Holidays Ltd",
-      "instrument_key": "NSE_EQ|INE066O01014"
-    },
-    {
-      "name": "Jindal Steel & Power Ltd",
-      "instrument_key": "NSE_EQ|INE749A01030"
-    },
-    {
-      "name": "Jindal Worldwide Ltd",
-      "instrument_key": "NSE_EQ|INE247D01039"
-    },
-    {
-      "name": "Raj Television Network Ltd",
-      "instrument_key": "NSE_EQ|INE952H01027"
-    },
-    {
-      "name": "Adani Power Ltd",
-      "instrument_key": "NSE_EQ|INE814H01011"
-    },
-    {
-      "name": "Prakash Pipes Ltd",
-      "instrument_key": "NSE_EQ|INE050001010"
-    },
-    {
-      "name": "Kotak Mahindra Bank Ltd",
-      "instrument_key": "NSE_EQ|INE237A01028"
+      "name": "Reliance Power Ltd",
+      "instrument_key": "NSE_EQ|INE614G01033"
     }
   ]
 }

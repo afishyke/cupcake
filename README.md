@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Advanced Algorithmic Trading System for Indian Markets
 
 ## 🎯 **What This System Does**
@@ -399,3 +400,6 @@ The system continuously monitors its own performance and adapts to changing mark
 *This algorithmic trading system represents years of research and optimization specifically for Indian market conditions. It combines traditional technical analysis with advanced quantitative methods to provide consistent, risk-managed trading opportunities.*
 
 **Disclaimer:** Trading in securities involves significant risk and may not be suitable for all investors. Past performance is not indicative of future results. Please consult with a qualified financial advisor before making investment decisions.
+=======
+Yo Homies, this shyt is fine
+>>>>>>> d6b74b31b78086f96514ced7ec0e62d20eedd5f1

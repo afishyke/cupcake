@@ -36,14 +36,22 @@ def setup_fast_logging():
     timestamp = ist_now.strftime('%Y%m%d_%H%M%S')
     log_file = os.path.join(log_dir, f"fast_historical_fetcher_{timestamp}.log")
     
-    logging.basicConfig(
-        level=logging.WARNING,  # Reduced logging for speed
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
-    )
+    try:
+        logging.basicConfig(
+            level=logging.WARNING,  # Reduced logging for speed
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(log_file),
+                logging.StreamHandler()
+            ]
+        )
+    except PermissionError:
+        # Fallback to console only if file logging fails
+        logging.basicConfig(
+            level=logging.WARNING,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[logging.StreamHandler()]
+        )
     return logging.getLogger(__name__), log_file
 
 logger, LOG_FILE = setup_fast_logging()
