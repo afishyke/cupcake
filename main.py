@@ -1,116 +1,70 @@
+import argparse
+import asyncio
+import logging
 import os
 import sys
 import threading
-import asyncio
-import argparse
-import json
-import logging
-import pandas as pd
-import numpy as np
-from flask import Flask, render_template, jsonify, request
-from flask_socketio import SocketIO
-from flask_cors import CORS
-from datetime import datetime, timedelta
 
-# Set up logging
+from flask import Flask, jsonify, render_template, request
+from flask_cors import CORS
+from flask_socketio import SocketIO
+
+from upstox_client import UpstoxAuthClient
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Fix working directory and path issues
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-os.chdir(SCRIPT_DIR)  # Ensure we're in the correct directory
-sys.path.insert(0, SCRIPT_DIR)  # Add script directory to Python path
+os.chdir(SCRIPT_DIR)
+sys.path.insert(0, SCRIPT_DIR)
 
-print(f"🔧 Working directory: {SCRIPT_DIR}")
+CREDENTIALS_PATH = os.path.join(SCRIPT_DIR, "credentials.json")
+SYMBOLS_PATH = os.path.join(SCRIPT_DIR, "symbols.json")
 
-# --- Import Fixed Modules ---
+
+class Config:
+    REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+    REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+    APP_HOST = os.environ.get("APP_HOST", "localhost")
+    APP_PORT = int(os.environ.get("APP_PORT", "5000"))
+
+
 try:
     import enhanced_live_fetcher
     from enhanced_live_fetcher import fetch_enhanced_market_data
-    print("✓ Using enhanced live fetcher")
-except ImportError as e:
-    print(f"Enhanced live fetcher import error: {e}")
-    # Create a fallback if needed
+except ImportError as exc:
+    print(f"Enhanced live fetcher import error: {exc}")
     enhanced_live_fetcher = None
+    fetch_enhanced_market_data = None
 
-# Import the optimized historical data fetcher
 try:
     from historical_data_fetcher import UltraFastHistoricalFetcher
-    print("✓ Using ultra-fast historical data fetcher")
-except ImportError as e:
-    print(f"Historical fetcher import error: {e}")
+except ImportError as exc:
+    print(f"Historical fetcher import error: {exc}")
     UltraFastHistoricalFetcher = None
 
-# Import the new historical viewer
-try:
-    from historical_viewer import HistoricalDataViewer
-    print("✓ Historical data viewer loaded")
-except ImportError as e:
-    print(f"Historical viewer import error: {e}")
-    HistoricalDataViewer = None
 
-from upstox_client import UpstoxAuthClient
-from portfolio_tracker import PortfolioTracker
-
-# --- Configuration ---
-CREDENTIALS_PATH = os.path.join(SCRIPT_DIR, 'credentials.json')
-SYMBOLS_PATH = os.path.join(SCRIPT_DIR, 'symbols.json')
-
-class Config:
-    """Simple configuration class for shared settings."""
-    REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-    REDIS_PORT = int(os.environ.get('REDIS_PORT', '6379'))
-    APP_HOST = os.environ.get('APP_HOST', 'localhost')
-    APP_PORT = int(os.environ.get('APP_PORT', '5000'))
-
-# --- Main Application Setup with Fixed Paths ---
-# Create templates directory if it doesn't exist
-templates_dir = os.path.join(SCRIPT_DIR, 'templates')
-if not os.path.exists(templates_dir):
-    os.makedirs(templates_dir)
-    print(f"📁 Created templates directory: {templates_dir}")
-
-# Initialize Flask with explicit paths
-try:
-    app = Flask(__name__, 
-                template_folder=templates_dir,
-                static_folder=os.path.join(SCRIPT_DIR, 'static'),
-                instance_path=SCRIPT_DIR)
-    print("✓ Flask app initialized successfully")
-except Exception as e:
-    print(f"❌ Flask initialization error: {e}")
-    # Fallback initialization
-    app = Flask('cupcake_trading_system')
-    print("✓ Flask app initialized with fallback method")
-
+app = Flask(
+    __name__,
+    template_folder=os.path.join(SCRIPT_DIR, "templates"),
+    static_folder=os.path.join(SCRIPT_DIR, "static"),
+)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
-# --- Set SocketIO reference for live fetcher ---
+
 if enhanced_live_fetcher:
     enhanced_live_fetcher.socketio = socketio
+    if hasattr(enhanced_live_fetcher, "set_socketio_instance"):
+        enhanced_live_fetcher.set_socketio_instance(socketio)
 
-# --- Initialize Historical Viewer ---
-historical_viewer = None
-if HistoricalDataViewer:
-    try:
-        historical_viewer = HistoricalDataViewer()
-        print("✓ Historical data viewer initialized")
-    except Exception as e:
-        print(f"⚠ Historical viewer initialization warning: {e}")
-        historical_viewer = None
 
-# --- Orchestration Functions ---
-
-def run_enhanced_live_data_feed():
-    """
-    Starts the enhanced live data fetcher with actionable signal generation.
-    """
-    print("🚀 Starting Enhanced Live Data Feed with Actionable Signal Analysis...")
-    if not enhanced_live_fetcher:
-        print("❌ Enhanced live fetcher not available")
+def run_enhanced_live_data_feed() -> None:
+    if not fetch_enhanced_market_data:
+        print("Live feed unavailable")
         return
-        
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
@@ -118,1265 +72,210 @@ def run_enhanced_live_data_feed():
     finally:
         loop.close()
 
-def run_portfolio_tracker():
-    """
-    Starts the portfolio tracking service.
-    """
-    print("📈 Starting Portfolio Tracker...")
-    tracker = PortfolioTracker(CREDENTIALS_PATH, socketio_instance=socketio)
-    tracker.start_portfolio_tracking()
 
-def run_historical_backfill():
-    """
-    Runs the historical data backfill process using ultra-fast fetcher.
-    """
-    print("⏳ Starting Ultra-Fast Historical Data Backfill...")
-    
+def run_historical_backfill() -> None:
     if not UltraFastHistoricalFetcher:
-        print("❌ Historical data fetcher not available")
+        print("Historical backfill unavailable")
         return
-    
+
     try:
-        # Initialize the ultra-fast fetcher
         fetcher = UltraFastHistoricalFetcher(CREDENTIALS_PATH, SYMBOLS_PATH)
-        
-        # Clear Redis and fetch data
         fetcher.redis.flush_and_prepare()
-        
-        # Run the ultra-fast fetch
         result = fetcher.process_all_symbols_ultra_fast(max_workers=8)
-        
-        if result.get('success'):
-            stats = result['stats']
-            print(f"   ✅ Historical backfill completed in {stats['total_time']}")
-            print(f"   📊 {stats['symbols_successful']}/{stats['symbols_processed']} symbols successful")
-            print(f"   🚀 {stats['total_candles']:,} candles stored at {stats['candles_per_second']:.0f} candles/sec")
+        if result.get("success"):
+            stats = result["stats"]
+            print(f"Backfill complete in {stats['total_time']}")
+            print(f"{stats['symbols_successful']}/{stats['symbols_processed']} symbols")
         else:
-            print(f"   ❌ Historical backfill failed: {result.get('error', 'Unknown error')}")
-            
-    except Exception as e:
-        print(f"❌ Error during ultra-fast historical backfill: {e}")
+            print(f"Backfill failed: {result.get('error', 'Unknown error')}")
+    except Exception as exc:
+        print(f"Backfill error: {exc}")
 
-def run_historical_viewer_cli():
-    """
-    Run the historical data viewer in CLI mode
-    """
-    print("📊 Starting Historical Data Viewer...")
-    if not historical_viewer:
-        print("❌ Historical viewer not available")
-        return
-    
-    historical_viewer.show_interactive_menu()
 
-# --- Web Routes ---
-@app.route('/')
+@app.route("/")
 def dashboard():
-    """
-    Serves the enhanced dashboard HTML file from the templates folder.
-    """
-    try:
-        return render_template('enhanced_dashboard.html')
-    except Exception as e:
-        print(f"⚠ Template error: {e}")
-        # Fallback: Return a basic HTML page
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Cupcake Trading Platform</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <script src="https://cdn.tailwindcss.com"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
-        </head>
-        <body class="bg-gray-900 text-white">
-            <div class="container mx-auto p-8">
-                <h1 class="text-4xl font-bold mb-4">🧁 Cupcake Trading Platform</h1>
-                <div class="bg-blue-900 p-4 rounded-lg mb-4">
-                    <p class="text-lg">✅ System is running successfully!</p>
-                    <p class="text-sm text-gray-300">Dashboard template not found, using fallback interface.</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <h3 class="text-xl font-bold mb-2">🚀 System Status</h3>
-                        <div id="system-status">
-                            <p>Loading system status...</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <h3 class="text-xl font-bold mb-2">📊 Market Data</h3>
-                        <div id="market-status">
-                            <p>Connecting to market data...</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-800 p-4 rounded-lg mb-4">
-                    <h3 class="text-xl font-bold mb-2">📊 Historical Data</h3>
-                    <div id="historical-status">
-                        <p>Loading historical data status...</p>
-                    </div>
-                    <a href="/historical" class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                        View Historical Data
-                    </a>
-                </div>
-                
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h3 class="text-xl font-bold mb-2">📝 System Logs</h3>
-                    <div id="logs" class="bg-black p-2 rounded text-green-400 font-mono text-sm max-h-64 overflow-y-auto">
-                        <p>System initialized...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <script>
-                const socket = io();
-                
-                socket.on('connect', () => {
-                    document.getElementById('system-status').innerHTML = 
-                        '<p class="text-green-400">✅ Connected to server</p>';
-                    addLog('✅ Connected to trading system');
-                });
-                
-                socket.on('disconnect', () => {
-                    document.getElementById('system-status').innerHTML = 
-                        '<p class="text-red-400">❌ Disconnected from server</p>';
-                    addLog('❌ Disconnected from trading system');
-                });
-                
-                socket.on('enhanced_market_update', (data) => {
-                    const symbolCount = Object.keys(data).length;
-                    document.getElementById('market-status').innerHTML = 
-                        `<p class="text-blue-400">📈 Receiving data for ${symbolCount} symbols</p>`;
-                    addLog(`📊 Market update: ${symbolCount} symbols`);
-                });
-                
-                socket.on('debug_log', (data) => {
-                    addLog(`[${data.level}] ${data.message}`);
-                });
-                
-                function addLog(message) {
-                    const logs = document.getElementById('logs');
-                    const timestamp = new Date().toLocaleTimeString();
-                    logs.innerHTML += `<p>[${timestamp}] ${message}</p>`;
-                    logs.scrollTop = logs.scrollHeight;
-                }
-                
-                // Load historical data status
-                fetch('/api/historical/status')
-                    .then(response => response.json())
-                    .then(data => {
-                        const statusElement = document.getElementById('historical-status');
-                        if (data.has_data) {
-                            statusElement.innerHTML = `
-                                <p class="text-green-400">✅ ${data.symbol_count} symbols with historical data</p>
-                                <p class="text-sm text-gray-400">Total data points: ${data.ts_keys.toLocaleString()}</p>
-                            `;
-                        } else {
-                            statusElement.innerHTML = `
-                                <p class="text-red-400">❌ No historical data found</p>
-                                <p class="text-sm text-gray-400">Run historical backfill first</p>
-                            `;
-                        }
-                    })
-                    .catch(err => {
-                        document.getElementById('historical-status').innerHTML = 
-                            '<p class="text-red-400">❌ Error loading historical status</p>';
-                    });
-                
-                // Check system status periodically
-                setInterval(() => {
-                    fetch('/api/system_status')
-                        .then(response => response.json())
-                        .then(data => {
-                            addLog(`🔧 System check: ${data.status}`);
-                        })
-                        .catch(err => addLog(`⚠ System check failed: ${err}`));
-                }, 30000);
-            </script>
-        </body>
-        </html>
-        """
+    return render_template("pages/dashboard.html")
 
-@app.route('/historical')
-def historical_dashboard():
-    """Historical data dashboard"""
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Historical Data - Cupcake Trading</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-gray-900 text-white">
-        <div class="container mx-auto p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-4xl font-bold">📊 Historical Data Viewer</h1>
-                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                    ← Back to Dashboard
-                </a>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h3 class="text-lg font-bold mb-2">Database Status</h3>
-                    <div id="db-status">Loading...</div>
-                </div>
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h3 class="text-lg font-bold mb-2">Quick Actions</h3>
-                    <div class="space-y-2">
-                        <button onclick="exportAll()" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm">
-                            Export All to CSV
-                        </button>
-                        <button onclick="refreshData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm">
-                            Refresh Data
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h3 class="text-lg font-bold mb-2">Symbol Search</h3>
-                    <input type="text" id="search-input" placeholder="Search symbols..." 
-                           class="w-full bg-gray-700 text-white px-3 py-2 rounded mb-2">
-                    <div id="search-results" class="text-sm"></div>
-                </div>
-            </div>
-            
-            <div class="bg-gray-800 p-6 rounded-lg">
-                <h2 class="text-2xl font-bold mb-4">Symbols with Historical Data</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-700">
-                        <thead class="bg-gray-700">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Symbol</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase">Data Points</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase">Latest Price</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase">Return %</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase">Duration</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="symbols-table" class="divide-y divide-gray-700">
-                            <tr><td colspan="6" class="text-center py-4">Loading symbols...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <script>
-            function loadDatabaseStatus() {
-                fetch('/api/historical/status')
-                    .then(response => response.json())
-                    .then(data => {
-                        const statusDiv = document.getElementById('db-status');
-                        if (data.has_data) {
-                            statusDiv.innerHTML = `
-                                <p class="text-green-400">✅ Active</p>
-                                <p class="text-sm text-gray-400">${data.symbol_count} symbols</p>
-                                <p class="text-sm text-gray-400">${data.ts_keys} data series</p>
-                            `;
-                        } else {
-                            statusDiv.innerHTML = `
-                                <p class="text-red-400">❌ No Data</p>
-                                <p class="text-sm text-gray-400">Run backfill first</p>
-                            `;
-                        }
-                    })
-                    .catch(err => {
-                        document.getElementById('db-status').innerHTML = 
-                            '<p class="text-red-400">❌ Error</p>';
-                    });
-            }
-            
-            function loadSymbols() {
-                fetch('/api/historical/symbols')
-                    .then(response => response.json())
-                    .then(data => {
-                        const tbody = document.getElementById('symbols-table');
-                        
-                        if (data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No symbols found</td></tr>';
-                            return;
-                        }
-                        
-                        tbody.innerHTML = data.map(symbol => {
-                            const returnClass = symbol.total_return_pct > 0 ? 'text-green-400' : 
-                                              symbol.total_return_pct < 0 ? 'text-red-400' : 'text-gray-400';
-                            
-                            return `
-                                <tr class="hover:bg-gray-700">
-                                    <td class="px-4 py-3 font-medium">${symbol.display_name}</td>
-                                    <td class="px-4 py-3 text-right">${symbol.data_points.toLocaleString()}</td>
-                                    <td class="px-4 py-3 text-center">₹${symbol.last_price.toFixed(2)}</td>
-                                    <td class="px-4 py-3 text-center ${returnClass}">${symbol.total_return_pct.toFixed(2)}%</td>
-                                    <td class="px-4 py-3 text-center">${symbol.duration_hours.toFixed(1)}h</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <button onclick="viewSymbol('${symbol.display_name}')" 
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs mr-1">
-                                            View
-                                        </button>
-                                        <button onclick="exportSymbol('${symbol.display_name}')" 
-                                                class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs">
-                                            Export
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('');
-                    })
-                    .catch(err => {
-                        document.getElementById('symbols-table').innerHTML = 
-                            '<tr><td colspan="6" class="text-center py-4 text-red-400">Error loading symbols</td></tr>';
-                    });
-            }
-            
-            function viewSymbol(symbolName) {
-                alert(`Viewing ${symbolName} - Feature coming soon!\\nFor now, use CLI: python historical_viewer.py`);
-            }
-            
-            function exportSymbol(symbolName) {
-                fetch('/api/historical/export', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({symbol: symbolName})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ Exported ${data.rows} rows to ${data.filename}`);
-                    } else {
-                        alert(`❌ Export failed: ${data.error}`);
-                    }
-                })
-                .catch(err => alert(`❌ Export error: ${err}`));
-            }
-            
-            function exportAll() {
-                if (!confirm('Export all symbols to CSV? This may take a while.')) return;
-                
-                fetch('/api/historical/export-all', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ Exported ${data.files} files with ${data.total_rows} total rows`);
-                    } else {
-                        alert(`❌ Export failed: ${data.error}`);
-                    }
-                })
-                .catch(err => alert(`❌ Export error: ${err}`));
-            }
-            
-            function refreshData() {
-                loadDatabaseStatus();
-                loadSymbols();
-            }
-            
-            // Search functionality
-            document.getElementById('search-input').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#symbols-table tr');
-                
-                rows.forEach(row => {
-                    const symbolName = row.cells[0]?.textContent?.toLowerCase() || '';
-                    if (symbolName.includes(searchTerm) || searchTerm === '') {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Load data on page load
-            loadDatabaseStatus();
-            loadSymbols();
-        </script>
-    </body>
-    </html>
-    """
 
-# --- Charting API Routes ---
-# Replace the existing chart routes in main.py with these updated versions
-
-@app.route('/api/chart/symbols')
-def api_chart_symbols():
-    """API endpoint for symbols available for charting (ENHANCED)"""
-    try:
-        symbols = []
-        
-        # Method 1: Try historical viewer first (best quality data)
-        if historical_viewer:
-            try:
-                symbols_data = historical_viewer.get_symbols_summary()
-                for symbol in symbols_data:
-                    if symbol.get('data_points', 0) > 0:
-                        symbols.append({
-                            'symbol': symbol['display_name'],
-                            'symbol_clean': symbol['symbol_clean'],
-                            'data_points': symbol['data_points'],
-                            'latest_price': symbol.get('last_price', 0),
-                            'return_pct': symbol.get('total_return_pct', 0),
-                            'source': 'historical'
-                        })
-                        
-                if symbols:
-                    logger.info(f"Found {len(symbols)} symbols from historical data")
-                    return jsonify(symbols)
-            except Exception as e:
-                logger.warning(f"Historical viewer failed: {e}")
-        
-        # Method 2: Try live data from enhanced_live_fetcher
-        try:
-            # Check if we can get live symbols from the live fetcher
-            import requests
-            response = requests.get(f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/symbols', timeout=2)
-            if response.status_code == 200:
-                live_symbols = response.json()
-                if live_symbols and not isinstance(live_symbols, dict) or not live_symbols.get('error'):
-                    logger.info(f"Found {len(live_symbols)} symbols from live data")
-                    return jsonify(live_symbols)
-        except Exception as e:
-            logger.warning(f"Live symbols fetch failed: {e}")
-        
-        # Method 3: Read from symbols.json file
-        try:
-            symbols_path = os.path.join(SCRIPT_DIR, 'symbols.json')
-            if os.path.exists(symbols_path):
-                with open(symbols_path, 'r') as f:
-                    symbols_data = json.load(f)
-                
-                for symbol_data in symbols_data.get('symbols', []):
-                    symbols.append({
-                        'symbol': symbol_data['name'],
-                        'symbol_clean': symbol_data['name'].replace(' ', '_').replace('&', 'and'),
-                        'instrument_key': symbol_data.get('instrument_key'),
-                        'data_points': 50,  # Estimate
-                        'latest_price': 100.0,  # Default price
-                        'return_pct': 0.0,
-                        'source': 'config_file'
-                    })
-                    
-                if symbols:
-                    logger.info(f"Found {len(symbols)} symbols from symbols.json")
-                    return jsonify(symbols)
-        except Exception as e:
-            logger.warning(f"symbols.json read failed: {e}")
-        
-        # Method 4: Last fallback - return demo symbols
-        demo_symbols = [
-            {'symbol': 'Reliance Industries Ltd', 'symbol_clean': 'Reliance_Industries_Ltd', 
-             'data_points': 100, 'latest_price': 2500.0, 'return_pct': 2.5, 'source': 'demo'},
-            {'symbol': 'Tata Consultancy Services Ltd', 'symbol_clean': 'Tata_Consultancy_Services_Ltd', 
-             'data_points': 100, 'latest_price': 3500.0, 'return_pct': 1.8, 'source': 'demo'},
-            {'symbol': 'Infosys Ltd', 'symbol_clean': 'Infosys_Ltd', 
-             'data_points': 100, 'latest_price': 1600.0, 'return_pct': -0.5, 'source': 'demo'}
-        ]
-        
-        logger.warning("Using demo symbols as fallback")
-        return jsonify(demo_symbols)
-        
-    except Exception as e:
-        logger.error(f"Error in api_chart_symbols: {e}")
-        return jsonify({'error': str(e)})
-
-@app.route('/api/chart/data/<symbol_name>')
-def api_chart_data(symbol_name):
-    """API endpoint for chart data of a specific symbol (ENHANCED with multiple sources)"""
-    try:
-        # Get query parameters
-        timeframe = request.args.get('timeframe', '1h')
-        limit = min(int(request.args.get('limit', 100)), 500)
-        
-        logger.info(f"Fetching chart data for {symbol_name}, timeframe={timeframe}, limit={limit}")
-        
-        # Method 1: Try historical viewer first (best quality)
-        if historical_viewer:
-            try:
-                data = historical_viewer.get_symbol_complete_data(symbol_name)
-                if data and not data['dataframe'].empty:
-                    df = data['dataframe']
-                    
-                    # Resample data based on timeframe
-                    resample_rules = {
-                        '1h': '1H',
-                        '4h': '4H', 
-                        '1d': '1D'
-                    }
-                    
-                    if timeframe in resample_rules:
-                        df_resampled = df.resample(resample_rules[timeframe]).agg({
-                            'open': 'first',
-                            'high': 'max', 
-                            'low': 'min',
-                            'close': 'last',
-                            'volume': 'sum'
-                        }).dropna()
-                    else:
-                        df_resampled = df
-                    
-                    # Get last N candles
-                    chart_data = df_resampled.tail(limit)
-                    
-                    if len(chart_data) > 0:
-                        candles = []
-                        for timestamp, row in chart_data.iterrows():
-                            if pd.notna(row['close']):
-                                candles.append({
-                                    'x': timestamp.isoformat(),
-                                    'o': float(row.get('open', row['close'])),
-                                    'h': float(row.get('high', row['close'])),
-                                    'l': float(row.get('low', row['close'])),
-                                    'c': float(row['close']),
-                                    'v': int(row.get('volume', 0))
-                                })
-                        
-                        if candles:
-                            logger.info(f"Retrieved {len(candles)} candles from historical data")
-                            
-                            # Calculate stats
-                            latest_price = candles[-1]['c']
-                            first_price = candles[0]['o']
-                            price_change = latest_price - first_price
-                            price_change_pct = (price_change / first_price * 100) if first_price > 0 else 0
-                            
-                            return jsonify({
-                                'symbol': symbol_name,
-                                'timeframe': timeframe,
-                                'candles': candles,
-                                'stats': {
-                                    'latest_price': latest_price,
-                                    'price_change': price_change,
-                                    'price_change_pct': price_change_pct,
-                                    'volume_24h': sum(c['v'] for c in candles),
-                                    'high_24h': max(c['h'] for c in candles),
-                                    'low_24h': min(c['l'] for c in candles),
-                                    'data_points': len(candles)
-                                },
-                                'data_range': {
-                                    'start': candles[0]['x'],
-                                    'end': candles[-1]['x']
-                                },
-                                'source': 'historical_database'
-                            })
-                            
-            except Exception as e:
-                logger.warning(f"Historical data fetch failed for {symbol_name}: {e}")
-        
-        # Method 2: Try live data from enhanced_live_fetcher
-        try:
-            import requests
-            url = f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/chart_data/{symbol_name}'
-            params = {'timeframe': timeframe, 'limit': limit}
-            
-            response = requests.get(url, params=params, timeout=5)
-            if response.status_code == 200:
-                live_data = response.json()
-                if 'error' not in live_data and live_data.get('candles'):
-                    logger.info(f"Retrieved {len(live_data['candles'])} candles from live data")
-                    live_data['source'] = 'live_redis_timeseries'
-                    return jsonify(live_data)
-        except Exception as e:
-            logger.warning(f"Live data fetch failed for {symbol_name}: {e}")
-        
-        # Method 3: Generate realistic sample data
-        logger.info(f"Generating sample data for {symbol_name}")
-        
-        import random
-        from datetime import datetime, timedelta
-        
-        # Generate realistic OHLCV data
-        candles = []
-        base_price = random.uniform(100, 3000)  # Random base price
-        now = datetime.now()
-        
-        # Determine time delta based on timeframe
-        time_deltas = {
-            '1h': timedelta(hours=1),
-            '4h': timedelta(hours=4),
-            '1d': timedelta(days=1)
-        }
-        time_delta = time_deltas.get(timeframe, timedelta(hours=1))
-        
-        for i in range(limit):
-            timestamp = now - (time_delta * (limit - i))
-            
-            # Generate realistic price movement
-            volatility = base_price * 0.02  # 2% volatility
-            price_change = random.uniform(-volatility, volatility)
-            
-            open_price = base_price
-            close_price = base_price + price_change
-            high_price = max(open_price, close_price) + random.uniform(0, volatility * 0.3)
-            low_price = min(open_price, close_price) - random.uniform(0, volatility * 0.3)
-            volume = random.randint(1000, 50000)
-            
-            candles.append({
-                'x': timestamp.isoformat(),
-                'o': round(open_price, 2),
-                'h': round(high_price, 2),
-                'l': round(low_price, 2),
-                'c': round(close_price, 2),
-                'v': volume
-            })
-            
-            base_price = close_price  # Use close as next base
-        
-        # Calculate stats
-        latest_price = candles[-1]['c']
-        first_price = candles[0]['o']
-        price_change = latest_price - first_price
-        price_change_pct = (price_change / first_price * 100) if first_price > 0 else 0
-        
-        return jsonify({
-            'symbol': symbol_name,
-            'timeframe': timeframe,
-            'candles': candles,
-            'stats': {
-                'latest_price': latest_price,
-                'price_change': price_change,
-                'price_change_pct': price_change_pct,
-                'volume_24h': sum(c['v'] for c in candles),
-                'high_24h': max(c['h'] for c in candles),
-                'low_24h': min(c['l'] for c in candles),
-                'data_points': len(candles)
-            },
-            'data_range': {
-                'start': candles[0]['x'],
-                'end': candles[-1]['x']
-            },
-            'source': 'generated_sample_data',
-            'note': 'This is sample data for demonstration. Real historical data may be unavailable.'
-        })
-        
-    except Exception as e:
-        logger.error(f"Error in api_chart_data for {symbol_name}: {e}")
-        return jsonify({'error': str(e)})
-
-@app.route('/api/chart/test')
-def api_chart_test():
-    """Test endpoint to verify chart API functionality"""
-    try:
-        test_results = {
-            'timestamp': datetime.now().isoformat(),
-            'services': {}
-        }
-        
-        # Test historical viewer
-        if historical_viewer:
-            try:
-                status = historical_viewer.get_database_status()
-                test_results['services']['historical_viewer'] = {
-                    'available': True,
-                    'has_data': status.get('has_data', False),
-                    'symbols_count': status.get('symbol_count', 0)
-                }
-            except Exception as e:
-                test_results['services']['historical_viewer'] = {
-                    'available': True,
-                    'error': str(e)
-                }
-        else:
-            test_results['services']['historical_viewer'] = {'available': False}
-        
-        # Test live data service
-        try:
-            import requests
-            response = requests.get(f'http://{Config.APP_HOST}:{Config.APP_PORT}/api/live/symbols', timeout=2)
-            test_results['services']['live_data'] = {
-                'available': response.status_code == 200,
-                'status_code': response.status_code
-            }
-            if response.status_code == 200:
-                data = response.json()
-                test_results['services']['live_data']['symbols_count'] = len(data) if isinstance(data, list) else 0
-        except Exception as e:
-            test_results['services']['live_data'] = {
-                'available': False,
-                'error': str(e)
-            }
-        
-        # Test symbols.json
-        try:
-            symbols_path = os.path.join(SCRIPT_DIR, 'symbols.json')
-            with open(symbols_path, 'r') as f:
-                symbols_data = json.load(f)
-            test_results['services']['symbols_file'] = {
-                'available': True,
-                'symbols_count': len(symbols_data.get('symbols', []))
-            }
-        except Exception as e:
-            test_results['services']['symbols_file'] = {
-                'available': False,
-                'error': str(e)
-            }
-        
-        return jsonify(test_results)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-# --- Enhanced Quantitative Analysis API Routes ---
-@app.route('/api/quant/analyze/<symbol_name>')
-def api_quantitative_analysis(symbol_name):
-    """Advanced quantitative analysis for a specific symbol"""
-    try:
-        # Get current market data (simplified for demo)
-        current_market_data = {
-            'ltp': 2750.50,  # This should come from live feed
-            'ltq': 125,
-            'best_bid': 2750.25,
-            'best_ask': 2750.75
-        }
-        
-        # Get technical indicators (simplified for demo)
-        technical_indicators = {
-            'rsi': 45,
-            'macd': {'macd': 0.5, 'signal': 0.3},
-            'sma': {'sma_5': 2751.2, 'sma_20': 2748.8},
-            'volume': {'volume_ratio': 1.3},
-            'adx': 22
-        }
-        
-        # Initialize enhanced signal generator with quantitative engine
-        try:
-            from enhanced_signal_generator import TrajectorySignalGenerator
-            signal_generator = TrajectorySignalGenerator()
-            
-            # Get enhanced analysis
-            enhanced_analysis = signal_generator.get_enhanced_signal_with_quant_analysis(
-                symbol_name, current_market_data, technical_indicators, {}
-            )
-            
-            return jsonify(enhanced_analysis)
-            
-        except ImportError as e:
-            return jsonify({'error': f'Enhanced signal generator not available: {e}'})
-            
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-@app.route('/api/quant/batch_analyze', methods=['POST'])
-def api_batch_quantitative_analysis():
-    """Batch quantitative analysis for multiple symbols"""
-    try:
-        data = request.get_json()
-        symbols = data.get('symbols', [])
-        
-        if not symbols:
-            return jsonify({'error': 'No symbols provided'})
-        
-        try:
-            from enhanced_signal_generator import TrajectorySignalGenerator
-            signal_generator = TrajectorySignalGenerator()
-            
-            results = {}
-            
-            for symbol in symbols[:10]:  # Limit to 10 symbols to prevent overload
-                try:
-                    # Simplified market data - in production, get from live feed
-                    current_market_data = {
-                        'ltp': 100.0,  # Placeholder
-                        'ltq': 100,
-                        'best_bid': 99.95,
-                        'best_ask': 100.05
-                    }
-                    
-                    technical_indicators = {
-                        'rsi': 50,
-                        'macd': {'macd': 0.0, 'signal': 0.0},
-                        'sma': {'sma_5': 100.1, 'sma_20': 99.9},
-                        'volume': {'volume_ratio': 1.0},
-                        'adx': 20
-                    }
-                    
-                    analysis = signal_generator.get_enhanced_signal_with_quant_analysis(
-                        symbol, current_market_data, technical_indicators, {}
-                    )
-                    
-                    results[symbol] = analysis
-                    
-                except Exception as e:
-                    results[symbol] = {'error': str(e)}
-            
-            return jsonify({
-                'results': results,
-                'symbols_analyzed': len(results),
-                'timestamp': datetime.now().isoformat()
-            })
-            
-        except ImportError as e:
-            return jsonify({'error': f'Enhanced signal generator not available: {e}'})
-            
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-@app.route('/api/quant/ranking')
-def api_quantitative_ranking():
-    """Get quantitative ranking of all available symbols"""
-    try:
-        if not historical_viewer:
-            return jsonify({'error': 'Historical viewer not available'})
-        
-        # Get available symbols
-        symbols_data = historical_viewer.get_symbols_summary()
-        
-        if not symbols_data:
-            return jsonify({'error': 'No symbols data available'})
-        
-        try:
-            from enhanced_signal_generator import TrajectorySignalGenerator
-            from practical_quant_engine import PracticalQuantEngine
-            
-            signal_generator = TrajectorySignalGenerator()
-            quant_engine = PracticalQuantEngine()
-            
-            rankings = []
-            
-            for symbol_info in symbols_data[:20]:  # Limit to top 20 for performance
-                symbol_name = symbol_info.get('display_name')
-                
-                try:
-                    # Get historical data
-                    symbol_data = historical_viewer.get_symbol_complete_data(symbol_name)
-                    if symbol_data and not symbol_data['dataframe'].empty:
-                        df = symbol_data['dataframe']
-                        
-                        # Run quantitative analysis
-                        quant_score = quant_engine.calculate_comprehensive_score(df)
-                        
-                        # Get advanced metrics
-                        risk_metrics = quant_engine.calculate_advanced_risk_metrics(df)
-                        momentum_analysis = quant_engine.calculate_advanced_momentum_score(df)
-                        vol_regime = quant_engine.calculate_volatility_regime(df)
-                        
-                        rankings.append({
-                            'symbol': symbol_name,
-                            'quant_score': quant_score['final_score'],
-                            'recommendation': quant_score['recommendation'],
-                            'momentum_strength': momentum_analysis['momentum_strength'],
-                            'volatility_regime': vol_regime['regime'],
-                            'sharpe_ratio': risk_metrics['sharpe_ratio'],
-                            'max_drawdown': risk_metrics['max_drawdown'],
-                            'current_price': df['close'].iloc[-1] if len(df) > 0 else 0,
-                            'data_points': len(df)
-                        })
-                        
-                except Exception as e:
-                    print(f"Error analyzing {symbol_name}: {e}")
-                    continue
-            
-            # Sort by quantitative score
-            rankings.sort(key=lambda x: x['quant_score'], reverse=True)
-            
-            return jsonify({
-                'rankings': rankings,
-                'total_symbols': len(rankings),
-                'analysis_timestamp': datetime.now().isoformat(),
-                'methodology': 'Comprehensive quantitative scoring using momentum, volatility, risk metrics, and statistical analysis'
-            })
-            
-        except ImportError as e:
-            return jsonify({'error': f'Quantitative engine not available: {e}'})
-            
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-@app.route('/api/quant/portfolio_optimizer', methods=['POST'])
-def api_portfolio_optimizer():
-    """Portfolio optimization using quantitative methods"""
-    try:
-        data = request.get_json()
-        symbols = data.get('symbols', [])
-        portfolio_value = data.get('portfolio_value', 1000000)
-        risk_tolerance = data.get('risk_tolerance', 0.15)
-        
-        if not symbols:
-            return jsonify({'error': 'No symbols provided'})
-        
-        try:
-            from practical_quant_engine import PracticalQuantEngine
-            quant_engine = PracticalQuantEngine()
-            
-            # Get returns data for optimization
-            returns_data = {}
-            
-            for symbol in symbols:
-                try:
-                    if historical_viewer:
-                        symbol_data = historical_viewer.get_symbol_complete_data(symbol)
-                        if symbol_data and not symbol_data['dataframe'].empty:
-                            df = symbol_data['dataframe']
-                            returns = df['close'].pct_change().dropna()
-                            returns_data[symbol] = returns
-                except:
-                    continue
-            
-            if len(returns_data) < 2:
-                return jsonify({'error': 'Insufficient data for portfolio optimization'})
-            
-            # Align all returns data
-            returns_df = pd.DataFrame(returns_data).fillna(0)
-            
-            # Optimize portfolio
-            optimal_weights = quant_engine.optimize_portfolio_allocation(
-                returns_df, risk_tolerance=risk_tolerance
-            )
-            
-            # Calculate portfolio metrics
-            portfolio_return = sum(optimal_weights[symbol] * returns_df[symbol].mean() * 252 
-                                 for symbol in optimal_weights)
-            portfolio_vol = np.sqrt(252) * np.sqrt(
-                sum(optimal_weights[symbol] * optimal_weights[other] * 
-                    returns_df[symbol].cov(returns_df[other])
-                    for symbol in optimal_weights for other in optimal_weights)
-            )
-            
-            sharpe_ratio = (portfolio_return - 0.07) / portfolio_vol if portfolio_vol > 0 else 0
-            
-            # Position sizing
-            positions = {}
-            for symbol, weight in optimal_weights.items():
-                position_value = portfolio_value * weight
-                positions[symbol] = {
-                    'weight': weight,
-                    'value': position_value,
-                    'percentage': weight * 100
-                }
-            
-            return jsonify({
-                'optimal_portfolio': positions,
-                'portfolio_metrics': {
-                    'expected_annual_return': portfolio_return,
-                    'annual_volatility': portfolio_vol,
-                    'sharpe_ratio': sharpe_ratio,
-                    'portfolio_value': portfolio_value
-                },
-                'optimization_method': 'Modern Portfolio Theory',
-                'risk_tolerance': risk_tolerance,
-                'symbols_count': len(optimal_weights),
-                'timestamp': datetime.now().isoformat()
-            })
-            
-        except ImportError as e:
-            return jsonify({'error': f'Portfolio optimizer not available: {e}'})
-            
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-# --- Historical Data API Routes ---
-@app.route('/api/historical/status')
-def api_historical_status():
-    """API endpoint for historical data status"""
-    if not historical_viewer:
-        return jsonify({'error': 'Historical viewer not available'})
-    
-    try:
-        status = historical_viewer.get_database_status()
-        return jsonify(status)
-    except Exception as e:
-        return jsonify({'error': str(e)})
-
-@app.route('/api/historical/symbols')
-def api_historical_symbols():
-    """API endpoint for symbols summary"""
-    if not historical_viewer:
+@app.route("/api/unified/signals")
+def api_unified_signals():
+    manager = getattr(enhanced_live_fetcher, "unified_signal_manager", None)
+    if not manager:
         return jsonify([])
-    
-    try:
-        symbols = historical_viewer.get_symbols_summary()
-        return jsonify(symbols)
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    return jsonify(manager.get_all_signals())
 
-@app.route('/api/historical/symbol/<symbol_name>')
-def api_historical_symbol_data(symbol_name):
-    """API endpoint for specific symbol data"""
-    if not historical_viewer:
-        return jsonify({'error': 'Historical viewer not available'})
-    
-    try:
-        data = historical_viewer.get_symbol_complete_data(symbol_name)
-        if not data:
-            return jsonify({'error': 'Symbol not found'})
-        
-        # Convert DataFrame to JSON-serializable format
-        df = data['dataframe']
-        json_data = {
-            'symbol_name': data['symbol_name'],
-            'total_timepoints': data['total_timepoints'],
-            'date_range': {
-                'start': data['date_range']['start'].isoformat() if data['date_range']['start'] else None,
-                'end': data['date_range']['end'].isoformat() if data['date_range']['end'] else None,
-                'duration': str(data['date_range']['duration']) if data['date_range']['duration'] else None
-            },
-            'summary': data['summary'],
-            'metadata': data['metadata'],
-            'recent_data': df.tail(20).to_dict('records') if not df.empty else []
-        }
-        
-        return jsonify(json_data)
-    except Exception as e:
-        return jsonify({'error': str(e)})
 
-@app.route('/api/historical/export', methods=['POST'])
-def api_historical_export():
-    """API endpoint to export symbol data"""
-    if not historical_viewer:
-        return jsonify({'success': False, 'error': 'Historical viewer not available'})
-    
-    try:
-        data = request.get_json()
-        symbol_name = data.get('symbol')
-        
-        if not symbol_name:
-            return jsonify({'success': False, 'error': 'Symbol name required'})
-        
-        result = historical_viewer.export_symbol_to_csv(symbol_name)
-        
-        if result:
-            return jsonify({
-                'success': True,
-                'filename': result['filename'],
-                'filepath': result['filepath'],
-                'rows': result['rows']
-            })
-        else:
-            return jsonify({'success': False, 'error': 'Export failed'})
-            
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+@app.route("/api/unified/signals/<symbol_name>")
+def api_unified_signal(symbol_name):
+    manager = getattr(enhanced_live_fetcher, "unified_signal_manager", None)
+    if not manager:
+        return jsonify({"error": "Unified signal manager unavailable"}), 503
+    signal = manager.get_signal(symbol_name)
+    if not signal:
+        return jsonify({"error": "Signal not found"}), 404
+    return jsonify(signal)
 
-@app.route('/api/historical/export-all', methods=['POST'])
-def api_historical_export_all():
-    """API endpoint to export all symbols"""
-    if not historical_viewer:
-        return jsonify({'success': False, 'error': 'Historical viewer not available'})
-    
-    try:
-        exported_files = historical_viewer.export_all_symbols()
-        
-        total_rows = sum(f['rows'] for f in exported_files)
-        
-        return jsonify({
-            'success': True,
-            'files': len(exported_files),
-            'total_rows': total_rows,
-            'exported_files': exported_files
-        })
-        
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/system_status')
+@app.route("/api/unified/live_prices")
+def api_unified_live_prices():
+    try:
+        manager = getattr(enhanced_live_fetcher, "unified_signal_manager", None)
+        signals = manager.get_all_signals() if manager else []
+        signal_map = {s.get("symbol"): s for s in signals}
+
+        live_market = getattr(enhanced_live_fetcher, "market_data", {}) or {}
+        rows = []
+
+        for _, snapshot in live_market.items():
+            symbol = snapshot.get("name")
+            if not symbol:
+                continue
+
+            signal = signal_map.get(symbol, {})
+            updated_at = snapshot.get("last_update")
+            if hasattr(updated_at, "isoformat"):
+                updated_at = updated_at.isoformat()
+
+            rows.append(
+                {
+                    "symbol": symbol,
+                    "ltp": snapshot.get("ltp"),
+                    "best_bid": snapshot.get("best_bid"),
+                    "best_ask": snapshot.get("best_ask"),
+                    "spread_pct": snapshot.get("spread_pct"),
+                    "updated_at": updated_at or signal.get("updated_at"),
+                    "direction": signal.get("direction"),
+                    "confidence": signal.get("confidence"),
+                }
+            )
+
+        if not rows:
+            for signal in signals:
+                extra = signal.get("extra") or {}
+                ctx = extra.get("price_context") or {}
+                rows.append(
+                    {
+                        "symbol": signal.get("symbol"),
+                        "ltp": ctx.get("ltp", signal.get("entry_price")),
+                        "best_bid": ctx.get("best_bid"),
+                        "best_ask": ctx.get("best_ask"),
+                        "spread_pct": ctx.get("spread_pct"),
+                        "updated_at": signal.get("updated_at"),
+                        "direction": signal.get("direction"),
+                        "confidence": signal.get("confidence"),
+                    }
+                )
+
+        rows.sort(key=lambda item: float(item.get("confidence") or 0), reverse=True)
+        return jsonify(rows)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.route("/api/unified/history")
+def api_unified_history():
+    manager = getattr(enhanced_live_fetcher, "unified_signal_manager", None)
+    if not manager:
+        return jsonify([])
+    try:
+        limit = int(request.args.get("limit", 60))
+    except ValueError:
+        limit = 60
+    limit = max(1, min(limit, 500))
+    return jsonify(manager.get_history(limit=limit))
+
+
+@app.route("/api/unified/history/<symbol_name>")
+def api_unified_symbol_history(symbol_name):
+    manager = getattr(enhanced_live_fetcher, "unified_signal_manager", None)
+    if not manager:
+        return jsonify([])
+    try:
+        limit = int(request.args.get("limit", 60))
+    except ValueError:
+        limit = 60
+    limit = max(1, min(limit, 500))
+    return jsonify(manager.get_history(symbol=symbol_name, limit=limit))
+
+
+@app.route("/api/system_status")
 def system_status():
-    """
-    API endpoint for system status information.
-    """
-    # Get performance metrics from technical indicators if available
-    perf_metrics = {}
-    try:
-        from technical_indicators import EnhancedTechnicalIndicators
-        tech_ind = EnhancedTechnicalIndicators()
-        perf_metrics = tech_ind.perf_metrics
-    except:
-        pass
-    
-    return {
-        'status': 'running',
-        'modules': {
-            'enhanced_live_fetcher': 'active' if enhanced_live_fetcher else 'unavailable',
-            'portfolio_tracker': 'active',
-            'ultra_fast_historical': 'active' if UltraFastHistoricalFetcher else 'unavailable',
-            'historical_viewer': 'active' if historical_viewer else 'unavailable',
-            'signal_generator': 'active'
-        },
-        'features': {
-            'actionable_signals': True,
-            'trajectory_confirmation': True,
-            'risk_reward_calculation': True,
-            'multi_timeframe_analysis': True,
-            'ultra_fast_historical': True,
-            'historical_data_viewer': historical_viewer is not None,
-            'rolling_window_cache': True,
-            'ta_lib_optimization': True
-        },
-        'performance': {
-            'cache_hits': perf_metrics.get('cache_hits', 0),
-            'redis_queries': perf_metrics.get('redis_queries', 0),
-            'calculations': perf_metrics.get('calculations', 0),
-            'avg_calc_time_ms': (perf_metrics.get('total_time', 0) / max(perf_metrics.get('calculations', 1), 1)) * 1000
+    return jsonify(
+        {
+            "status": "running",
+            "modules": {
+                "enhanced_live_fetcher": "active" if enhanced_live_fetcher else "unavailable",
+                "ultra_fast_historical": "active" if UltraFastHistoricalFetcher else "unavailable",
+                "signal_generator": "active",
+            },
+            "features": {
+                "unified_signals": True,
+                "live_prices": True,
+                "signal_history": True,
+                "multi_timeframe_analysis": True,
+            },
         }
-    }
+    )
 
-# --- SocketIO Connection Handlers ---
-@socketio.on('connect')
+
+@socketio.on("connect")
 def handle_connect():
-    print("✅ Client connected to enhanced dashboard.")
+    print("Client connected")
 
-@socketio.on('disconnect')
+
+@socketio.on("disconnect")
 def handle_disconnect():
-    print("🔥 Client disconnected from enhanced dashboard.")
+    print("Client disconnected")
 
-@socketio.on('request_signal_analytics')
-def handle_signal_analytics_request(data):
-    """Handle request for detailed signal analytics for a specific symbol"""
-    try:
-        symbol = data.get('symbol')
-        if symbol:
-            # This would be implemented in the enhanced technical indicators
-            analytics = {
-                'symbol': symbol,
-                'trajectory_analysis': 'Available in enhanced version',
-                'signal_strength': 'Available in enhanced version',
-                'risk_metrics': 'Available in enhanced version'
-            }
-            socketio.emit('signal_analytics_response', analytics)
-    except Exception as e:
-        print(f"Error handling signal analytics request: {e}")
 
-# --- Main Execution Block ---
 def parse_arguments():
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description='Cupcake Trading System')
-    parser.add_argument('--mode', choices=['full', 'live', 'historical', 'backfill', 'viewer'], 
-                       default='full', help='Running mode')
-    parser.add_argument('--view-historical', type=str, help='View historical data for a specific stock symbol')
-    parser.add_argument('--skip-auth', action='store_true', help='Skip authentication step')
-    parser.add_argument('--skip-backfill', action='store_true', help='Skip historical backfill')
-    parser.add_argument('--port', type=int, default=5000, help='Web server port')
-    
+    parser = argparse.ArgumentParser(description="Cupcake Unified Signal Server")
+    parser.add_argument("--mode", choices=["full", "live", "backfill"], default="full")
+    parser.add_argument("--skip-auth", action="store_true")
+    parser.add_argument("--skip-backfill", action="store_true")
+    parser.add_argument("--port", type=int, default=5000)
     return parser.parse_args()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = parse_arguments()
 
-    if args.view_historical:
-        print("📊 Starting Historical Data Viewer for a specific symbol...")
-        if not historical_viewer:
-            print("❌ Historical viewer not available. Ensure Redis is running and the viewer can connect.")
-            exit(1)
-        
-        historical_viewer.show_symbol_details(args.view_historical)
-        exit(0)
-    
-    try:
-        print("--- Enhanced Unified Trading System Initializing ---")
-        print("🔥 Features: Ultra-Fast Historical | Actionable Signals | Portfolio Tracking | Historical Viewer")
-        print(f"🔧 Working from: {SCRIPT_DIR}")
-        print(f"🎯 Mode: {args.mode}")
+    if not os.path.exists(CREDENTIALS_PATH):
+        print(f"Missing credentials file: {CREDENTIALS_PATH}")
+        sys.exit(1)
+    if not os.path.exists(SYMBOLS_PATH):
+        print(f"Missing symbols file: {SYMBOLS_PATH}")
+        sys.exit(1)
 
-        # Check if required files exist
-        if not os.path.exists(CREDENTIALS_PATH):
-            print(f"❌ Credentials file not found: {CREDENTIALS_PATH}")
-            print("Please ensure credentials.json exists in the project directory")
-            exit(1)
-        
-        if not os.path.exists(SYMBOLS_PATH):
-            print(f"❌ Symbols file not found: {SYMBOLS_PATH}")
-            print("Please ensure symbols.json exists in the project directory")
-            exit(1)
+    if args.mode == "backfill":
+        run_historical_backfill()
+        sys.exit(0)
 
-        if args.mode == 'viewer':
-            # Run only the historical viewer
-            print("\n[HISTORICAL VIEWER MODE]")
-            run_historical_viewer_cli()
-            exit(0)
-        
-        elif args.mode == 'backfill':
-            # Run only historical backfill
-            print("\n[BACKFILL MODE]")
-            run_historical_backfill()
-            exit(0)
+    if not args.skip_auth:
+        try:
+            auth_client = UpstoxAuthClient(config_file=CREDENTIALS_PATH)
+            if not auth_client.authenticate():
+                print("Authentication failed")
+                sys.exit(1)
+            print("Authentication successful")
+        except Exception as exc:
+            print(f"Authentication error: {exc}")
+            if args.mode == "live":
+                sys.exit(1)
 
-        # 1. Authenticate with Upstox (unless skipped)
-        if not args.skip_auth:
-            print("\n[STEP 1] Authenticating with Upstox...")
-            try:
-                auth_client = UpstoxAuthClient(config_file=CREDENTIALS_PATH)
-                if not auth_client.authenticate():
-                    print("❌ Authentication Failed. Please check your credentials and auth code. Exiting.")
-                    exit()
-                print("✅ Authentication Successful.")
-            except Exception as e:
-                print(f"❌ Authentication error: {e}")
-                print("Continuing with other services...")
-        else:
-            print("\n[STEP 1] Skipping authentication as requested")
+    if args.mode == "full" and not args.skip_backfill:
+        run_historical_backfill()
 
-        # 2. Run Ultra-Fast Historical Data Backfill (unless skipped or in live mode)
-        if args.mode != 'live' and not args.skip_backfill:
-            print("\n[STEP 2] Setting up ultra-fast historical data foundation...")
-            try:
-                run_historical_backfill()
-                print("✅ Ultra-fast historical data foundation ready for signal generation.")
-            except Exception as e:
-                print(f"❌ Historical backfill error: {e}")
-                print("Continuing with other services...")
-        else:
-            print("\n[STEP 2] Skipping historical backfill")
+    if enhanced_live_fetcher:
+        feed_thread = threading.Thread(target=run_enhanced_live_data_feed, daemon=True)
+        feed_thread.start()
 
-        # 3. Start enhanced background services (unless in historical mode)
-        if args.mode in ['full', 'live']:
-            print("\n[STEP 3] Starting enhanced background services...")
-            
-            # Start enhanced live feed with actionable signals
-            if enhanced_live_fetcher:
-                try:
-                    enhanced_feed_thread = threading.Thread(target=run_enhanced_live_data_feed, daemon=True)
-                    enhanced_feed_thread.start()
-                    print("   ✅ Enhanced live data feed with actionable signals started")
-                except Exception as e:
-                    print(f"   ❌ Live feed error: {e}")
-            else:
-                print("   ⚠️ Enhanced live data feed not available")
-
-            # Start portfolio tracker
-            try:
-                portfolio_thread = threading.Thread(target=run_portfolio_tracker, daemon=True)
-                portfolio_thread.start()
-                print("   ✅ Portfolio tracker started")
-            except Exception as e:
-                print(f"   ❌ Portfolio tracker error: {e}")
-
-        # 4. Copy dashboard template if it doesn't exist
-        template_src = os.path.join(SCRIPT_DIR, 'enhanced_dashboard.html')
-        template_dst = os.path.join(templates_dir, 'enhanced_dashboard.html')
-        
-        if os.path.exists(template_src) and not os.path.exists(template_dst):
-            import shutil
-            shutil.copy2(template_src, template_dst)
-            print(f"📁 Copied dashboard template to {template_dst}")
-
-        # 5. Start the Enhanced Flask-SocketIO web server
-        if args.mode in ['full', 'live', 'historical']:
-            print("\n[STEP 4] Starting Enhanced Dashboard Web Server...")
-            print("==============================================")
-            print(f"🌐 Enhanced Dashboard available at http://{Config.APP_HOST}:{args.port}")
-            print(f"📊 Historical Data Viewer at http://{Config.APP_HOST}:{args.port}/historical")
-            print("📊 Features:")
-            print("   • Ultra-Fast Historical Data Fetching")
-            print("   • Actionable Trading Signals")
-            print("   • Trajectory Confirmation")
-            print("   • Risk/Reward Analysis")
-            print("   • Multi-timeframe Analysis")
-            print("   • Real-time Portfolio Tracking")
-            print("   • Historical Data Viewer (Web + CLI)")
-            print("==============================================")
-            print(f"💡 CLI Historical Viewer: python main.py --mode viewer")
-            print(f"💡 Run Backfill Only: python main.py --mode backfill")
-            print("==============================================")
-            
-            try:
-                socketio.run(app, host='0.0.0.0', port=args.port, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
-            except KeyboardInterrupt:
-                print("\n👋 Shutting down Enhanced Trading System gracefully...")
-            except Exception as e:
-                print(f"❌ Error running server: {e}")
-        
-    except Exception as e:
-        print(f"❌ Fatal system error: {e}")
-        import traceback
-        traceback.print_exc()
+    print(f"Unified Signal Console running at http://{Config.APP_HOST}:{args.port}")
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=args.port,
+        debug=False,
+        use_reloader=False,
+        allow_unsafe_werkzeug=True,
+    )

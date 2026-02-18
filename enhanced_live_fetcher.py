@@ -1,4 +1,4 @@
-# Enhanced Live Market Data Processor with Actionable Signal Generation
+# Enhanced Live Market Data Processor with Unified Signal Generation
 # Fixed import issues and circular dependencies
 
 import os
@@ -11,8 +11,9 @@ from google.protobuf.json_format import MessageToDict
 from datetime import datetime, timedelta
 import pytz
 from collections import defaultdict
+from typing import Dict
 import time
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 import threading
 import statistics
@@ -24,23 +25,57 @@ try:
     from historical_data_fetcher import FastUpstoxAPI, Candle
     from technical_indicators import EnhancedTechnicalIndicators
     from orderbook_analyzer import OrderBookAnalyzer
-    print("✓ Successfully imported technical indicators and orderbook analyzer")
+    from practical_quant_engine import PracticalQuantEngine
+    from enhanced_signal_generator import TrajectorySignalGenerator
+    from unified_signal_integration import build_unified_signal_manager
+    print("✓ Successfully imported technical, quant, and orderbook analyzers")
 except ImportError as e:
     print(f"⚠ Import error for enhanced modules: {e}")
     # Create dummy classes as fallback
     class EnhancedTechnicalIndicators:
         def __init__(self, *args, **kwargs):
             print("⚠ Using dummy EnhancedTechnicalIndicators")
-        def generate_actionable_signals(self, *args, **kwargs):
-            return []
         def get_signal_analytics(self, *args, **kwargs):
             return {}
+        def calculate_all_indicators(self, *args, **kwargs):
+            return {}
+        def get_ohlcv_data(self, *args, **kwargs):
+            import pandas as pd
+            return pd.DataFrame()
     
     class OrderBookAnalyzer:
         def __init__(self, *args, **kwargs):
             print("⚠ Using dummy OrderBookAnalyzer")
         def comprehensive_orderbook_analysis(self, *args, **kwargs):
             return {}
+    
+    class PracticalQuantEngine:
+        def calculate_comprehensive_score(self, *args, **kwargs):
+            return {}
+    
+    class TrajectorySignalGenerator:
+        def add_market_data(self, *args, **kwargs):
+            return None
+        def analyze_price_trajectory(self, *args, **kwargs):
+            return {}
+
+if 'build_unified_signal_manager' not in globals():
+    def build_unified_signal_manager(*args, **kwargs):
+        class _NullManager:
+            def start(self):
+                return None
+            def stop(self):
+                return None
+            def update_symbol_snapshot(self, *args, **kwargs):
+                return None
+            def update_price(self, *args, **kwargs):
+                return None
+            def get_signal(self, *args, **kwargs):
+                return None
+            def get_all_signals(self):
+                return []
+
+        return _NullManager()
 
 import MarketDataFeedV3_pb2 as pb
 
@@ -56,9 +91,66 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Initialize enhanced technical indicators and orderbook analyzer
+try:
+    unified_signal_manager = build_unified_signal_manager(socketio)
+except Exception as manager_error:
+    print(f"⚠ Could not start unified signal manager: {manager_error}")
+    unified_signal_manager = None
+
+# Initialize enhanced analyzers
 tech_indicators = EnhancedTechnicalIndicators()
 orderbook_analyzer = OrderBookAnalyzer()
+quant_engine = PracticalQuantEngine()
+trajectory_generator = TrajectorySignalGenerator()
+
+
+def set_socketio_instance(new_socketio):
+    """Use the parent app's Socket.IO instance for unified emissions."""
+    global socketio, unified_signal_manager
+    socketio = new_socketio
+    if unified_signal_manager is not None:
+        try:
+            unified_signal_manager.socketio = new_socketio
+        except Exception:
+            pass
+
+
+def bootstrap_unified_signal_inputs(instrument_keys):
+    """Seed unified snapshots from latest historical candles when live ticks are absent."""
+    if not unified_signal_manager:
+        return
+
+    seeded_count = 0
+    for instrument_key in instrument_keys:
+        symbol_name = symbol_mapping.get(instrument_key, instrument_key)
+        try:
+            candles = tech_indicators.get_ohlcv_data(symbol_name)
+            if candles is None or candles.empty:
+                continue
+
+            last_row = candles.iloc[-1]
+            close_price = float(last_row.get('close', 0) or 0)
+            if close_price <= 0:
+                continue
+
+            market_snapshot = market_data[instrument_key]
+            market_snapshot['name'] = symbol_name
+            market_snapshot['ltp'] = close_price
+            market_snapshot['ltq'] = int(last_row.get('volume', 0) or 0)
+            market_snapshot['best_bid'] = close_price
+            market_snapshot['best_ask'] = close_price
+            market_snapshot['last_update'] = datetime.now(IST)
+            seeded_count += 1
+        except Exception as exc:
+            debug_log(f"Failed to bootstrap {symbol_name}: {exc}", "ERROR")
+
+    if seeded_count > 0:
+        refresh_unified_signal_inputs()
+        try:
+            unified_signal_manager.recalculate_now()
+        except Exception as exc:
+            debug_log(f"Bootstrap signal recalculation failed: {exc}", "ERROR")
+        debug_log(f"✅ Bootstrapped unified signals for {seeded_count} symbols", "SUCCESS")
 
 # Redis client for data storage
 try:
@@ -71,6 +163,12 @@ except redis.RedisError as e:
     print(f"⚠ Redis connection failed: {e}")
     redis_client = None
 
+if unified_signal_manager and redis_client:
+    try:
+        unified_signal_manager.set_redis_client(redis_client)
+    except Exception:
+        pass
+
 # Symbol mapping and data structures
 symbol_mapping = {}
 debug_stats = {
@@ -79,8 +177,7 @@ debug_stats = {
     'dashboard_updates': 0,
     'last_message_time': None,
     'successful_ticks': 0,
-    'actionable_signals_generated': 0,
-    'trajectory_confirmations': 0
+    'unified_recalculations': 0
 }
 
 # Enhanced data structures
@@ -96,7 +193,7 @@ ohlcv_data = defaultdict(lambda: {
     'last_tick_time': None
 })
 
-# Real-time market data with enhanced signals
+# Real-time market data
 market_data = defaultdict(lambda: {
     'name': '',
     'ltp': None,
@@ -118,27 +215,8 @@ market_data = defaultdict(lambda: {
     'last_update': None,
     'tick_count': 0,
     'bid_levels': [],
-    'ask_levels': [],
-    # Enhanced signal data
-    'actionable_signals': [],
-    'signal_summary': {},
-    'trajectory_status': 'BUILDING',
-    'signal_confidence': 0.0,
-    'recommended_action': 'WAIT',
-    'risk_reward_ratio': 0.0,
-    'target_price': None,
-    'stop_loss': None
+    'ask_levels': []
 })
-
-# Enhanced stock screening with actionable signals
-actionable_screener_results = {
-    'high_confidence_buys': [],
-    'high_confidence_sells': [],
-    'trajectory_confirmed_signals': [],
-    'emerging_opportunities': [],
-    'risk_warnings': [],
-    'last_updated': None
-}
 
 # Tracking variables for minute intervals
 current_minute_start = None
@@ -472,7 +550,7 @@ def api_live_market_status():
         # Calculate live data statistics
         active_symbols = len([k for k, v in market_data.items() if v['ltp'] is not None])
         total_ticks = debug_stats['processed_ticks']
-        signals_generated = debug_stats['actionable_signals_generated']
+        signals_generated = debug_stats['unified_recalculations']
         
         # Time until market open/close
         if is_market_open:
@@ -503,192 +581,202 @@ def api_live_market_status():
         debug_log(f"Error in api_live_market_status: {e}", "ERROR")
         return jsonify({'error': str(e)})
 
-def calculate_position_size(signal_confidence: float, portfolio_risk: float = 0.02) -> float:
-    """Simple Kelly-inspired position sizing"""
-    base_size = portfolio_risk  # 2% portfolio risk
-    confidence_multiplier = min(signal_confidence * 2, 1.0)  # Max 1.0
-    return base_size * confidence_multiplier
+def _clamp(value: float, minimum: float = -1.0, maximum: float = 1.0) -> float:
+    return max(minimum, min(maximum, value))
 
-def generate_actionable_signals(symbol_name, instrument_key, current_market_data):
-    """Generate actionable trading signals with trajectory confirmation"""
+
+def build_price_block(symbol_name: str, snapshot: Dict, indicators: Dict) -> Dict:
+    price_block = {
+        'symbol': symbol_name,
+        'ltp': snapshot.get('ltp'),
+        'ltq': snapshot.get('ltq'),
+        'best_bid': snapshot.get('best_bid'),
+        'best_ask': snapshot.get('best_ask'),
+        'spread_pct': snapshot.get('spread_pct'),
+        'timestamp': snapshot.get('last_update').isoformat() if snapshot.get('last_update') else None
+    }
+    if indicators:
+        price_block['atr'] = indicators.get('atr')
+        price_block['close'] = indicators.get('ohlcv', {}).get('close')
+        price_block['high'] = indicators.get('ohlcv', {}).get('high')
+        price_block['low'] = indicators.get('ohlcv', {}).get('low')
+    return price_block
+
+
+def build_technical_component(indicators: Dict) -> Dict:
+    if not indicators:
+        return {}
+    sma_values = indicators.get('sma', {})
+    sma5 = sma_values.get('sma_5')
+    sma20 = sma_values.get('sma_20')
+    signal_info = indicators.get('signals', {})
+
+    score = 0.0
+    if sma5 and sma20 and sma20 != 0:
+        score = _clamp((sma5 - sma20) / sma20, -1.0, 1.0)
+
+    direction = signal_info.get('overall_signal', 'HOLD')
+    confidence = signal_info.get('confidence', abs(score))
+    reasons = signal_info.get('reasons', [])
+
+    return {
+        'score': score,
+        'direction': direction,
+        'confidence': min(1.0, confidence),
+        'reason': '; '.join(reasons[:3]),
+        'momentum': indicators.get('rsi'),
+        'volatility': indicators.get('atr'),
+        'signals': signal_info
+    }
+
+
+def build_quant_component(symbol_name: str) -> Dict:
     try:
-        # Existing orderbook analysis...
-        orderbook_analysis = orderbook_analyzer.comprehensive_orderbook_analysis(
-            symbol_name, current_market_data
-        )
-        
-        # ADD: Simple market context check
-        recent_signals = market_data[instrument_key].get('actionable_signals', [])
-        if len(recent_signals) >= 3 and any(s.get('confidence', 0) > 0.7 for s in recent_signals):  # If too many recent high-confidence signals, skip
-            debug_log(f"Skipping signal generation for {symbol_name} due to too many recent high-confidence signals.", "INFO")
-            return []
-            
-        # Existing signal generation...
-        actionable_signals = tech_indicators.generate_actionable_signals(
-            symbol_name, current_market_data, orderbook_analysis
-        )
-        
-        # ADD: Simple quality filter
-        filtered_signals = [s for s in actionable_signals 
-                          if s.get('confidence', 0) > 0.7 and 
-                             s.get('risk_reward_ratio', 0) > 2.0]
+        df = tech_indicators.get_ohlcv_data(symbol_name)
+        if df.empty:
+            return {}
+        analysis = quant_engine.calculate_comprehensive_score(df)
+        final_score = analysis.get('final_score', 0.5)
+        normalized = _clamp((final_score - 0.5) * 2, -1.0, 1.0)
+        recommendation = analysis.get('recommendation', 'HOLD')
+        confidence = min(1.0, abs(normalized))
+        return {
+            'score': normalized,
+            'confidence': confidence,
+            'direction': 'BUY' if 'BUY' in recommendation else 'SELL' if 'SELL' in recommendation else 'HOLD',
+            'reason': f"Quant composite {final_score:.2f} ({recommendation})",
+            'details': analysis
+        }
+    except Exception as exc:
+        debug_log(f"Quant analysis failed for {symbol_name}: {exc}", "ERROR")
+        return {}
 
-        if filtered_signals:
-            debug_stats['actionable_signals_generated'] += len(filtered_signals)
-            
-            # Convert signals to dictionary format for JSON serialization
-            serialized_signals = []
-            for signal in filtered_signals:
-                # Calculate position size for each signal
-                signal['position_size_pct'] = calculate_position_size(signal.get('confidence', 0))
-                signal['market_regime'] = tech_indicators.get_market_regime(symbol_name)
 
-                if hasattr(signal, 'trajectory_confirmed'):  # Check if it's an ActionableSignal object
-                    serialized_signals.append({
-                        'signal_type': signal.get('signal_type'),
-                        'strength': signal.get('strength').name if hasattr(signal.get('strength'), 'name') else str(signal.get('strength')),
-                        'confidence': signal.get('confidence'),
-                        'entry_price': signal.get('entry_price'),
-                        'target_price': signal.get('target_price'),
-                        'stop_loss': signal.get('stop_loss'),
-                        'trajectory_confirmed': signal.get('trajectory_confirmed'),
-                        'time_horizon': signal.get('time_horizon'),
-                        'reasons': signal.get('reasons'),
-                        'risk_reward_ratio': signal.get('risk_reward_ratio'),
-                        'timestamp': signal.get('timestamp'),
-                        'signal_quality_score': signal.get('signal_quality_score'),
-                        'market_regime': signal.get('market_regime'),
-                        'position_size_pct': signal.get('position_size_pct')
-                    })
-                else:
-                    # Handle dictionary format
-                    serialized_signals.append(signal)
-            
-            # Count trajectory confirmations
-            confirmed_signals = [s for s in serialized_signals if s.get('trajectory_confirmed', False)]
-            if confirmed_signals:
-                debug_stats['trajectory_confirmations'] += len(confirmed_signals)
-            
-            # Update market data with actionable signals
-            market_data[instrument_key]['actionable_signals'] = serialized_signals
-            
-            # Update signal summary
-            if serialized_signals:
-                best_signal = max(serialized_signals, key=lambda x: x.get('confidence', 0))
-                market_data[instrument_key]['signal_summary'] = {
-                    'best_signal_type': best_signal.get('signal_type'),
-                    'best_confidence': best_signal.get('confidence', 0),
-                    'trajectory_confirmed': best_signal.get('trajectory_confirmed', False),
-                    'total_signals': len(serialized_signals)
-                }
-                
-                market_data[instrument_key]['signal_confidence'] = best_signal.get('confidence', 0)
-                market_data[instrument_key]['recommended_action'] = best_signal.get('signal_type', 'WAIT')
-                market_data[instrument_key]['risk_reward_ratio'] = best_signal.get('risk_reward_ratio', 0)
-                market_data[instrument_key]['target_price'] = best_signal.get('target_price')
-                market_data[instrument_key]['stop_loss'] = best_signal.get('stop_loss')
-                
-                # Update trajectory status
-                if any(s.get('trajectory_confirmed', False) for s in serialized_signals):
-                    market_data[instrument_key]['trajectory_status'] = 'CONFIRMED'
-                else:
-                    market_data[instrument_key]['trajectory_status'] = 'DEVELOPING'
-                    
-            return serialized_signals
-        else:
-            market_data[instrument_key]['trajectory_status'] = 'BUILDING'
-            market_data[instrument_key]['recommended_action'] = 'WAIT'
-            
-        return []
-        
-    except Exception as e:
-        debug_log(f"Error generating actionable signals for {symbol_name}: {e}", "ERROR")
-        return []
-
-def update_enhanced_stock_screener():
-    """Update stock screener with actionable signals"""
+def build_orderbook_component(symbol_name: str, snapshot: Dict) -> Dict:
     try:
-        high_confidence_buys = []
-        high_confidence_sells = []
-        trajectory_confirmed = []
-        emerging_opportunities = []
-        risk_warnings = []
+        analysis = orderbook_analyzer.comprehensive_orderbook_analysis(symbol_name, snapshot)
+        assessment = analysis.get('overall_assessment', {})
+        sentiment = assessment.get('market_sentiment', 'NEUTRAL')
+        confidence = assessment.get('confidence', 0.5)
+        direction = 'BUY' if sentiment == 'BULLISH' else 'SELL' if sentiment == 'BEARISH' else 'HOLD'
+        score = _clamp(confidence * (1 if direction == 'BUY' else -1 if direction == 'SELL' else 0), -1.0, 1.0)
+        return {
+            'score': score,
+            'confidence': confidence,
+            'direction': direction,
+            'reason': ', '.join(assessment.get('key_factors', [])),
+            'analysis': analysis
+        }
+    except Exception as exc:
+        debug_log(f"Orderbook analysis failed for {symbol_name}: {exc}", "ERROR")
+        return {}
 
-        for instrument_key, data in market_data.items():
-            if not data['ltp'] or not data.get('actionable_signals'):
-                continue
-                
-            symbol_name = data['name']
-            actionable_signals = data['actionable_signals']
-            
-            for signal_data in actionable_signals:
-                signal_info = {
-                    'symbol': symbol_name,
-                    'instrument_key': instrument_key,
-                    'price': data['ltp'],
-                    'signal_type': signal_data.get('signal_type'),
-                    'strength': signal_data.get('strength'),
-                    'confidence': signal_data.get('confidence', 0),
-                    'trajectory_confirmed': signal_data.get('trajectory_confirmed', False),
-                    'time_horizon': signal_data.get('time_horizon'),
-                    'entry_price': signal_data.get('entry_price'),
-                    'target_price': signal_data.get('target_price'),
-                    'stop_loss': signal_data.get('stop_loss'),
-                    'risk_reward_ratio': signal_data.get('risk_reward_ratio', 0),
-                    'reasons': signal_data.get('reasons', [])[:3],  # Top 3 reasons
-                    'spread_pct': data.get('spread_pct', 0),
-                    'last_update': datetime.now(IST).isoformat()
-                }
-                
-                # Categorize signals
-                if signal_data.get('trajectory_confirmed', False):
-                    trajectory_confirmed.append(signal_info)
-                    
-                    if signal_data.get('signal_type') == 'BUY' and signal_data.get('confidence', 0) > 0.75:
-                        high_confidence_buys.append(signal_info)
-                    elif signal_data.get('signal_type') == 'SELL' and signal_data.get('confidence', 0) > 0.75:
-                        high_confidence_sells.append(signal_info)
-                        
-                elif signal_data.get('confidence', 0) > 0.6:
-                    emerging_opportunities.append(signal_info)
-                
-                # Risk warnings for low risk-reward ratios
-                if signal_data.get('risk_reward_ratio', 0) < 1.5:
-                    risk_warnings.append({
-                        'symbol': symbol_name,
-                        'warning': f"Low risk/reward ratio: {signal_data.get('risk_reward_ratio', 0):.2f}",
-                        'signal_type': signal_data.get('signal_type'),
-                        'confidence': signal_data.get('confidence', 0)
-                    })
 
-        # Sort by confidence and limit results
-        high_confidence_buys.sort(key=lambda x: x.get('confidence', 0), reverse=True)
-        high_confidence_sells.sort(key=lambda x: x.get('confidence', 0), reverse=True)
-        trajectory_confirmed.sort(key=lambda x: x.get('confidence', 0), reverse=True)
-        emerging_opportunities.sort(key=lambda x: x.get('confidence', 0), reverse=True)
+def build_market_regime_component(indicators: Dict, quant_block: Dict) -> Dict:
+    if not indicators:
+        return {}
+    regime = indicators.get('market_regime', 'UNKNOWN')
+    score = 0.0
+    if regime == 'TRENDING':
+        score = 0.6
+    elif regime == 'RANGING':
+        score = 0.2
+    direction = 'BUY' if regime == 'TRENDING' else 'HOLD'
+    if quant_block:
+        vol_score = quant_block.get('details', {}).get('detailed_analysis', {}).get('volatility_regime', {}).get('vol_score')
+        if vol_score is not None:
+            score = _clamp(vol_score, 0.0, 1.0)
+    return {
+        'score': score,
+        'direction': direction,
+        'confidence': min(1.0, score),
+        'regime': regime
+    }
 
-        # Update screener results
-        actionable_screener_results.update({
-            'high_confidence_buys': high_confidence_buys[:5],
-            'high_confidence_sells': high_confidence_sells[:5],
-            'trajectory_confirmed_signals': trajectory_confirmed[:10],
-            'emerging_opportunities': emerging_opportunities[:8],
-            'risk_warnings': risk_warnings[:5],
-            'last_updated': datetime.now(IST).isoformat()
-        })
 
-        # Emit to dashboard
-        if socketio:
-            socketio.emit('actionable_screener_update', actionable_screener_results)
+def build_daily_context(indicators: Dict) -> Dict:
+    if not indicators:
+        return {}
+    sma_values = indicators.get('sma', {})
+    sma20 = sma_values.get('sma_20')
+    sma50 = sma_values.get('sma_50')
+    if not sma20 or not sma50:
+        return {}
+    bias = _clamp((sma20 - sma50) / sma50 if sma50 else 0, -1.0, 1.0)
+    direction = 'BUY' if bias >= 0 else 'SELL'
+    confidence = min(1.0, abs(bias) * 2)
+    return {
+        'daily_trend': {
+            'direction': direction,
+            'bias': bias,
+            'confidence': confidence
+        }
+    }
 
-        debug_log(f"📊 Enhanced screener updated: {len(high_confidence_buys)} high-conf buys, "
-                 f"{len(high_confidence_sells)} high-conf sells, {len(trajectory_confirmed)} confirmed", "SCREENER")
 
-    except Exception as e:
-        debug_log(f"Error updating enhanced stock screener: {e}", "ERROR")
+def build_trajectory_component(symbol_name: str, snapshot: Dict, indicators: Dict) -> Dict:
+    if not trajectory_generator or not indicators:
+        return {}
+    try:
+        trajectory_generator.add_market_data(symbol_name, snapshot, indicators)
+        analysis = trajectory_generator.analyze_price_trajectory(symbol_name)
+        if not analysis or analysis.get('status') == 'insufficient_data':
+            return {}
+        overall = analysis.get('overall_trajectory', 'NEUTRAL')
+        direction = 'BUY' if 'BULLISH' in overall else 'SELL' if 'BEARISH' in overall else 'HOLD'
+        consistency = analysis.get('trend_consistency', 0)
+        score = _clamp(consistency, 0.0, 1.0)
+        score = score if direction == 'BUY' else -score if direction == 'SELL' else 0
+        confidence = min(1.0, abs(score) + abs(analysis.get('acceleration', 0)))
+        return {
+            'score': score,
+            'confidence': confidence,
+            'direction': direction,
+            'reason': f"{overall} with consistency {consistency:.2f}",
+            'analysis': analysis
+        }
+    except Exception as exc:
+        debug_log(f"Trajectory analysis failed for {symbol_name}: {exc}", "ERROR")
+        return {}
+
+
+def refresh_unified_signal_inputs():
+    if not unified_signal_manager:
+        return
+    updated_any = False
+    for instrument_key, snapshot in market_data.items():
+        if snapshot.get('ltp') is None:
+            continue
+        symbol_name = snapshot.get('name') or instrument_key
+        try:
+            indicators = tech_indicators.calculate_all_indicators(symbol_name)
+            technical_component = build_technical_component(indicators)
+            quant_component = build_quant_component(symbol_name)
+            orderbook_component = build_orderbook_component(symbol_name, snapshot)
+            context_block = build_daily_context(indicators)
+            trajectory_component = build_trajectory_component(symbol_name, snapshot, indicators)
+            regime_component = build_market_regime_component(indicators, quant_component)
+            price_block = build_price_block(symbol_name, snapshot, indicators)
+
+            unified_signal_manager.update_symbol_snapshot(
+                symbol_name,
+                price=price_block,
+                technical=technical_component,
+                quant=quant_component,
+                orderbook=orderbook_component,
+                market_regime=regime_component,
+                trajectory=trajectory_component,
+                context=context_block,
+            )
+            updated_any = True
+        except Exception as exc:
+            debug_log(f"Failed to refresh unified inputs for {symbol_name}: {exc}", "ERROR")
+    if updated_any:
+        debug_stats['unified_recalculations'] += 1
+
 
 def process_tick_with_enhanced_analysis(instrument_key, tick_data):
-    """Enhanced tick processing with actionable signal generation"""
+    """Enhanced tick processing feeding unified signal inputs"""
     global collecting_data, current_minute_start, current_minute_end
 
     try:
@@ -723,27 +811,9 @@ def process_tick_with_enhanced_analysis(instrument_key, tick_data):
                 if collecting_data and current_minute_start <= exchange_time < current_minute_end:
                     process_ohlcv_tick(instrument_key, ltp, ltq, exchange_time)
 
-                # Generate actionable signals every 20 ticks (more frequent analysis)
-                if debug_stats['processed_ticks'] % 20 == 0:
-                    try:
-                        current_market_data = dict(market_data[instrument_key])
-                        if current_market_data['ltp']:
-                            actionable_signals = generate_actionable_signals(
-                                symbol_name, instrument_key, current_market_data
-                            )
-                            
-                            if actionable_signals:
-                                debug_log(f"🎯 Generated {len(actionable_signals)} actionable signals for {symbol_name}", "SIGNALS")
-                                
-                    except Exception as e:
-                        debug_log(f"Error generating actionable signals for {symbol_name}: {e}", "ERROR")
-
-                # Emit real-time data
-                emit_enhanced_real_time_data()
-
-                # Update enhanced screener every 100 ticks
-                if debug_stats['processed_ticks'] % 100 == 0:
-                    update_enhanced_stock_screener()
+                # Minimal periodic logging
+                if debug_stats['processed_ticks'] % 200 == 0:
+                    debug_log(f"Processed {debug_stats['processed_ticks']} ticks", "STATS")
 
         else:
             if debug_stats['processed_ticks'] <= 10:
@@ -769,57 +839,6 @@ def process_ohlcv_tick(instrument_key, ltp, ltq, exchange_time):
     ohlcv_data[instrument_key]['volume'] += ltq
     ohlcv_data[instrument_key]['tick_count'] += 1
     ohlcv_data[instrument_key]['last_tick_time'] = exchange_time
-
-def emit_enhanced_real_time_data():
-    """Emit enhanced real-time data with actionable signals to dashboard"""
-    try:
-        debug_stats['dashboard_updates'] += 1
-
-        dashboard_data = {}
-        for instrument_key, data in market_data.items():
-            if data['ltp'] is not None:
-                # Get best actionable signal if available
-                best_signal = None
-                if data.get('actionable_signals'):
-                    signals_with_conf = [(s, s.get('confidence', 0)) for s in data['actionable_signals']]
-                    if signals_with_conf:
-                        best_signal = max(signals_with_conf, key=lambda x: x[1])[0]
-
-                dashboard_data[instrument_key] = {
-                    'name': data['name'],
-                    'ltp': data['ltp'],
-                    'best_bid': data['best_bid'],
-                    'best_ask': data['best_ask'],
-                    'spread': data['spread'],
-                    'spread_pct': data['spread_pct'],
-                    
-                    # Enhanced signal information
-                    'recommended_action': data.get('recommended_action', 'WAIT'),
-                    'signal_confidence': data.get('signal_confidence', 0),
-                    'trajectory_status': data.get('trajectory_status', 'BUILDING'),
-                    'risk_reward_ratio': data.get('risk_reward_ratio', 0),
-                    'target_price': data.get('target_price'),
-                    'stop_loss': data.get('stop_loss'),
-                    
-                    # Signal details
-                    'best_signal': {
-                        'type': best_signal.get('signal_type') if best_signal else None,
-                        'strength': best_signal.get('strength') if best_signal else None,
-                        'confidence': best_signal.get('confidence', 0) if best_signal else 0,
-                        'trajectory_confirmed': best_signal.get('trajectory_confirmed', False) if best_signal else False,
-                        'time_horizon': best_signal.get('time_horizon') if best_signal else None,
-                        'reasons': best_signal.get('reasons', [])[:2] if best_signal else []  # Top 2 reasons
-                    },
-                    
-                    'total_signals': len(data.get('actionable_signals', [])),
-                    'last_update': data['last_update'].strftime('%H:%M:%S.%f')[:-3] if data['last_update'] else None
-                }
-
-        if dashboard_data and socketio:
-            socketio.emit('enhanced_market_update', dashboard_data)
-
-    except Exception as e:
-        debug_log(f"❌ Error emitting enhanced data: {e}", "ERROR")
 
 def parse_exchange_timestamp(timestamp_str_or_int):
     """Parse exchange timestamp to IST datetime."""
@@ -930,6 +949,9 @@ def finalize_current_minute(triggering_tick_time):
     if socketio:
         socketio.emit('ohlcv_update', ohlcv_summary)
 
+    # Update unified signal inputs for the new minute
+    refresh_unified_signal_inputs()
+
     # Reset for next minute
     reset_ohlcv_data()
 
@@ -1004,11 +1026,6 @@ def api_market_data():
     """API endpoint for current market data."""
     return jsonify(dict(market_data))
 
-@app.route('/api/actionable_screener')
-def api_actionable_screener():
-    """API endpoint for actionable stock screener results."""
-    return jsonify(actionable_screener_results)
-
 @app.route('/api/signal_analytics/<symbol>')
 def api_signal_analytics(symbol):
     """API endpoint for signal analytics of a specific symbol."""
@@ -1021,19 +1038,23 @@ def api_signal_analytics(symbol):
 @app.route('/api/enhanced_debug_stats')
 def api_enhanced_debug_stats():
     """API endpoint for enhanced debug statistics."""
+    unified_count = 0
+    if unified_signal_manager:
+        try:
+            unified_count = len(unified_signal_manager.get_all_signals())
+        except Exception:
+            unified_count = 0
     return jsonify({
         'total_messages': debug_stats['total_messages'],
         'processed_ticks': debug_stats['processed_ticks'],
         'successful_ticks': debug_stats['successful_ticks'],
-        'actionable_signals_generated': debug_stats['actionable_signals_generated'],
-        'trajectory_confirmations': debug_stats['trajectory_confirmations'],
+        'unified_recalculations': debug_stats['unified_recalculations'],
         'dashboard_updates': debug_stats['dashboard_updates'],
         'last_message_time': debug_stats['last_message_time'].isoformat() if debug_stats['last_message_time'] else None,
         'active_symbols': len([k for k, v in market_data.items() if v['ltp'] is not None]),
-        'symbols_with_signals': len([k for k, v in market_data.items() if v.get('actionable_signals')]),
+        'symbols_with_unified_signals': unified_count,
         'success_rate': f"{(debug_stats['successful_ticks'] / debug_stats['processed_ticks'] * 100):.1f}%" if debug_stats['processed_ticks'] > 0 else "0%",
-        'signal_generation_rate': f"{(debug_stats['actionable_signals_generated'] / max(debug_stats['processed_ticks'], 1) * 100):.2f}%",
-        'trajectory_confirmation_rate': f"{(debug_stats['trajectory_confirmations'] / max(debug_stats['actionable_signals_generated'], 1) * 100):.1f}%"
+        'unified_cycle_rate': f"{(debug_stats['unified_recalculations'] / max(debug_stats['processed_ticks'], 1) * 100):.2f}%"
     })
 
 async def backfill_missing_candles(instrument_keys: list, api_client: FastUpstoxAPI):
@@ -1108,7 +1129,7 @@ async def backfill_missing_candles(instrument_keys: list, api_client: FastUpstox
 
 
 async def fetch_enhanced_market_data():
-    """Enhanced market data fetching with actionable signal analysis"""
+    """Enhanced market data fetching with unified signal aggregation"""
     global current_minute_start, current_minute_end, collecting_data
 
     instrument_keys = load_symbols()
@@ -1129,6 +1150,9 @@ async def fetch_enhanced_market_data():
         print(f"❌ Error during pre-run gap-fill: {e}")
     # --- END FIX ---
 
+    # Prime unified signals from historical cache before live ticks arrive.
+    bootstrap_unified_signal_inputs(instrument_keys)
+
     wait_seconds, next_minute = wait_for_next_minute()
 
     ssl_context = ssl.create_default_context()
@@ -1148,7 +1172,7 @@ async def fetch_enhanced_market_data():
 
     try:
         async with websockets.connect(response["data"]["authorized_redirect_uri"], ssl=ssl_context) as websocket:
-            debug_log('Enhanced WebSocket connection established for actionable signals', "SUCCESS")
+            debug_log('Enhanced WebSocket connection established for unified signals', "SUCCESS")
 
             await asyncio.sleep(0.5)
 
@@ -1164,10 +1188,10 @@ async def fetch_enhanced_market_data():
             binary_data = json.dumps(data).encode('utf-8')
             await websocket.send(binary_data)
 
-            debug_log(f"Subscribed to {len(instrument_keys)} symbols for actionable signal analysis", "SUCCESS")
+            debug_log(f"Subscribed to {len(instrument_keys)} symbols for unified analysis", "SUCCESS")
             app_host = os.environ.get('APP_HOST', 'localhost')
             app_port = os.environ.get('APP_PORT', '5000')
-            debug_log(f"🌐 Enhanced dashboard with actionable signals available at: http://{app_host}:{app_port}")
+            debug_log(f"🌐 Unified signal dashboard available at: http://{app_host}:{app_port}")
 
             remaining_wait = (next_minute - datetime.now(IST)).total_seconds()
             if remaining_wait > 0:
@@ -1183,8 +1207,7 @@ async def fetch_enhanced_market_data():
 
                     if debug_stats['total_messages'] % 200 == 1:
                         debug_log(f"📨 Processed message #{debug_stats['total_messages']} | "
-                                 f"Signals: {debug_stats['actionable_signals_generated']} | "
-                                 f"Confirmed: {debug_stats['trajectory_confirmations']}", "STATS")
+                                  f"Unified cycles: {debug_stats['unified_recalculations']}", "STATS")
 
                     decoded_data = decode_protobuf(message)
                     data_dict = MessageToDict(decoded_data)
@@ -1204,22 +1227,9 @@ async def fetch_enhanced_market_data():
     except Exception as e:
         debug_log(f"❌ WebSocket connection error: {e}", "ERROR")
 
-def run_flask_app():
-    """Run Flask app in a separate thread."""
-    try:
-        app_host = os.environ.get('APP_HOST', '0.0.0.0')
-        app_port = int(os.environ.get('APP_PORT', '5000'))
-        socketio.run(app, debug=False, host=app_host, port=app_port, use_reloader=False)
-    except Exception as e:
-        debug_log(f"Error running Flask app: {e}", "ERROR")
-
 if __name__ == "__main__":
     try:
-        flask_thread = threading.Thread(target=run_flask_app)
-        flask_thread.daemon = True
-        flask_thread.start()
-
-        debug_log("🚀 Starting Enhanced Live Market Data Processor with Actionable Signals")
+        debug_log("🚀 Starting Enhanced Live Market Data Processor with Unified Signals")
         asyncio.run(fetch_enhanced_market_data())
 
     except KeyboardInterrupt:

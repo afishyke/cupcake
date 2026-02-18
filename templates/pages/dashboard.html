@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Signal Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" defer></script>
+    <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="signal-card" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1 style="margin:0;font-size:1.5rem;">Unified Signal Console</h1>
+                    <p style="margin:0;color:var(--text-muted);">One-minute recalculated conviction across all engines</p>
+                </div>
+                <div id="connection-status" class="connection-status">
+                    <span></span>
+                    <strong>Connecting…</strong>
+                </div>
+            </div>
+            <div>
+                <small style="color:var(--text-muted);">Last update</small>
+                <div id="signal-time" style="font-weight:600;">—</div>
+                <small id="signal-freshness" style="color:var(--text-muted);">Waiting for first cycle</small>
+            </div>
+        </header>
+
+        <section class="signal-grid">
+            <article class="signal-card">
+                <div class="signal-meta">
+                    <div>
+                        <div id="signal-symbol" style="font-size:1.75rem;font-weight:600;">Awaiting data</div>
+                        <div style="color:var(--text-muted);">Execution <span id="timeframe-execution">1H</span> · Context <span id="timeframe-context">1D</span></div>
+                    </div>
+                    <div class="confidence-ring" id="signal-confidence">0%</div>
+                </div>
+                <div class="badge">
+                    <span class="direction-pill" id="signal-direction">HOLD</span>
+                </div>
+                <div style="margin-top:1.25rem;">
+                    <div class="stat-row"><span>Entry</span><span class="stat-value" id="entry-price">—</span></div>
+                    <div class="stat-row"><span>Target</span><span class="stat-value" id="target-price">—</span></div>
+                    <div class="stat-row"><span>Stop</span><span class="stat-value" id="stop-loss">—</span></div>
+                    <div class="stat-row"><span>Position size</span><span class="stat-value" id="position-size">—</span></div>
+                    <div class="stat-row"><span>Risk / Reward</span><span class="stat-value" id="risk-reward">—</span></div>
+                </div>
+                <div style="margin-top:1.5rem;color:var(--text-muted);" id="primary-rationale">Awaiting market data...</div>
+            </article>
+
+            <article class="chart-panel">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                    <div>
+                        <h2 style="margin:0;font-size:1.1rem;">Live Prices</h2>
+                        <small style="color:var(--text-muted);">Streaming quotes from unified feed</small>
+                    </div>
+                </div>
+                <table class="signals-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>LTP</th>
+                            <th>Bid</th>
+                            <th>Ask</th>
+                            <th>Spread%</th>
+                            <th>Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody id="live-prices-body"></tbody>
+                </table>
+            </article>
+        </section>
+
+        <section class="signal-card" style="padding:1.25rem;">
+            <div class="breakdown-header">
+                <h3 style="margin:0;">Component Breakdown</h3>
+                <button id="toggle-breakdown" class="badge" type="button">Hide details</button>
+            </div>
+            <div id="breakdown-panel">
+                <div class="component-list" id="component-list"></div>
+            </div>
+        </section>
+
+        <section class="signal-grid">
+            <article class="chart-panel">
+                <h3 style="margin-top:0;">Other Signals</h3>
+                <table class="signals-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Direction</th>
+                            <th>Confidence</th>
+                            <th>Entry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signals-table-body"></tbody>
+                </table>
+            </article>
+            <article class="chart-panel">
+                <h3 style="margin-top:0;">Signal History</h3>
+                <small id="history-symbol" style="color:var(--text-muted);">Selected symbol: —</small>
+                <table class="signals-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Time</th>
+                            <th>Direction</th>
+                            <th>Confidence</th>
+                            <th>Entry</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body"></tbody>
+                </table>
+            </article>
+            <article class="chart-panel">
+                <h3 style="margin-top:0;">Event Log</h3>
+                <div id="event-log" style="max-height:220px;overflow:auto;font-size:0.85rem;color:var(--text-muted);"></div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

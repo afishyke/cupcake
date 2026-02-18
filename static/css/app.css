@@ -1,0 +1,252 @@
+:root {
+    --bg-color: #04050d;
+    --card-color: #111326;
+    --accent: #ffd166;
+    --text-primary: #f7f7ff;
+    --text-muted: #9ca2c7;
+    --success: #4ade80;
+    --danger: #f87171;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --glass: rgba(17, 19, 38, 0.85);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+    background: radial-gradient(circle at top, #151932 0%, var(--bg-color) 55%);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+.page-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2rem clamp(1.5rem, 3vw, 4rem);
+    gap: 1.5rem;
+}
+
+.signal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.signal-card {
+    background: var(--glass);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.signal-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 209, 102, 0.08), transparent 50%);
+    pointer-events: none;
+}
+
+.signal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.direction-pill {
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border-color);
+}
+
+.direction-pill.buy {
+    color: var(--success);
+    border-color: rgba(74, 222, 128, 0.5);
+}
+
+.direction-pill.sell {
+    color: var(--danger);
+    border-color: rgba(248, 113, 113, 0.5);
+}
+
+.confidence-ring {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.chart-panel {
+    background: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.chart-container {
+    height: 360px;
+}
+
+.breakdown {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.breakdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.component-list {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.component-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.65rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.component-item:hover {
+    transform: translateX(6px);
+}
+
+.component-score {
+    font-weight: 600;
+}
+
+.signals-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.signals-table th,
+.signals-table td {
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.signals-table th {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.signals-table tr.price-up {
+    animation: flash-up 0.9s ease;
+}
+
+.signals-table tr.price-down {
+    animation: flash-down 0.9s ease;
+}
+
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.connection-status span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    background: var(--danger);
+}
+
+.connection-status.connected span {
+    background: var(--success);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
+}
+
+.signal-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    color: var(--text-muted);
+}
+
+.pulse {
+    animation: pulse 2.4s infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.9; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0.9; }
+}
+
+@keyframes flash-up {
+    0% { background: rgba(74, 222, 128, 0.28); }
+    100% { background: transparent; }
+}
+
+@keyframes flash-down {
+    0% { background: rgba(248, 113, 113, 0.28); }
+    100% { background: transparent; }
+}
+
+@media (max-width: 768px) {
+    .page-shell {
+        padding: 1.5rem;
+    }
+
+    .chart-container {
+        height: 280px;
+    }
+}
